@@ -1,5 +1,5 @@
 {
-  "name": "shadcn-ui-monorepo",
+  "name": "upl-next",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -18,5 +18,10 @@
   "packageManager": "pnpm@9.12.3",
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "@icons-pack/react-simple-icons": "^11.0.1",
+    "firebase": "^11.1.0",
+    "next-themes": "^0.4.3"
   }
 }
