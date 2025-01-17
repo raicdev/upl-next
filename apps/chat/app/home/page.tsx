@@ -2,17 +2,14 @@
 
 import { debounce } from "lodash";
 import { useCallback } from "react";
-import { ReactNode, useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   getDatabase,
   ref,
-  set,
   onChildAdded,
-  get,
   orderByChild,
   query,
   startAt,
-  child,
   limitToLast,
 } from "firebase/database";
 import {
@@ -22,7 +19,6 @@ import {
   collection,
   getDocs,
   getFirestore,
-  deleteDoc,
 } from "firebase/firestore";
 import { User } from "firebase/auth";
 import {
@@ -32,7 +28,7 @@ import {
   UserDataInterface,
   returnSettingsJson,
 } from "@/util/raiChatTypes";
-import { auth, firestore } from "@firebase/config";
+import { auth } from "@firebase/config";
 import MessageElement from "@/components/MessageElement";
 import { Textarea } from "@shadcn/textarea";
 import { Button } from "@shadcn/button";
@@ -49,6 +45,7 @@ import {
 } from "@workspace/ui/components/alert";
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
+import Image from "next/image";
 
 const RaiChatApp: React.FC = () => {
   // State Management
@@ -82,11 +79,11 @@ const RaiChatApp: React.FC = () => {
     debounce((e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setMessageInput(e.target.value);
     }, 150),
-    []
+    [setMessageInput]
   );
 
   // Add these new functions before the RaiChatApp component
-  const uploadImage = async (file: File, user: User) => {
+  const uploadImage = async (file: File) => {
     const blobToBase64 = (blob: Blob) => {
       const reader = new FileReader();
       reader.readAsDataURL(blob);
@@ -134,7 +131,6 @@ const RaiChatApp: React.FC = () => {
   // Inside RaiChatApp component, add this new handler
   const handlePaste = useCallback(
     async (e: React.ClipboardEvent) => {
-      if (!myUserObject) return;
       if (imagePreview) return;
 
       const items = e.clipboardData.items;
@@ -154,7 +150,7 @@ const RaiChatApp: React.FC = () => {
           const previewUrl = URL.createObjectURL(file);
           setImagePreview(previewUrl);
 
-          const result = await uploadImage(file, myUserObject);
+          const result = await uploadImage(file);
           setMessageInput((prev) => prev + "[img]" + result.url + "[/img]");
           console.log(messageInput);
         } catch (error) {
@@ -164,7 +160,7 @@ const RaiChatApp: React.FC = () => {
         }
       }
     },
-    [myUserObject, setMessageInput, setIsSending, setAlertText]
+    [setMessageInput, setIsSending, setAlertText, imagePreview, imagePreview]
   );
 
   const handleSendMessage = async () => {
@@ -344,7 +340,7 @@ const RaiChatApp: React.FC = () => {
     return () => {
       // Cleanup listeners if needed
     };
-  }, []);
+  }, [router]);
 
   return (
     <main className={`p-3 md:p-5 w-full`}>
@@ -378,7 +374,7 @@ const RaiChatApp: React.FC = () => {
               />
               {imagePreview && (
                 <div className="mt-2">
-                  <img
+                  <Image
                     src={imagePreview}
                     alt="Preview"
                     className="max-w-[150px] md:max-w-[200px] rounded-md cursor-pointer"

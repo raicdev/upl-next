@@ -30,7 +30,9 @@ const Header: React.FC = () => {
             }, 10);
           }
         }
-      } catch (e) {}
+      } catch (error) {
+        console.error("Error in handleClickOutside:", error);
+      }
     };
 
     document.addEventListener("mouseup", handleClickOutside);
@@ -40,10 +42,10 @@ const Header: React.FC = () => {
     <header className={cn("fixed top-0 w-full", "flex items-center justify-between", "h-16 px-4", "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", "z-40 border-b")}>
       {/* Left Side: Logo */}
       <div className="flex items-center justify-center sm:none space-x-2">
-        <a href="/" className="flex items-center space-x-2">
+        <Link href="/" className="flex items-center space-x-2">
           <span className="font-bold text-lg sm:text-xl">雷のサイト</span>
           <Badge className="align-middle" variant={"outline"}>Beta</Badge>
-        </a>
+        </Link>
       </div>
 
 

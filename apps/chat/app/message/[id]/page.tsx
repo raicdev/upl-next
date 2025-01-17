@@ -1,17 +1,13 @@
 "use client";
 
-import { debounce } from "lodash";
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import {
   getDatabase,
   ref,
-  set,
   onChildAdded,
-  get,
   orderByChild,
   query,
   equalTo,
-  child,
 } from "firebase/database";
 import {
   getDoc,
@@ -39,10 +35,7 @@ import { getPlan } from "@/util/rai";
 
 const MessagePage = () => {
   // State Management
-  const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
-  const [isPremium, setIsPremium] = useState(false);
-  const [isStudent, setIsStudent] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
   const [myUserObject, setMyUserObject] = useState<User | null>(null);
   const [messageInput, setMessageInput] = useState("");

@@ -69,7 +69,7 @@ const mainMenuItems: SidebarItem[] = [
   {
     href: "/home",
     icon: <Home />,
-    label: "ホーム"
+    label: "ホーム",
   },
   {
     href: "/profile/me",
@@ -77,22 +77,22 @@ const mainMenuItems: SidebarItem[] = [
     label: "プロフィール",
     badge: {
       text: "新機能",
-      icon: <PartyPopper size="16" className="mr-1" />
-    }
+      icon: <PartyPopper size="16" className="mr-1" />,
+    },
   },
   {
     href: "/settings",
     icon: <Settings />,
-    label: "Rai Chat の設定"
+    label: "Rai Chat の設定",
   },
   {
     href: "/settings/experiment",
     icon: <FlaskConical />,
     label: "実験中の機能",
     badge: {
-      text: "Beta"
-    }
-  }
+      text: "Beta",
+    },
+  },
 ];
 
 const informationItems: SidebarSection = {
@@ -101,9 +101,9 @@ const informationItems: SidebarSection = {
     {
       href: "/pages/desktop",
       icon: <Monitor />,
-      label: "デスクトップ アプリ"
-    }
-  ]
+      label: "デスクトップ アプリ",
+    },
+  ],
 };
 
 const accountItems: SidebarSection = {
@@ -112,24 +112,24 @@ const accountItems: SidebarSection = {
     {
       href: "/account/",
       icon: <CircleUser />,
-      label: "基本情報の管理"
+      label: "基本情報の管理",
     },
     {
       href: "/account/security",
       icon: <Shield />,
-      label: "セキュリティ"
+      label: "セキュリティ",
     },
     {
       href: "/account/subscriptions",
       icon: <ShoppingCart />,
-      label: "サブスクリプション"
+      label: "サブスクリプション",
     },
     {
       href: "/account/credentials",
       icon: <KeyRound />,
-      label: "API"
-    }
-  ]
+      label: "API",
+    },
+  ],
 };
 
 const SidebarItems = ({ items }: { items: SidebarItem[] }) => {
@@ -155,7 +155,6 @@ const SidebarItems = ({ items }: { items: SidebarItem[] }) => {
 
 const SidebarMainContent = () => {
   const { theme, setTheme } = useTheme();
-  const [currentTheme, setCurrentTheme] = useState(theme || "system");
   const [user, setUser] = useState(auth.currentUser);
   const router = useRouter();
 
@@ -167,7 +166,6 @@ const SidebarMainContent = () => {
   }, []);
 
   const handleThemeChange = (newTheme: string) => {
-    setCurrentTheme(newTheme);
     setTheme(newTheme);
   };
 
@@ -291,7 +289,8 @@ const Sidebar = () => {
                 </div>
               </div>
             </div>
-          </div>        </DrawerContent>
+          </div>{" "}
+        </DrawerContent>
       </Drawer>
     );
   }

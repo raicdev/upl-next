@@ -19,7 +19,6 @@ import { firestore, database } from "@/util/firebaseConfig";
 import { get, ref, set } from "firebase/database";
 import { Popover, PopoverContent, PopoverTrigger } from "@shadcn/popover";
 import { Separator } from "@shadcn/separator";
-import { Label } from "@shadcn/label";
 import { Input } from "@shadcn/input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -40,7 +39,6 @@ const MessageElement: React.FC<MessageElementProps> = ({
   userSettings,
   isStaff,
 }) => {
-  const router = useRouter();
   const [favoriteCount, setFavoriteCount] = useState(messageData.favorite || 0);
   const [isFavorited, setIsFavorited] = useState(false);
   const [banReason, setBanReason] = useState("");
@@ -94,7 +92,7 @@ const MessageElement: React.FC<MessageElementProps> = ({
   }, [messageId, user.uid]);
 
   const processedMessage = React.useMemo(() => {
-    let message = xssProtectedText(messageData.message);
+    const message = xssProtectedText(messageData.message);
 
     if (userSettings.markdown) {
       const markdownRules = [

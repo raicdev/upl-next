@@ -12,7 +12,7 @@ import {
   setDoc,
   collection,
 } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { SidebarProvider } from "@shadcn/sidebar";
 import { Button } from "@shadcn/button";
 import { useToast } from "@workspace/ui/hooks/use-toast";
@@ -69,7 +69,7 @@ const Credentials: React.FC = () => {
       });
   };
 
-  const fetchApiKeys = async (user: any) => {
+  const fetchApiKeys = async (user: User) => {
     const apiKeysCollection = collection(firestore, "rai-api-key");
     const docRef = doc(apiKeysCollection, user.uid);
     const docSnap = await getDoc(docRef);

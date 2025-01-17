@@ -1,13 +1,11 @@
 "use client";
 
-import { Alert, AlertTitle, AlertDescription } from "@shadcn/alert";
 import { Button } from "@shadcn/button";
 import { Separator } from "@shadcn/separator";
 import { useTitle } from "@/hooks/use-title";
 import {
   BadgeCheck,
   BadgePlus,
-  Ban,
   Check,
   CircleHelp,
   Code,

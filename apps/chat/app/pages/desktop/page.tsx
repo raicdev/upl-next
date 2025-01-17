@@ -1,18 +1,14 @@
 "use client";
 
 import { Button } from "@shadcn/button";
-import { Input } from "@shadcn/input";
 import { Separator } from "@shadcn/separator";
 import { useTitle } from "@/hooks/use-title";
 import {
   Airplay,
-  AppWindow,
   Chrome,
   Earth,
   MessageCircle,
   Monitor,
-  Search,
-  Terminal,
 } from "lucide-react";
 import Link from "next/link";
 
