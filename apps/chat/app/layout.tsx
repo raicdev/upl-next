@@ -19,14 +19,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             enableSystem
             disableTransitionOnChange
           >
-            <div className="flex min-h-screen">
-              <div className="">
-                <Sidebar />
-              </div>
-              <main className="flex-1 p-4 ml-4 md:ml-0">
-                {children}
-              </main>
-            </div>
+            <Sidebar />
+            {children}
           </ThemeProvider>
         </SidebarProvider>
       </body>
