@@ -7,6 +7,15 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@shadcn/theme-provider";
 
+export const metadata = {
+  title: "Rai's Website",
+  description: "A Rai's Website",
+  icons: {
+    icon: "/favicon.ico",
+  }
+};
+
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
