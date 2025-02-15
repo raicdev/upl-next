@@ -24,7 +24,7 @@ export function Header() {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem className="ml-3">
-                <Link href="/" target="_blank">
+                <Link href="/" passHref legacyBehavior target="_blank">
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                     Home
                   </NavigationMenuLink>
@@ -33,7 +33,7 @@ export function Header() {
             </NavigationMenuList>
             <NavigationMenuList>
               <NavigationMenuItem className="ml-3">
-                <Link href="/home" target="_blank">
+                <Link href="/home" passHref legacyBehavior target="_blank">
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                     App
                   </NavigationMenuLink>
@@ -44,6 +44,8 @@ export function Header() {
               <NavigationMenuItem className="ml-3">
                 <Link
                   href="https://github.com/raicdev/upl-next"
+                  passHref
+                  legacyBehavior
                   target="_blank"
                 >
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
