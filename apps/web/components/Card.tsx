@@ -1,8 +1,8 @@
 import React, { ReactNode } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@shadcn/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@workspace/ui/components/card";
 import Link from "next/link";
-import { Badge } from "@shadcn/badge";
-import { Button } from "@shadcn/button";
+import { Badge } from "@workspace/ui/components/badge";
+import { Button } from "@workspace/ui/components/button";
 
 interface HeroProps {
   title: string;

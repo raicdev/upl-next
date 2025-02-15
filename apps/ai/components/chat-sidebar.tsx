@@ -11,29 +11,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@shadcn/sidebar";
+} from "@workspace/ui/components/sidebar";
 import { MessageCircleMore, Plus, Settings } from "lucide-react";
 import { ChatContextMenu } from "./context-menu";
 import Link from "next/link";
 import { Badge } from "@workspace/ui/components/badge";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
 
 export function ChatSidebar() {
-  const {
-    sessions,
-    getSession,
-    createSession,
-    selectSession,
-    deleteSession,
-  } = useChatSessions();
-
-  const [localSessions, setLocalSessions] = useState(sessions);
-  const params = useParams<{ id: string }>()
-
-  useEffect(() => {
-    setLocalSessions(sessions);
-  }, [sessions]);
+  const { sessions, getSession, createSession, selectSession, deleteSession } = useChatSessions();
+  const params = useParams<{ id: string }>();
 
   return (
     <Sidebar>
@@ -41,21 +28,21 @@ export function ChatSidebar() {
         <SidebarGroup className="pt-6 pl-4 pb-0">
           <div className="flex items-center gap-2">
             <Link
-              href="/"
+              href="/home"
               className="text-xl font-semibold transition-all hover:text-muted-foreground"
             >
               Deni AI
             </Link>
-            <Badge>v1.1</Badge>
+            <Badge>v1.2</Badge>
           </div>
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel>チャット</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {Object.entries(localSessions).map(([sessionId, session]) => (
+              {Object.entries(sessions).map(([sessionId, session]) => (
                 <SidebarMenuItem key={sessionId}>
-                  <ChatContextMenu onDelete={() => deleteSession(session.id)}>
+                  <ChatContextMenu session={session}>
                     <SidebarMenuButton
                       className="flex"
                       isActive={getSession(params.id)?.id === session.id}
@@ -69,7 +56,7 @@ export function ChatSidebar() {
                     </SidebarMenuButton>
                   </ChatContextMenu>
                 </SidebarMenuItem>
-              ))}{" "}
+              ))}
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={createSession} asChild>
                   <Plus className="mr-2" />

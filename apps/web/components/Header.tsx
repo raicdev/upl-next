@@ -3,11 +3,11 @@
 // Header.tsx
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Button } from "@shadcn/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@shadcn/dropdown-menu";
+import { Button } from "@workspace/ui/components/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@workspace/ui/components/dropdown-menu";
 import { useTheme } from "next-themes";
 import { cn } from "@workspace/ui/lib/utils";
-import { Badge } from "@shadcn/badge";
+import { Badge } from "@workspace/ui/components/badge";
 import { SiDiscord, SiGithub, SiX } from "@icons-pack/react-simple-icons";
 import { Moon, Sun } from "lucide-react";
 
@@ -37,7 +37,7 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header className={cn("fixed top-0 w-full", "flex items-center justify-between", "h-16 px-4", "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", "z-40 border-b")}>
+    <header className={cn("fixed w-[98%]", "flex items-center justify-between", "h-16 px-4 m-4", "bg-sidebar", "rounded-lg shadow-lg", "z-50")}>
       {/* Left Side: Logo */}
       <div className="flex items-center justify-center sm:none space-x-2">
         <a href="/" className="flex items-center space-x-2">
@@ -105,7 +105,7 @@ const Header: React.FC = () => {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" className="bg-transparent">
               <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               <span className="sr-only">Toggle theme</span>
@@ -117,7 +117,6 @@ const Header: React.FC = () => {
             <DropdownMenuItem onClick={() => theme?.setTheme("system")}>システム (既定)</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        
       </div>
     </header>
   );

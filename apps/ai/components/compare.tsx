@@ -9,7 +9,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@shadcn/table";
+} from "@workspace/ui/components/table";
 import { Check, X } from "lucide-react";
 
 export default function Compare() {

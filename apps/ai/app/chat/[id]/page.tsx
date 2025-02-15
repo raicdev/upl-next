@@ -1,17 +1,7 @@
 "use client";
 
-import React, {
-  useState,
-  useEffect,
-  ClassAttributes,
-  HTMLAttributes,
-  useMemo,
-  useRef,
-} from "react";
-import { ExtraProps } from "react-markdown";
-import { Alert, AlertDescription } from "@shadcn/alert";
+import React, { useState, useEffect, useMemo } from "react";
 import { cn } from "@workspace/ui/lib/utils";
-import Link from "next/link";
 import {
   AlertDialog,
   AlertDialogHeader,
@@ -20,18 +10,20 @@ import {
   AlertDialogTitle,
   AlertDialogFooter,
   AlertDialogCancel,
-} from "@shadcn/alert-dialog";
-import { SidebarProvider } from "@shadcn/sidebar";
-import { Bot, Brain, Check, Copy } from "lucide-react";
-import { Button } from "@shadcn/button";
+} from "@workspace/ui/components/alert-dialog";
+import { SidebarProvider } from "@workspace/ui/components/sidebar";
+import { Bot, Brain } from "lucide-react";
+import { Button } from "@workspace/ui/components/button";
 import Compare from "@/components/compare";
 import { MessageLog } from "@/components/message-log";
-import { useChatSessions } from "@/hooks/use-chat-sessions";
+import { ChatMessage, useChatSessions } from "@/hooks/use-chat-sessions";
 import { useParams } from "next/navigation";
 import { modelDescriptions } from "@/lib/modelDescriptions";
 import { ModelSelector } from "@/components/input-area";
 import ChatInput from "@/components/ChatInput";
 import { useRouter } from "next/navigation";
+import { Footer } from "@/components/footer";
+import { ChatSidebar } from "@/components/chat-sidebar";
 
 const ChatApp: React.FC = () => {
   const [deniThink, setDeniThink] = useState(false);
@@ -43,38 +35,24 @@ const ChatApp: React.FC = () => {
 
   const router = useRouter();
 
-  const [model, setModel] = useState("gpt-4o-mini");
+  const [model, setModel] = useState("gpt-4o-2024-08-06");
   const [isOpen, setIsOpen] = useState(false);
-  const [error] = useState<string | null>(null); // エラー状態の追加
 
   const [isThinking, setIsThinking] = useState(false);
 
-  // チャットログを表示している div に ref を追加
-  const chatLogRef = useRef<HTMLDivElement>(null);
-
   const modelDescription = useMemo(
-    () => modelDescriptions[model]?.displayName || "gpt-4o-mini",
+    () => modelDescriptions[model]?.displayName || "gpt-4o-2024-08-06",
     [model, modelDescriptions]
   );
-
-  // 自動スクロール用の関数
-  const scrollToBottom = () => {
-    if (chatLogRef.current) {
-      chatLogRef.current.scrollTop = chatLogRef.current.scrollHeight;
-    }
-  };
 
   useEffect(() => {
     if (!currentSession) {
       router.push("/");
     }
-    if (chatLogRef.current) {
-      chatLogRef.current.scrollTop = chatLogRef.current.scrollHeight;
-    }
-  }, [currentSession?.messages, currentSession]);
+  }, [currentSession]);
 
   // メッセージ送信のユーティリティ関数
-  const sendChatMessage = async (messages: string[]) => {
+  const sendChatMessage = async (messages: ChatMessage[]) => {
     var systemMessage = "";
     if (!model.includes("o1")) {
       if (deniThink) {
@@ -102,7 +80,7 @@ const ChatApp: React.FC = () => {
           "",
           "6. **求めているもの:**",
           "- ユーザーが何を求めているのかを<think>...</think>で記述してから回答を考え、出力するようにする。",
-          "- 例えば、ユーザーがビンゴのやり方を求めているなら、「**ビンゴのゲームプレイの説明**、ビンゴの仕組みについて、グリッド、コールの仕方、連続した並びをマークすることを中心に説明します。」や「**ルールの確立**、プレーヤーが列を完成させ、成功したら「ビンゴ！」と宣言すること、カードのマークや数字のランダム生成のバリエーションや詳しい説明について触れています。」ということを<think>...</think>で考えてからメインの考えを出力する。",
+          "- ユーザーの考えていることを<think>...</think>で推論してからメインの考えを出力する。",
           "",
           "以上の指示に従い、各回答において徹底した論理的理由付けと正確な情報の提供を行ってください。",
         ].join("\n");
@@ -128,15 +106,15 @@ const ChatApp: React.FC = () => {
               },
             ]),
         ...(messages.map((msg) => {
-          if (msg.startsWith("AI:")) {
+          if (msg.author == "ai") {
             return {
               role: "assistant",
-              content: [{ type: "text", text: msg.substring(3) }],
+              content: [{ type: "text", text: msg.message }],
             };
           } else {
             return {
               role: "user",
-              content: [{ type: "text", text: msg }],
+              content: [{ type: "text", text: msg.message }],
             };
           }
         }) || []),
@@ -192,14 +170,12 @@ const ChatApp: React.FC = () => {
       const targetMessage = messages[messageIndex];
 
       // クリックされたメッセージがAIのメッセージでない場合は処理しない
-      if (!targetMessage?.startsWith("AI:")) return;
+      if (targetMessage?.author !== "ai") return;
 
       setIsThinking(true);
 
       // クリックされたメッセージとそれ以降を削除
       currentSession.messages = messagesUpToIndex;
-
-      console.log(currentSession);
 
       const response = await sendChatMessage(messagesUpToIndex);
 
@@ -218,9 +194,11 @@ const ChatApp: React.FC = () => {
             }
             aiMessage += chunk;
 
-            currentSession.messages.push(`AI: ${aiMessage}`);
-
-            scrollToBottom();
+            currentSession.messages.push({
+              author: "ai",
+              message: aiMessage,
+              model: model,
+            });
           }
         }
       }
@@ -230,7 +208,6 @@ const ChatApp: React.FC = () => {
       setIsThinking(false);
     }
   };
-
 
   const handleModelChange = (newModel: string) => {
     setModel(newModel);
@@ -242,7 +219,10 @@ const ChatApp: React.FC = () => {
 
     setIsThinking(true);
     const newMessage = inputMessage || "(Image message)";
-    const newMessages = [...currentSession.messages, newMessage];
+    const newMessages = [
+      ...currentSession.messages,
+      { author: "user", message: newMessage } as ChatMessage,
+    ];
     currentSession.messages = newMessages;
 
     try {
@@ -250,15 +230,26 @@ const ChatApp: React.FC = () => {
       if (response.ok) {
         let aiMessage = await response.text();
         setIsThinking(false);
+
+        const messageJson: ChatMessage = {
+          author: "ai",
+          message: aiMessage,
+          model: model,
+        };
+
         currentSession.messages = currentSession.messages[
           currentSession.messages.length - 1
-        ]?.startsWith("AI:")
-          ? [...currentSession.messages.slice(0, -1), `AI: ${aiMessage}`]
-          : [...currentSession.messages, `AI: ${aiMessage}`];
+        ]?.message.startsWith("AI:")
+          ? [...currentSession.messages.slice(0, -1), messageJson]
+          : [...currentSession.messages, messageJson];
       } else {
         currentSession.messages = [
           ...currentSession.messages,
-          `AI: ### エラーが発生しました。APIサーバーがダウンしているか、このモデルは現在オフラインです。`,
+          {
+            author: "ai",
+            message:
+              "### エラーが発生しました。APIサーバーがダウンしているか、このモデルは現在オフラインです。",
+          },
         ];
         console.error("Error sending message to server");
       }
@@ -270,18 +261,10 @@ const ChatApp: React.FC = () => {
     }
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      // Enterキーのみで送信;
-      event.preventDefault(); // 改行を防ぐ
-    } else if (event.key === "Enter" && event.shiftKey) {
-      // Shift+Enterで改行を許可
-      return; // デフォルト動作で改行
-    }
-  };
-
   return (
     <SidebarProvider className="m-auto">
+      <ChatSidebar />
+
       {/* Sidebar */}
 
       {/* Main Chat Area */}
@@ -290,26 +273,8 @@ const ChatApp: React.FC = () => {
           "flex flex-col flex-1 w-full md:w-9/12 mr-0 md:mr-16 ml-3 p-4 h-screen"
         )}
       >
-        <div
-          className={`bg-red-600 error-message ${
-            error ? "visible" : "hidden"
-          } w-full md:w-7/12 m-auto text-white p-2 rounded text-center mt-2 mb-4`}
-        >
-          {error}
-        </div>
-        <Alert className="visible w-full md:w-7/12 m-auto text-white text-center">
-          <AlertDescription className="text-lg text-semibold">
-            AI Playground は、Deni AI
-            へリブランディングされ、アップデートされました！
-          </AlertDescription>
-        </Alert>
-        <br />
-
         {/* Chat Log */}
-        <div
-          ref={chatLogRef}
-          className="flex-1 m-auto w-full md:w-9/12 lg:w-7/12 h-screen rounded overflow-y-auto"
-        >
+        <div className="flex-1 m-auto w-full md:w-9/12 lg:w-7/12 h-screen rounded overflow-y-auto">
           {currentSession && (
             <>
               {currentSession?.messages?.map((log, index) => (
@@ -325,7 +290,7 @@ const ChatApp: React.FC = () => {
                 <div className="flex w-full message-log visible">
                   <div className="p-2 my-2 rounded-lg text-white w-full">
                     <div className="flex items-start w-full">
-                      <div className="p-1 bg-zinc-700 text-white">
+                      <div className="p-2 bg-muted rounded-md text-accent-foreground">
                         <Bot />
                       </div>
                       <div className="ml-3 animate-pulse">考え中...</div>
@@ -364,17 +329,7 @@ const ChatApp: React.FC = () => {
             </Button> */}
           </div>
         </div>
-        <p className="text-xs text-center text-zinc-500 mt-2">
-          AI の回答は必ずしも正しいとは限りません。すべての AI
-          が無制限に利用できます。
-          <br />
-          <small>
-            <a href="https://voids.top/">Powered by voids.top</a>
-            <Link href="/notes" className="ml-4">
-              利用に関する質問
-            </Link>
-          </small>
-        </p>
+        <Footer />
         <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
           <AlertDialogContent className="md:!max-w-xl lg:!max-w-fit">
             <AlertDialogHeader>

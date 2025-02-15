@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Button } from "@shadcn/button";
+import { Button } from "@workspace/ui/components/button";
 import {
   SiBluesky,
   SiSpotify,
@@ -20,19 +20,17 @@ const Socials: React.FC = () => {
     <div className="p-8" id="socials">
       <h1 className="text-5xl font-bold mb-5 bold-h1">SNS</h1>
 
-      <p className="text-xl font-bold mb-5">基本</p>
-
       <div className="flex flex-wrap space-x-4 mb-10">
-        <Button asChild>
+        <Button asChild size={"lg"}>
           <Link
-            href="https://bsky.app/profile/raic.dev"
+            href="https://github.com/raicdev"
             className="flex items-center space-x-2"
           >
-            <SiBluesky /> <span>Bluesky</span>
+            <SiGithub /> <span>@raicdev</span>
           </Link>
         </Button>
 
-        <Button asChild>
+        <Button asChild size={"lg"}>
           <Link
             href="https://open.spotify.com/artist/3hdGoSYvBsQhtgpQop28AO?si=n0X-ga5RQVSw3w0B9jCrxA"
             className="flex items-center space-x-2"
@@ -40,101 +38,60 @@ const Socials: React.FC = () => {
             <SiSpotify /> <span>Spotify</span>
           </Link>
         </Button>
-
-        <Button asChild>
-          <Link
-            href="https://github.com/raidesuuu"
-            className="flex items-center space-x-2"
-          >
-            <SiGithub /> <span>GitHub</span>
-          </Link>
-        </Button>
       </div>
 
-      <p className="text-xl font-bold mb-5">メディア</p>
 
       <div className="flex flex-wrap space-x-4 mb-10">
-        <Button asChild>
+        <Button asChild size={"lg"}>
           <Link
             href="https://www.youtube.com/channel/UC4c5qLRRG3HCTmzxH69XBtw"
             className="flex items-center space-x-2"
           >
-            <SiYoutube /> <span>YouTube</span>
+            <SiYoutube /> <span>@雷</span>
           </Link>
         </Button>
 
-        <Button asChild>
-          <Link
-            href="https://twitch.tv/raisandane"
-            className="flex items-center space-x-2"
-          >
-            <SiTwitch /> <span>Twitch</span>
-          </Link>
-        </Button>
-
-        <Button asChild>
-          <Link
-            href="https://kick.com/raisandesu"
-            className="flex items-center space-x-2"
-          >
-            <SiKick /> <span>Kick</span>
-          </Link>
-        </Button>
-
-        <Button asChild>
+        <Button asChild size={"lg"}>
           <Link
             href="https://instagram.com/raisandayoo"
             className="flex items-center space-x-2"
           >
-            <SiInstagram /> <span>Instagram</span>
+            <SiInstagram /> <span>@raisandayoo</span>
           </Link>
         </Button>
       </div>
 
-      <p className="text-xl font-bold mb-5">X (Twitter)</p>
-
       <div className="flex flex-wrap space-x-4 mb-10">
-        <Button asChild>
+        <Button asChild size={"lg"}>
           <Link
             href="https://x.com/raic_dev"
             className="flex items-center space-x-2"
           >
-            <SiX /> <span>X (Twitter)</span>
+            <SiX /> <span>@raic_dev</span>
           </Link>
         </Button>
 
-        <Button asChild>
+        <Button asChild size={"lg"}>
           <Link
-            href="https://x.com/uplauncherxyz"
+            href="https://x.com/baketumawashi"
             className="flex items-center space-x-2"
           >
-            <SiX /> <span>UpLauncher</span>
+            <SiX /> <span>@baketumawashi</span>
           </Link>
         </Button>
 
-        <Button asChild>
+        <Button asChild size={"lg"}>
           <Link
             href="https://x.com/vistaupdater"
             className="flex items-center space-x-2"
           >
-            <SiX /> <span>VistaUpdater</span>
-          </Link>
-        </Button>
-
-        <Button asChild>
-          <Link
-            href="https://x.com/chatfromrai"
-            className="flex items-center space-x-2"
-          >
-            <SiX /> <span>Rai Chat</span>
+            <SiX /> <span>@vistaupdater</span>
           </Link>
         </Button>
       </div>
 
-      <p className="text-xl font-bold mb-5">ゲーム</p>
-
       <div className="flex flex-wrap space-x-4 mb-10">
-        <Button asChild>
+        <Button asChild size={"lg"}>
           <Link
             href="https://osu.ppy.sh/users/34918440"
             className="flex items-center space-x-2"
@@ -143,7 +100,7 @@ const Socials: React.FC = () => {
           </Link>
         </Button>
 
-        <Button asChild>
+        <Button asChild size={"lg"}>
           <Link
             href="https://namemc.com/profile/voidroom.1"
             className="flex items-center space-x-2"
@@ -152,7 +109,7 @@ const Socials: React.FC = () => {
           </Link>
         </Button>
 
-        <Button asChild>
+        <Button asChild size={"lg"}>
           <Link
             href="https://steamcommunity.com/id/raisandesu"
             className="flex items-center space-x-2"

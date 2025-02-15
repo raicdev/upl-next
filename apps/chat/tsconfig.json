@@ -5,7 +5,6 @@
     "paths": {
       "@/*": ["./*"],
       "@workspace/ui/*": ["../../packages/ui/src/*"],
-      "@shadcn/*": ["../../packages/ui/src/components/*"],
       "@firebase/*": ["../../packages/firebase/src/*"]
     },
     "plugins": [

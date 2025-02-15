@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { UserDataInterface, MessageDataInterface } from "@/util/raiChatTypes";
 import { User } from "firebase/auth";
 import { isCheckmarker, xssProtectedText } from "@/util/rai";
-import { Card, CardContent, CardFooter, CardHeader } from "@shadcn/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@shadcn/avatar";
+import { Card, CardContent, CardFooter, CardHeader } from "@workspace/ui/components/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@workspace/ui/components/avatar";
 import {
   Ban,
   Check,
@@ -13,13 +13,13 @@ import {
   Trash2,
   UserIcon,
 } from "lucide-react";
-import { Button } from "@shadcn/button";
+import { Button } from "@workspace/ui/components/button";
 import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { firestore, database } from "@/util/firebaseConfig";
 import { get, ref, set } from "firebase/database";
-import { Popover, PopoverContent, PopoverTrigger } from "@shadcn/popover";
-import { Separator } from "@shadcn/separator";
-import { Input } from "@shadcn/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover";
+import { Separator } from "@workspace/ui/components/separator";
+import { Input } from "@workspace/ui/components/input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";

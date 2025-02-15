@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Button } from "@shadcn/button";
+import { Button } from "@workspace/ui/components/button";
 
 export default function NotFound() {
   const [position, setPosition] = useState({ x: 0, y: 0 });

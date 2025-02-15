@@ -1,8 +1,8 @@
 import "@workspace/ui/styles/globals.css";
 import Sidebar from "@/components/sidebar";
 import { ReactNode } from "react";
-import { SidebarProvider } from "@shadcn/sidebar";
-import { ThemeProvider } from "@shadcn/theme-provider";
+import { SidebarProvider } from "@workspace/ui/components/sidebar";
+import { ThemeProvider } from "@workspace/ui/components/theme-provider";
 
 interface LayoutProps {
   children: ReactNode;

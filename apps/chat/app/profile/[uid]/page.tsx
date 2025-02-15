@@ -10,9 +10,9 @@ import {
 import { auth, database, firestore } from "@/util/firebaseConfig";
 import { getPlan, isCheckmarker } from "@/util/rai";
 import { useParams, useRouter } from "next/navigation";
-import { Button } from "@shadcn/button";
-import { Input } from "@shadcn/input";
-import { Textarea } from "@shadcn/textarea";
+import { Button } from "@workspace/ui/components/button";
+import { Input } from "@workspace/ui/components/input";
+import { Textarea } from "@workspace/ui/components/textarea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@shadcn/alert-dialog";
+} from "@workspace/ui/components/alert-dialog";
 import { User, onAuthStateChanged, updateProfile } from "firebase/auth";
 import {
   doc,
@@ -49,7 +49,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@shadcn/popover";
+} from "@workspace/ui/components/popover";
 import Image from "next/image";
 import { Check, Edit, Gavel, MinusCircle, PlusCircle, UserIcon } from "lucide-react";
 

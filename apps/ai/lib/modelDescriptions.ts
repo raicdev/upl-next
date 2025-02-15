@@ -13,14 +13,14 @@ export interface modelDescriptionType {
 export type modelType = "ChatGPT" | "Gemini" | "Claude" | "Grok" | "DeepSeek"
 
 export const modelDescriptions: modelDescriptionType = {
-  "gpt-4o-mini": {
-    description: "日常の作業を効率化",
-    displayName: "GPT-4o mini",
-    type: "ChatGPT",
-  },
   "gpt-4o-2024-08-06": {
     description: "日常の作業を効率化",
     displayName: "GPT-4o",
+    type: "ChatGPT",
+  },
+  "gpt-4o-mini": {
+    description: "日常の作業を効率化",
+    displayName: "GPT-4o mini",
     type: "ChatGPT",
   },
   "deepseek-r1": {

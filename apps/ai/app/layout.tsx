@@ -1,31 +1,32 @@
-import { Loading } from "@shadcn/loading";
+import { Loading } from "@/components/loading";
 import "@workspace/ui/styles/globals.css";
 import { Suspense } from "react";
-import { ThemeProvider } from "@shadcn/theme-provider";
-import { SidebarProvider } from "@workspace/ui/components/sidebar";
-import { ChatSidebar } from "@/components/chat-sidebar";
+import { ThemeProvider } from "@workspace/ui/components/theme-provider";
 
-import type { Metadata } from 'next'
- 
+import type { Metadata } from "next";
+import { ChatSessionsProvider } from "@/hooks/use-chat-sessions";
+
 export const metadata: Metadata = {
-  title: 'Deni AI',
-  description: 'Deni AI は、o1やClaude 3.5 Sonnet などのAIモデルを利用できる完全無料のチャットアプリです。',
+  title: "Deni AI",
+  description:
+    "Deni AI は、o1やClaude 3.5 Sonnet などのAIモデルを利用できる完全無料のチャットアプリです。",
   openGraph: {
-    title: 'Deni AI',
-    description: 'Deni AI は、o1やClaude 3.5 Sonnet などのAIモデルを利用できる完全無料のチャットアプリです。',
-    url: 'https://ai.raic.dev/',
-    siteName: 'Deni AI',
+    title: "Deni AI",
+    description:
+      "Deni AI は、o1やClaude 3.5 Sonnet などのAIモデルを利用できる完全無料のチャットアプリです。",
+    url: "https://ai.raic.dev/",
+    siteName: "Deni AI",
     images: [
       {
-        url: 'https://ai.raic.dev/banner.png',
+        url: "https://ai.raic.dev/banner.png",
         width: 800,
         height: 600,
       },
     ],
-    locale: 'ja_JP',
-    type: 'website',
-  }
-}
+    locale: "ja_JP",
+    type: "website",
+  },
+};
 
 export default function RootLayout({
   children,
@@ -47,12 +48,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SidebarProvider>
-            <ChatSidebar />
+          <ChatSessionsProvider>
             <Suspense fallback={<Loading />}>
-              <main className="w-full">{children}</main>
+              {children}
             </Suspense>
-          </SidebarProvider>
+          </ChatSessionsProvider>
         </ThemeProvider>
       </body>
     </html>

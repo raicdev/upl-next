@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@shadcn/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@shadcn/tabs";
-import { Label } from "@shadcn/label";
-import { Switch } from "@shadcn/switch";
+import { Button } from "@workspace/ui/components/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
+import { Label } from "@workspace/ui/components/label";
+import { Switch } from "@workspace/ui/components/switch";
 import Link from "next/link";
 import { auth, firestore } from "@/util/firebaseConfig";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -13,7 +13,7 @@ import {
   returnSettingsJson,
   SubscriptionDataInterface,
 } from "@/util/raiChatTypes";
-import { Badge } from "@shadcn/badge";
+import { Badge } from "@workspace/ui/components/badge";
 import { useTitle } from "@/hooks/use-title";
 import { useRouter } from "next/navigation";
 import { getPlan } from "@/util/rai";

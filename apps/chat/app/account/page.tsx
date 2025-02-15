@@ -4,14 +4,14 @@
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import { auth } from "@firebase/config";
 import { EmailAuthProvider, getMultiFactorResolver, TotpMultiFactorGenerator, reauthenticateWithCredential, verifyBeforeUpdateEmail, onAuthStateChanged, multiFactor } from "firebase/auth";
-import { Loading } from "@shadcn/loading";
-import { SidebarProvider } from "@shadcn/sidebar";
-import { Button } from "@shadcn/button";
-import { Input } from "@shadcn/input";
-import { AlertDialogHeader, AlertDialogFooter } from "@shadcn/alert-dialog";
-import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from "@shadcn/input-otp";
-import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "@shadcn/alert-dialog";
-import { Label } from "@shadcn/label";
+import { Loading } from "@workspace/ui/components/loading";
+import { SidebarProvider } from "@workspace/ui/components/sidebar";
+import { Button } from "@workspace/ui/components/button";
+import { Input } from "@workspace/ui/components/input";
+import { AlertDialogHeader, AlertDialogFooter } from "@workspace/ui/components/alert-dialog";
+import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from "@workspace/ui/components/input-otp";
+import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "@workspace/ui/components/alert-dialog";
+import { Label } from "@workspace/ui/components/label";
 import { cn } from "@workspace/ui/lib/utils";
 
 const Login: React.FC = () => {

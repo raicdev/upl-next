@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@shadcn/button";
+import { Button } from "@workspace/ui/components/button";
 import Link from "next/link";
 import { SiDiscord } from "@icons-pack/react-simple-icons";
 import { Mail } from "lucide-react";

@@ -4,7 +4,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
-import { Button } from "@shadcn/button";
+import { Button } from "@workspace/ui/components/button";
 import { SendHorizonal } from "lucide-react";
 
 export interface ChatInputHandles {

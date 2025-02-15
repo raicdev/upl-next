@@ -10,8 +10,8 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-} from "@shadcn/sidebar";
-import { Badge } from "@shadcn/badge";
+} from "@workspace/ui/components/sidebar";
+import { Badge } from "@workspace/ui/components/badge";
 import {
   CircleUser,
   FlaskConical,
@@ -29,7 +29,7 @@ import {
   Sun,
   User,
 } from "lucide-react";
-import { Button } from "@shadcn/button";
+import { Button } from "@workspace/ui/components/button";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { auth } from "@firebase/config";
@@ -41,14 +41,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@workspace/ui/components/tooltip";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@workspace/ui/hooks/use-mobile";
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@shadcn/drawer";
+} from "@workspace/ui/components/drawer";
 
 interface SidebarItem {
   href: string;

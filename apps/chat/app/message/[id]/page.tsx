@@ -27,8 +27,8 @@ import {
 } from "@/util/raiChatTypes";
 import { auth, firestore } from "@/util/firebaseConfig";
 import MessageElement from "@/components/MessageElement";
-import { Textarea } from "@shadcn/textarea";
-import { Button } from "@shadcn/button";
+import { Textarea } from "@workspace/ui/components/textarea";
+import { Button } from "@workspace/ui/components/button";
 import { useTitle } from "@/hooks/use-title";
 import { useParams, useRouter } from "next/navigation";
 import { getPlan } from "@/util/rai";

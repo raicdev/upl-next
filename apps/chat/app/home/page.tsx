@@ -30,11 +30,11 @@ import {
 } from "@/util/raiChatTypes";
 import { auth } from "@firebase/config";
 import MessageElement from "@/components/MessageElement";
-import { Textarea } from "@shadcn/textarea";
-import { Button } from "@shadcn/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@shadcn/tabs";
-import { Input } from "@shadcn/input";
-import { Label } from "@shadcn/label";
+import { Textarea } from "@workspace/ui/components/textarea";
+import { Button } from "@workspace/ui/components/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
+import { Input } from "@workspace/ui/components/input";
+import { Label } from "@workspace/ui/components/label";
 import { useTitle } from "@/hooks/use-title";
 import { useRouter } from "next/navigation";
 import { getPlan } from "@/util/rai";

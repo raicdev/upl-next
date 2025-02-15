@@ -2,18 +2,20 @@ import { FC, memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Bot, ChevronsUpDown, Copy, RefreshCw } from "lucide-react";
-import { Button } from "@shadcn/button";
+import { Button } from "@workspace/ui/components/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@shadcn/collapsible";
+} from "@workspace/ui/components/collapsible";
 import { CustomTooltip } from "./tooltip";
 import { cn } from "@workspace/ui/lib/utils";
 import { Pre } from "@/components/markdown";
+import { ChatMessage } from "@/hooks/use-chat-sessions";
+import { modelDescriptions } from "@/lib/modelDescriptions";
 
 interface MessageLogProps {
-  log: string;
+  log: ChatMessage;
   index: number;
   onRefresh: (index: number) => void;
   modelDescription: string;
@@ -22,7 +24,7 @@ interface MessageLogProps {
 export const MessageLog: FC<MessageLogProps> = memo(
   ({ log, index, onRefresh, modelDescription }) => {
     const handleCopy = (event: React.MouseEvent<HTMLButtonElement>) => {
-      navigator.clipboard.writeText(log.replace("AI: ", ""));
+      navigator.clipboard.writeText(log.message);
       const target = event.currentTarget;
       target.querySelector("svg")!.outerHTML =
         '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check"><polyline points="20 6 9 17 4 12"/></svg>';
@@ -41,18 +43,18 @@ export const MessageLog: FC<MessageLogProps> = memo(
       <div className={`flex w-full message-log visible`}>
         <div
           className={`p-2 my-2 rounded-lg ${
-            log.startsWith("AI:") ? "text-white w-full" : "bg-secondary ml-auto"
+            log.author == "ai" ? "text-white w-full" : "bg-secondary ml-auto"
           }`}
         >
-          {log.startsWith("AI:") ? (
+          {log.author == "ai" ? (
             <div>
               <div className="flex items-start w-full">
-                <div className="p-1 bg-secondary flex-shrink-0">
+                <div className="p-2 bg-muted rounded-md text-accent-foreground">
                   <Bot />
                 </div>
-                {log.includes("<think>") ? (
+                {log.message.includes("<think>") ? (
                   <div className="ml-3 w-full max-w-11/12">
-                    {log
+                    {log.message
                       .replace("AI: ", "")
                       .split(/<think>|<\/think>/)
                       .map((part, i) =>
@@ -66,7 +68,10 @@ export const MessageLog: FC<MessageLogProps> = memo(
                         ) : (
                           <Collapsible key={i} className="p-2 space-y-2">
                             <CollapsibleTrigger asChild>
-                              <Button variant={"outline"} className="w-full md:w-2/3 lg:w-1/2">
+                              <Button
+                                variant={"outline"}
+                                className="w-full md:w-2/3 lg:w-1/2"
+                              >
                                 <h4 className="text-sm font-semibold">
                                   思考過程を見る
                                 </h4>
@@ -78,9 +83,7 @@ export const MessageLog: FC<MessageLogProps> = memo(
                                 "text-popover-foreground border-l-2 pl-3 border-foreground outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
                               )}
                             >
-                              <ReactMarkdown
-                                className="prose dark:prose-invert mt-2"
-                              >
+                              <ReactMarkdown className="prose dark:prose-invert mt-2">
                                 {part}
                               </ReactMarkdown>
                             </CollapsibleContent>
@@ -90,10 +93,10 @@ export const MessageLog: FC<MessageLogProps> = memo(
                   </div>
                 ) : (
                   <ReactMarkdown
-                  components={{pre: Pre}}
+                    components={{ pre: Pre }}
                     className="ml-3 prose dark:prose-invert w-full max-w-11/12"
                   >
-                    {log.replace("AI: ", "")}
+                    {log.message}
                   </ReactMarkdown>
                 )}
               </div>{" "}
@@ -101,8 +104,8 @@ export const MessageLog: FC<MessageLogProps> = memo(
                 <div className="p-1 text-gray-400 hover:text-foreground">
                   <CustomTooltip content="コピー">
                     <Button
-                      size="icon"
-                      className="p-0"
+                      size="sm"
+                      className="p-0 ml-2"
                       onClick={handleCopy}
                       variant="ghost"
                     >
@@ -111,23 +114,28 @@ export const MessageLog: FC<MessageLogProps> = memo(
                   </CustomTooltip>
                 </div>
                 <div className="p-1 text-gray-400 hover:text-foreground">
-                  <CustomTooltip
-                    content={`再生成 (${modelDescription} を使用)`}
-                  >
+                  <CustomTooltip content={`再生成`}>
                     <Button
                       variant="ghost"
-                      size="icon"
+                      size="sm"
                       onClick={handleRefresh}
+                      className="group"
                     >
                       <RefreshCw size="16" />
-                    </Button>
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        {
+                          modelDescriptions[log.model || "gpt-4o-2024-08-06"]
+                            ?.displayName
+                        }
+                      </span>
+                    </Button>{" "}
                   </CustomTooltip>
                 </div>
               </div>
             </div>
           ) : (
             <ReactMarkdown remarkPlugins={[remarkGfm]} className="p-1">
-              {log}
+              {log.message}
             </ReactMarkdown>
           )}
         </div>

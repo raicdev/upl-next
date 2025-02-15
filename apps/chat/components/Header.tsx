@@ -3,11 +3,11 @@
 // Header.tsx
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Button } from "@shadcn/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@shadcn/dropdown-menu";
+import { Button } from "@workspace/ui/components/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@workspace/ui/components/dropdown-menu";
 import { useTheme } from "next-themes";
 import { cn } from "@workspace/ui/lib/utils";
-import { Badge } from "@shadcn/badge";
+import { Badge } from "@workspace/ui/components/badge";
 import { SiDiscord, SiGithub, SiX } from "@icons-pack/react-simple-icons";
 import { Moon, Sun } from "lucide-react";
 

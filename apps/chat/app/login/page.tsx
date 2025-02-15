@@ -11,9 +11,9 @@ import {
   OAuthProvider,
   GithubAuthProvider,
 } from "firebase/auth";
-import { Button } from "@shadcn/button";
-import { Label } from "@shadcn/label";
-import { Input } from "@shadcn/input";
+import { Button } from "@workspace/ui/components/button";
+import { Label } from "@workspace/ui/components/label";
+import { Input } from "@workspace/ui/components/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,16 +23,16 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@shadcn/alert-dialog";
+} from "@workspace/ui/components/alert-dialog";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
-} from "@shadcn/input-otp";
+} from "@workspace/ui/components/input-otp";
 import Link from "next/link";
 import { cn } from "@workspace/ui/lib/utils";
-import { Separator } from "@shadcn/separator";
+import { Separator } from "@workspace/ui/components/separator";
 import { SiGithub, SiGoogle } from "@icons-pack/react-simple-icons";
 
 const Login: React.FC = () => {
@@ -70,22 +70,6 @@ const Login: React.FC = () => {
 
   const signInWithGoogle = () => {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider)
-      .then(() => {
-        window.location.pathname = "/account";
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorContent = error.message;
-        if (noticeRef.current) {
-          noticeRef.current.textContent =
-            errorContent + " (エラーコード: " + errorCode + ")";
-        }
-      });
-  };
-
-  const signInWithMicrosoft = () => {
-    const provider = new OAuthProvider("microsoft.com");
     signInWithPopup(auth, provider)
       .then(() => {
         window.location.pathname = "/account";
@@ -188,9 +172,10 @@ const Login: React.FC = () => {
           asChild
           className={cn("absolute right-4 top-4 md:right-8 md:top-8")}
         >
-          <Link href="/account/register">アカウントの作成</Link>
+          <Link href="/register">アカウントの作成</Link>
         </Button>
-          <div className="m-auto h-screen flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+        <div className="m-auto h-screen flex flex-col justify-center space-y-6 w-[96%] md:w-[50%] lg:w-[33%]">
+          <div className="bg-sidebar p-8 rounded-sm flex flex-col gap-5">
             <div className="flex flex-col space-y-2 text-center">
               <h1 className="text-2xl font-semibold tracking-tight">
                 ログイン
@@ -228,32 +213,20 @@ const Login: React.FC = () => {
               ログイン
             </Button>
             <Separator />
-            <div className="flex gap-x-2">
+            <div className="flex flex-col space-y-2 text-center">
               <Button
                 type="submit"
                 className="w-full"
                 onClick={() => signInWithGoogle()}
               >
-                <SiGoogle />
-              </Button>
-              <Button
-                type="submit"
-                className="w-full"
-                onClick={() => signInWithMicrosoft()}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23">
-                  <path d="M1 1h10v10H1z" />
-                  <path d="M12 1h10v10H12z" />
-                  <path d="M1 12h10v10H1z" />
-                  <path d="M12 12h10v10H12z" />
-                </svg>
+                <SiGoogle /> Google でサインイン
               </Button>
               <Button
                 type="submit"
                 className="w-full"
                 onClick={() => signInWithGitHub()}
               >
-                <SiGithub />
+                <SiGithub /> GitHub でサインイン
               </Button>
             </div>
             <p className="px-2 text-center text-sm text-muted-foreground">
@@ -273,6 +246,7 @@ const Login: React.FC = () => {
               </Link>{" "}
               に同意したことになります。
             </p>
+          </div>
         </div>
       </div>
 

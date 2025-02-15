@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@shadcn/button";
+import { Button } from "@workspace/ui/components/button";
 import { useTitle } from "@/hooks/use-title";
-import { Label } from "@shadcn/label";
-import { Switch } from "@shadcn/switch";
+import { Label } from "@workspace/ui/components/label";
+import { Switch } from "@workspace/ui/components/switch";
 import Link from "next/link";
 import { auth, firestore } from "@/util/firebaseConfig";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -13,7 +13,7 @@ import {
   returnSettingsJson,
   SubscriptionDataInterface,
 } from "@/util/raiChatTypes";
-import { Badge } from "@shadcn/badge";
+import { Badge } from "@workspace/ui/components/badge";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -21,7 +21,7 @@ import {
   BreadcrumbLink,
   BreadcrumbSeparator,
   BreadcrumbPage,
-} from "@shadcn/breadcrumb";
+} from "@workspace/ui/components/breadcrumb";
 import { useRouter } from "next/navigation";
 import { getPlan } from "@/util/rai";
 import { History } from "lucide-react";
@@ -144,22 +144,6 @@ const SettingsExperiment: React.FC = () => {
               メッセージの強調表示有効にするには、プレミアムプラス以上のサブスクリプションに登録する必要があります。
             </p>
           )}
-        </div>
-
-        <div className="bg-card shadow border w-auto p-4 rounded-lg">
-          <Label className="text-xl items-center flex">
-            新しい Rai Chat <Badge className="ml-1">プレミアムプラス</Badge>
-          </Label>{" "}
-          <p className="mb-1">
-            新しい Rai Chat
-            は、新しいUI、機能、およびより多くの機能を備えています。（既にご利用中です）
-          </p>
-          <Button asChild>
-            <Link href="https://raic.tech/chat/" target="_blank">
-              <History />
-              旧バージョンの Rai Chat
-            </Link>
-          </Button>
         </div>
 
         <div className="bg-card shadow border w-auto p-4 rounded-lg">

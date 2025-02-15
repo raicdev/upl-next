@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Suspense, useState, useEffect } from "react";
-import { Loading } from "@shadcn/loading";
+import { Loading } from "@workspace/ui/components/loading";
 import { auth, firestore } from "@firebase/config";
 import {
   doc,
@@ -13,10 +13,10 @@ import {
   collection,
 } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { SidebarProvider } from "@shadcn/sidebar";
-import { Button } from "@shadcn/button";
+import { SidebarProvider } from "@workspace/ui/components/sidebar";
+import { Button } from "@workspace/ui/components/button";
 import { useToast } from "@workspace/ui/hooks/use-toast";
-import { Toaster } from "@shadcn/toaster";
+import { Toaster } from "@workspace/ui/components/toaster";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,10 +25,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@shadcn/alert-dialog";
-import { Label } from "@shadcn/label";
-import { Input } from "@shadcn/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@shadcn/popover";
+} from "@workspace/ui/components/alert-dialog";
+import { Label } from "@workspace/ui/components/label";
+import { Input } from "@workspace/ui/components/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover";
 import { Eye, Trash } from "lucide-react";
 import { cn } from "@workspace/ui/lib/utils";
 // react router

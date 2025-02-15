@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@shadcn/table";
+} from "@workspace/ui/components/table";
 import {
   BadgeCheck,
   BadgePlus,

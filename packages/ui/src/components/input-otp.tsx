@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { OTPInput, OTPInputContext, SlotProps } from "input-otp"
+import { OTPInput, OTPInputContext } from "input-otp"
 import { Minus } from "lucide-react"
 
 import { cn } from "@workspace/ui/lib/utils"
@@ -35,10 +35,8 @@ const InputOTPSlot = React.forwardRef<
   React.ComponentPropsWithoutRef<"div"> & { index: number }
 >(({ index, className, ...props }, ref) => {
   const inputOTPContext = React.useContext(OTPInputContext)
-  const { char, hasFakeCaret, isActive } = inputOTPContext.slots[
-    index
-  ] as SlotProps
-  
+  const { char, hasFakeCaret, isActive } = inputOTPContext.slots[index]
+
   return (
     <div
       ref={ref}

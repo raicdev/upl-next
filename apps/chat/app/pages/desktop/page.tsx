@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@shadcn/button";
-import { Separator } from "@shadcn/separator";
+import { Button } from "@workspace/ui/components/button";
+import { Separator } from "@workspace/ui/components/separator";
 import { useTitle } from "@/hooks/use-title";
 import {
   Airplay,

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@shadcn/button";
+import { Button } from "@workspace/ui/components/button";
 import { useTitle } from "@/hooks/use-title";
 import Link from "next/link";
 
