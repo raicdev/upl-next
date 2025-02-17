@@ -1,6 +1,5 @@
 import { createOpenAI } from '@ai-sdk/openai';
-import { generateText, streamText, tool } from 'ai';
-import { z } from 'zod';
+import { streamText } from 'ai';
 
 const openai = createOpenAI({
   // custom settings, e.g.

@@ -6,7 +6,7 @@ import { useTitle } from "@/hooks/use-title";
 import { Label } from "@workspace/ui/components/label";
 import { Switch } from "@workspace/ui/components/switch";
 import Link from "next/link";
-import { auth, firestore } from "@/util/firebaseConfig";
+import { auth, firestore } from "@firebase/config";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import {
@@ -24,7 +24,6 @@ import {
 } from "@workspace/ui/components/breadcrumb";
 import { useRouter } from "next/navigation";
 import { getPlan } from "@/util/rai";
-import { History } from "lucide-react";
 
 const SettingsExperiment: React.FC = () => {
   // State Management

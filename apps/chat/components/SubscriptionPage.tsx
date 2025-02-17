@@ -22,6 +22,13 @@ const SubscriptionDetails: React.FC<{
   data: SubscriptionDataInterface;
   formRef: React.RefObject<HTMLFormElement>;
 }> = ({ data, formRef }) => {
+  
+  useEffect(() => {
+    if (formRef.current) {
+      formRef.current.style.display = "none";
+    }
+  }, [formRef]);
+
   const getPlanName = (plan: string) => {
     if (plan.includes("pro")) {
       return "Pro";
@@ -39,12 +46,6 @@ const SubscriptionDetails: React.FC<{
   if (planName === "無料") {
     return null;
   }
-
-  useEffect(() => {
-    if (formRef.current) {
-      formRef.current.style.display = "none";
-    }
-  }, []);
 
   return (
     <Alert>
@@ -64,8 +65,6 @@ const SubscriptionDetails: React.FC<{
 const SubscriptionPage: React.FC = () => {
   const { subscriptionData, loading, authToken } = useSubscriptionData();
   const formRef = useRef<HTMLFormElement>(null);
-
-  console.log(subscriptionData);
 
   if (loading) {
     return <Loading />;

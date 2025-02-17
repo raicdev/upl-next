@@ -26,7 +26,7 @@ export interface MessageDataInterface {
   uid: string;
   edited: boolean;
   time: string;
-  id: number | string;
+  id: string;
   favorite: number;
   isSystemMessage: boolean;
 }
@@ -35,7 +35,8 @@ export interface MessageElementDataInterface {
   userData: UserDataInterface;
   messageData: MessageDataInterface;
   user: User;
-  userSettings: any;
+  userSettings: UserSettingsInterface;
+  isStaff: boolean;
 }
 
 export interface SubscriptionDataInterface {
@@ -50,6 +51,15 @@ export interface SubscriptionDataInterface {
 
 export function toBoolean(booleanStr: string): boolean {
   return booleanStr.toLowerCase() === "true";
+}
+
+export interface UserSettingsInterface {
+  available: boolean;
+  markdown: boolean;
+  highlight: boolean;
+  hide_checkmark: boolean;
+  edit: boolean;
+  version: string;
 }
 
 export function returnSettingsJson() {
@@ -73,12 +83,20 @@ export function returnSettingsJson() {
   return settings;
 }
 
-function auto_link(val: string) {
-  const exp =
-    /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
-  if (val.includes("[url]") || val.includes("img") || val.includes("video")) {
-    return val;
-  } else {
-    return val.replace(exp, `<FaGlobe /><a target='_blank' href='$1'>$1</a>`);
-  }
+interface RaiChatBuildInfo {
+  version: string;
+  fullInfo: string;
+  type: "web" | "desktop";
+  environment: string;
 }
+
+const version = "1.0.0";
+const type = "web";
+const environment = process.env.NODE_ENV || "production";
+
+export const raiChatBuildInfo: RaiChatBuildInfo = {
+  version: version,
+  fullInfo: `raichat-${version}-${type}`,
+  type: type,
+  environment
+};

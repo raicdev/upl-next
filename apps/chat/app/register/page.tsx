@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { auth } from "@/util/firebaseConfig";
+import { auth } from "@firebase/config";
 import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
-  OAuthProvider,
   GithubAuthProvider,
 } from "firebase/auth";
 import { Button } from "@workspace/ui/components/button";

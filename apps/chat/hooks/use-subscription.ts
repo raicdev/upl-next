@@ -18,7 +18,6 @@ export function useSubscriptionData() {
           const collect = collection(firestore, "subscription-state");
           const query = await getDoc(doc(collect, user.uid));
           if (query.exists()) {
-            console.log(query.data());
             setSubscriptionData(query.data() as SubscriptionDataInterface);
           }
         } else {

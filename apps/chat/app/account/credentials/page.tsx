@@ -45,10 +45,8 @@ const Credentials: React.FC = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log("User is authenticated:", user.uid);
         fetchApiKeys(user);
       } else {
-        console.log("No user is authenticated.");
         location.href = "/account/login";
       }
     });
@@ -61,7 +59,6 @@ const Credentials: React.FC = () => {
       ?.getIdToken(true)
       .then((FB_AuthToken) => {
         setAuthToken(FB_AuthToken);
-        console.log(FB_AuthToken);
         setIsDialogOpen(true);
       })
       .catch((error) => {
@@ -74,10 +71,7 @@ const Credentials: React.FC = () => {
     const docRef = doc(apiKeysCollection, user.uid);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      console.log("Document data:", docSnap.data());
       setApiKeys(docSnap.data().apiKeys || []);
-    } else {
-      console.log("No such document!");
     }
     setLoading(false);
   };
@@ -131,7 +125,6 @@ const Credentials: React.FC = () => {
     const user = auth.currentUser;
     if (user) {
       const idToken = await user.getIdToken(true);
-      console.log(key);
       const response = await fetch("https://api.raic.dev/v1/key/delete", {
         method: "POST",
         headers: {

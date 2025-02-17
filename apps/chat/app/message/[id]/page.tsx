@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import {
-  getDatabase,
   ref,
-  onChildAdded,
   orderByChild,
   query,
   equalTo,
+  get,
 } from "firebase/database";
 import {
   getDoc,
@@ -15,23 +14,23 @@ import {
   setDoc,
   collection,
   getDocs,
-  getFirestore,
 } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import {
   MessageDataInterface,
   MessageElementDataInterface,
-  SubscriptionDataInterface,
   UserDataInterface,
+  UserSettingsInterface,
   returnSettingsJson,
 } from "@/util/raiChatTypes";
-import { auth, firestore } from "@/util/firebaseConfig";
+import { auth, firestore, db } from "@firebase/config";
 import MessageElement from "@/components/MessageElement";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { Button } from "@workspace/ui/components/button";
 import { useTitle } from "@/hooks/use-title";
-import { useParams, useRouter } from "next/navigation";
-import { getPlan } from "@/util/rai";
+import { useParams } from "next/navigation";
+import MessageSkeleton from "@/components/MessageSkeleton";
+import MessageElements from "@/components/MessageElements";
 
 const MessagePage = () => {
   // State Management
@@ -39,13 +38,13 @@ const MessagePage = () => {
   const [isStaff, setIsStaff] = useState(false);
   const [myUserObject, setMyUserObject] = useState<User | null>(null);
   const [messageInput, setMessageInput] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const [originalMessage, setOriginalMessage] =
     useState<MessageElementDataInterface | null>(null);
-  const [replies, setReplies] = useState<MessageElementDataInterface[]>([]);
+  const [messageId, setMessageId] = useState<string | null>(null);
   const [alertText, setAlertText] = useState("");
   useTitle("メッセージ");
   const params = useParams();
-  const router = useRouter();
 
   // const handleTextAreaChange = useCallback(
   //   debounce((e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -61,7 +60,7 @@ const MessagePage = () => {
     try {
       const messageId = params.id as string;
       const token = await myUserObject.getIdToken();
-      const response = await fetch("https://api.raic.dev/chat/reply", {
+      const response = await fetch("/api/reply", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -83,11 +82,7 @@ const MessagePage = () => {
     }
   };
 
-
   useEffect(() => {
-    const db = getDatabase();
-    const dbF = getFirestore();
-
     const handleAuthStateChanged = async (user: User | null) => {
       if (!user) {
         window.location.href = "/login";
@@ -96,10 +91,9 @@ const MessagePage = () => {
 
       setMyUserObject(user);
 
-      if (!params) return
+      if (!params) return;
       const messageId = params.id as string;
-      console.log(messageId);
-
+      setMessageId(messageId);
       // Load message and replies
       const messageQuery = query(
         ref(db, "messages_new_20240630/"),
@@ -107,87 +101,65 @@ const MessagePage = () => {
         equalTo(messageId)
       );
 
-      const repliesQuery = query(
-        ref(db, "messages_new_20240630/"),
-        orderByChild("replyTo"),
-        equalTo(messageId)
-      );
-
-      const userDoc = await getDoc(doc(dbF, "raichat-user-status", user.uid));
+      const userDoc = await getDoc(doc(firestore, "raichat-user-status", user.uid));
       if (userDoc.exists()) {
         const userData = userDoc.data() as UserDataInterface;
         setIsStaff(userData.isStaff);
       }
 
-      const settingsDoc = await getDoc(doc(dbF, "rai-user-settings", user.uid));
+      const settingsDoc = await getDoc(doc(firestore, "rai-user-settings", user.uid));
       if (!settingsDoc.exists()) {
         await setDoc(
-          doc(dbF, "rai-user-settings", user.uid),
-          returnSettingsJson()
+          doc(firestore, "rai-user-settings", user.uid),
+          returnSettingsJson() as UserSettingsInterface
         );
       }
-      const settingData = settingsDoc.data();
+      const settingData = settingsDoc.data() as UserSettingsInterface;
 
-      const subscriptionDoc = await getDoc(
-        doc(firestore, "subscription-state", user.uid)
-      );
-      if (subscriptionDoc.exists()) {
-        const subData = subscriptionDoc.data() as SubscriptionDataInterface;
-
-        if (getPlan(subData.plan) != "pro" && getPlan(subData.plan) != "premiumplus") {
-          router.push("/");
-          return;
-        }
-      } else {
-        router.push("/");
-        return;
-      }
-
-      const userDocs = await getDocs(collection(dbF, "raichat-user-status"));
+      const userDocs = await getDocs(collection(firestore, "raichat-user-status"));
       const userMap = new Map(
         userDocs.docs.map((doc) => [doc.id, doc.data() as UserDataInterface])
       );
 
-      onChildAdded(messageQuery, (snapshot) => {
-        const messageData = snapshot.val() as MessageDataInterface;
-        const userData = userMap.get(messageData.uid);
-        if (!userData) return;
+      get(messageQuery).then((snapshot) => {
+        if (snapshot.exists()) {
+          const snapshotValue = snapshot.val();
+          if (snapshotValue) {
+            const messageData = snapshotValue[
+              Object.keys(snapshotValue)[0]!
+            ] as MessageDataInterface;
+            const userData = userMap.get(messageData.uid);
+            if (!userData) return;
 
-        setOriginalMessage({
-          userData,
-          messageData,
-          user,
-          userSettings: settingData,
-        });
-      });
+            setOriginalMessage({
+              userData,
+              messageData,
+              user,
+              userSettings: settingData,
+              isStaff: isStaff,
+            });
 
-      onChildAdded(repliesQuery, (snapshot) => {
-        const messageData = snapshot.val() as MessageDataInterface;
-        const userData = userMap.get(messageData.uid);
-        if (!userData) return;
-
-        setReplies((prev) => [
-          ...prev,
-          {
-            userData,
-            messageData,
-            user,
-            userSettings: settingData,
-          },
-        ]);
+            setIsLoading(false);
+          }
+        }
       });
     };
 
-    onAuthStateChanged(auth, handleAuthStateChanged);
-  });
+    const unsubscribeAuth = onAuthStateChanged(auth, handleAuthStateChanged);
 
-  
+    return () => {
+      // onAuthStateChanged のリスナー解除
+      unsubscribeAuth();
+      // onChildAdded のリスナー解除
+    };
+  }, [isStaff, params]);
 
   return (
     <main className="p-5 w-full">
       <div className="w-full space-y-4">
         <div className="space-y-4 w-full">
           <h2 className="text-2xl font-bold">元のメッセージ</h2>
+          {isLoading ? <MessageSkeleton /> : null}
           {originalMessage && (
             <MessageElement
               userData={originalMessage.userData}
@@ -208,23 +180,12 @@ const MessagePage = () => {
               placeholder="返信メッセージ"
               className="min-h-[100px]"
             />
-            <Button onClick={handleSendReply} disabled={isSending}>
+            <Button onClick={handleSendReply} size="lg" disabled={isSending}>
               返信
             </Button>
             {alertText && <p className="text-red-500">{alertText}</p>}
           </div>
-          <div className="flex flex-col gap-4">
-            {replies.map((reply, index) => (
-              <MessageElement
-                key={`${reply.messageData.id}-${index}`}
-                userData={reply.userData}
-                messageData={reply.messageData}
-                user={reply.user}
-                userSettings={reply.userSettings}
-                isStaff={isStaff}
-              />
-            ))}
-          </div>
+          <MessageElements type="other" replyTo={messageId as string} />
         </div>
       </div>
     </main>

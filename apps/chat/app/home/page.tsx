@@ -1,51 +1,37 @@
 "use client";
 
-import { debounce } from "lodash";
 import { useCallback } from "react";
 import { useEffect, useState, useRef } from "react";
-import {
-  getDatabase,
-  ref,
-  onChildAdded,
-  orderByChild,
-  query,
-  startAt,
-  limitToLast,
-} from "firebase/database";
-import {
-  getDoc,
-  doc,
-  setDoc,
-  collection,
-  getDocs,
-  getFirestore,
-} from "firebase/firestore";
+import { getDatabase } from "firebase/database";
+import { getDoc, doc, setDoc, getFirestore } from "firebase/firestore";
 import { User } from "firebase/auth";
 import {
-  MessageDataInterface,
   MessageElementDataInterface,
   SubscriptionDataInterface,
   UserDataInterface,
   returnSettingsJson,
 } from "@/util/raiChatTypes";
-import { auth } from "@firebase/config";
-import MessageElement from "@/components/MessageElement";
+import { auth, firestore } from "@firebase/config";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { Button } from "@workspace/ui/components/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
-import { Input } from "@workspace/ui/components/input";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@workspace/ui/components/tabs";
 import { Label } from "@workspace/ui/components/label";
 import { useTitle } from "@/hooks/use-title";
 import { useRouter } from "next/navigation";
-import { getPlan } from "@/util/rai";
 import {
   Alert,
   AlertTitle,
   AlertDescription,
 } from "@workspace/ui/components/alert";
 import Link from "next/link";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, X } from "lucide-react";
 import Image from "next/image";
+import MessageElements from "@/components/MessageElements";
 
 const RaiChatApp: React.FC = () => {
   // State Management
@@ -53,34 +39,15 @@ const RaiChatApp: React.FC = () => {
   const router = useRouter();
 
   const [isSending, setIsSending] = useState(false);
-  const [isStaff, setIsStaff] = useState(false);
   const [myUserObject, setMyUserObject] = useState<User | null>(null);
-  const [messages, setMessages] = useState<MessageElementDataInterface[]>([]);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [followingMessages, setFollowingMessages] = useState<
-    MessageElementDataInterface[]
-  >([]);
-  const [trendMessages, setTrendMessages] = useState<
-    MessageElementDataInterface[]
-  >([]);
   const [messageInput, setMessageInput] = useState("");
-  const [searchInput, setSearchInput] = useState("");
   const [alertText, setAlertText] = useState("");
 
   // Refs
   const contentRef = useRef<HTMLDivElement>(null);
   const messageSentContainerRef = useRef<HTMLDivElement>(null);
-  const timelineRef = useRef<HTMLDivElement>(null);
-  const timelineTrendRef = useRef<HTMLDivElement>(null);
-  const timelineFollowingRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-
-  const handleTextAreaChange = useCallback(
-    debounce((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      setMessageInput(e.target.value);
-    }, 150),
-    [setMessageInput]
-  );
 
   // Add these new functions before the RaiChatApp component
   const uploadImage = async (file: File) => {
@@ -124,7 +91,9 @@ const RaiChatApp: React.FC = () => {
         throw new Error("サーバ側でエラーが発生しました。再度お試しください。");
       }
     } catch (error) {
-      throw new Error("ネットワークエラーが発生しました。再度お試しください。");
+      throw new Error(
+        `ネットワークエラーが発生しました。再度お試しください。${error}`
+      );
     }
   };
 
@@ -151,16 +120,15 @@ const RaiChatApp: React.FC = () => {
           setImagePreview(previewUrl);
 
           const result = await uploadImage(file);
-          setMessageInput((prev) => prev + "[img]" + result.url + "[/img]");
-          console.log(messageInput);
+          setMessageInput((prev) => prev + "\n\n[img]" + result.url + "[/img]");
         } catch (error) {
-          setAlertText("画像のアップロードに失敗しました。");
+          setAlertText(`画像のアップロードに失敗しました。${error}`);
         } finally {
           setIsSending(false);
         }
       }
     },
-    [setMessageInput, setIsSending, setAlertText, imagePreview, imagePreview]
+    [setMessageInput, setIsSending, setAlertText, imagePreview]
   );
 
   const handleSendMessage = async () => {
@@ -173,7 +141,7 @@ const RaiChatApp: React.FC = () => {
 
     try {
       const token = await myUserObject.getIdToken();
-      const response = await fetch("https://api.raic.dev/chat/send", {
+      const response = await fetch("/api/send", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -196,44 +164,43 @@ const RaiChatApp: React.FC = () => {
     }
   };
 
-  const handleSearch = (value: string) => {
-    setSearchInput(value);
-    const searchLower = value.toLowerCase();
-    const isPremiumSearch = searchLower.includes("[premium]");
-    const isStudentSearch = searchLower.includes("[student]");
+  // const handleSearch = (value: string) => {
+  //   // setSearchInput(value);
+  //   // const searchLower = value.toLowerCase();
+  //   // const isPremiumSearch = searchLower.includes("[premium]");
+  //   // const isStudentSearch = searchLower.includes("[student]");
 
-    setMessages((prevMessages) =>
-      prevMessages.map((msg) => ({
-        ...msg,
-        hidden: !shouldShowMessage(
-          msg,
-          searchLower,
-          isPremiumSearch,
-          isStudentSearch
-        ),
-      }))
-    );
-  };
+  //   // setMessages((prevMessages) =>
+  //   //   prevMessages.map((msg) => ({
+  //   //     ...msg,
+  //   //     hidden: !shouldShowMessage(
+  //   //       msg,
+  //   //       searchLower,
+  //   //       isPremiumSearch,
+  //   //       isStudentSearch
+  //   //     ),
+  //   //   }))
+  //   // );
 
-  const shouldShowMessage = (
-    msg: MessageElementDataInterface,
-    search: string,
-    isPremium: boolean,
-    isStudent: boolean
-  ) => {
-    const messageText = msg.messageData.message.toLowerCase();
-    const basicMatch = messageText.includes(search);
+  //   alert("search is currently disabled");
+  // };
 
-    if (isPremium && !msg.userData.verified) return false;
-    if (isStudent && !msg.userData.isStudent) return false;
+  // const shouldShowMessage = (
+  //   msg: MessageElementDataInterface,
+  //   search: string,
+  //   isPremium: boolean,
+  //   isStudent: boolean
+  // ) => {
+  //   const messageText = msg.messageData.message.toLowerCase();
+  //   const basicMatch = messageText.includes(search);
 
-    return basicMatch;
-  };
+  //   if (isPremium && !msg.userData.verified) return false;
+  //   if (isStudent && !msg.userData.isStudent) return false;
+
+  //   return basicMatch;
+  // };
 
   useEffect(() => {
-    const db = getDatabase();
-    const dbF = getFirestore();
-
     const handleAuthStateChanged = async (user: User | null) => {
       if (!user) {
         window.location.href = "/login";
@@ -243,10 +210,12 @@ const RaiChatApp: React.FC = () => {
       setMyUserObject(user);
 
       // User settings
-      const settingsDoc = await getDoc(doc(dbF, "rai-user-settings", user.uid));
+      const settingsDoc = await getDoc(
+        doc(firestore, "rai-user-settings", user.uid)
+      );
       if (!settingsDoc.exists()) {
         await setDoc(
-          doc(dbF, "rai-user-settings", user.uid),
+          doc(firestore, "rai-user-settings", user.uid),
           returnSettingsJson()
         );
       }
@@ -254,85 +223,28 @@ const RaiChatApp: React.FC = () => {
 
       // Subscription status
       const subscriptionDoc = await getDoc(
-        doc(dbF, "subscription-state", user.uid)
+        doc(firestore, "subscription-state", user.uid)
       );
       if (subscriptionDoc.exists()) {
         const subData = subscriptionDoc.data() as SubscriptionDataInterface;
-        setIsStaff(subData.isStaff);
-
-        if (
-          getPlan(subData.plan) != "pro" &&
-          getPlan(subData.plan) != "premiumplus"
-        ) {
-          router.push("/");
-          return;
-        }
 
         if ((subData.plan as string) != "free") {
           const userDoc = await getDoc(
-            doc(dbF, "raichat-user-status", user.uid)
+            doc(firestore, "raichat-user-status", user.uid)
           );
           if (userDoc.exists() && settingData) {
             const userData = userDoc.data() as UserDataInterface;
             userData.checkmarkState = settingData.hide_checkmark;
-            await setDoc(doc(dbF, "raichat-user-status", user.uid), userData);
+            await setDoc(
+              doc(firestore, "raichat-user-status", user.uid),
+              userData
+            );
           }
         }
       } else {
         router.push("/");
         return;
       }
-
-      // Message listeners
-      const messagesQuery = query(
-        ref(db, "messages_new_20240630/"),
-        orderByChild("id"),
-        limitToLast(30)
-      );
-      const trendQuery = query(
-        ref(db, "messages_new_20240630/"),
-        orderByChild("favorite"),
-        startAt(2)
-      );
-
-      const userDocs = await getDocs(collection(dbF, "raichat-user-status"));
-      const userMap = new Map(
-        userDocs.docs.map((doc) => [doc.id, doc.data() as UserDataInterface])
-      );
-
-      onChildAdded(messagesQuery, (snapshot) => {
-        const messageData = snapshot.val() as MessageDataInterface;
-        if (messageData.replyTo) return;
-
-        const userData = userMap.get(messageData.uid);
-        if (!userData) return;
-
-        const newMessage: MessageElementDataInterface = {
-          userData,
-          messageData,
-          user: user,
-          userSettings: settingData,
-        };
-
-        setMessages((prev) => [newMessage, ...prev]);
-      });
-
-      onChildAdded(trendQuery, (snapshot) => {
-        const messageData = snapshot.val() as MessageDataInterface;
-        if (messageData.replyTo) return;
-
-        const userData = userMap.get(messageData.uid);
-        if (!userData) return;
-
-        const newMessage: MessageElementDataInterface = {
-          userData,
-          messageData,
-          user: user,
-          userSettings: settingData,
-        };
-
-        setTrendMessages((prev) => [newMessage, ...prev]);
-      });
     };
 
     auth.onAuthStateChanged(handleAuthStateChanged);
@@ -343,52 +255,52 @@ const RaiChatApp: React.FC = () => {
   }, [router]);
 
   return (
-    <main className={`p-3 md:p-5 w-full`}>
+    <main className={`p-3 md:p-5 h-full flex flex-col`}>
       <div id="app-content" className="w-full h-full" ref={contentRef}>
-        <div className="flex flex-col items-center justify-center mt-2 md:mt-4 mb-2 md:mb-3 w-full">
-          <Alert className="w-full text-sm md:text-base">
-            <RefreshCw className="h-4 w-4" />
-            <AlertTitle>Rai Chat の利用規約が更新されます</AlertTitle>
-            <AlertDescription>
-              Rai Chat
-              の利用規約が更新され、2025/01/20から使用されます。新しい規約は、{" "}
-              <Link
-                href="/terms"
-                className="text-blue-500 dark:text-blue-400 hover:underline"
-              >
-                こちら
-              </Link>
-              でご確認ください。
-            </AlertDescription>
-          </Alert>
-        </div>
         <div className="field space-y-2" ref={messageSentContainerRef}>
           <div className="control flex flex-col mb-3 gap-2">
-            <div className="flex-1">
-              <Textarea
+            <div className="flex-1 border rounded-md h-auto">
+              <textarea
                 ref={inputRef}
-                onChange={handleTextAreaChange}
+                value={messageInput}
+                onChange={(e) => {
+                  e.target.style.height = 'auto'
+                  e.target.style.height = e.target.scrollHeight + 'px'
+                  setMessageInput(e.target.value)
+                }}
                 onPaste={handlePaste}
-                className="min-h-[100px] md:min-h-[120px]"
+                className="w-full border-none bg-transparent p-3 h-auto min-h-0 outline-none text-sm resize-none overflow-hidden"
                 placeholder="メッセージを入力して送信。Ctrl+Vで画像を追加。"
-              />
-              {imagePreview && (
-                <div className="mt-2">
+                style={{ height: 'auto', overflow: 'hidden' }}
+              />              {imagePreview && (
+                <div className="m-2 border bg-sidebar flex flex-col gap-1 rounded-md w-fit p-1 pl-2 pb-1">
                   <Image
                     src={imagePreview}
                     alt="Preview"
-                    className="max-w-[150px] md:max-w-[200px] rounded-md cursor-pointer"
+                    width={300}
+                    height={200}
+                    className="w-full"
                     onClick={() => setImagePreview(null)}
                   />
+                  <div className="flex justify-between items-center">
+                    <p>画像が添付済み</p>
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        setImagePreview(null);
+                        setMessageInput(
+                          messageInput.replace(/\[img\].*?\[\/img\]/g, "")
+                        );
+                      }}
+                    >
+                      <X /> 削除
+                    </Button>
+                  </div>
                 </div>
               )}
-            </div>
-            <Button
+            </div>            <Button
               type="button"
-              onClick={(e) => {
-                console.log("Button click event:", e);
-                handleSendMessage();
-              }}
+              onClick={() => handleSendMessage()}
               disabled={isSending}
               className="w-full md:w-24 h-10"
             >
@@ -401,14 +313,6 @@ const RaiChatApp: React.FC = () => {
         </div>
 
         <div className="space-y-3">
-          <Input
-            type="text"
-            value={searchInput}
-            className="w-full"
-            onChange={(e) => handleSearch(e.target.value)}
-            placeholder="ワード、名前、時間で検索"
-          />
-
           <Tabs defaultValue="home">
             <TabsList className="w-full justify-start md:justify-center gap-1">
               <TabsTrigger value="home" className="flex-1 md:flex-none">
@@ -417,45 +321,17 @@ const RaiChatApp: React.FC = () => {
               <TabsTrigger value="trend" className="flex-1 md:flex-none">
                 トレンド
               </TabsTrigger>
-              <TabsTrigger value="following" className="flex-1 md:flex-none">
+              {/* <TabsTrigger value="following" className="flex-1 md:flex-none">
                 フォロー中
-              </TabsTrigger>
+              </TabsTrigger> */}
             </TabsList>
             <TabsContent value="home">
-              <div
-                className="flex flex-col gap-2 md:gap-4"
-                ref={timelineRef}
-              >
-                {messages.map((msg, index) => (
-                  <MessageElement
-                    key={`${msg.messageData.id}-${index}`}
-                    userData={msg.userData}
-                    messageData={msg.messageData}
-                    user={msg.user}
-                    userSettings={msg.userSettings}
-                    isStaff={isStaff}
-                  />
-                ))}
-              </div>
+              <MessageElements type="default" />
             </TabsContent>
             <TabsContent value="trend">
-              <div
-                className="flex flex-col gap-4 trend"
-                ref={timelineTrendRef}
-              >
-                {trendMessages.map((msg, index) => (
-                  <MessageElement
-                    key={`${msg.messageData.id}-${index}`}
-                    userData={msg.userData}
-                    messageData={msg.messageData}
-                    user={msg.user}
-                    userSettings={msg.userSettings}
-                    isStaff={isStaff}
-                  />
-                ))}
-              </div>
+              <MessageElements type="trend" />
             </TabsContent>
-            <TabsContent value="following">
+            {/* <TabsContent value="following">
               <div
                 className="flex flex-col gap-4"
                 ref={timelineFollowingRef}
@@ -471,7 +347,7 @@ const RaiChatApp: React.FC = () => {
                   />
                 ))}
               </div>
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         </div>
       </div>

@@ -108,9 +108,6 @@ const Login: React.FC = () => {
         setNoticeTFA("パスワード認証ではないため、利用できません。");
       }
       if (multiFactor(user).enrolledFactors.length > 0) {
-        multiFactor(user).enrolledFactors.forEach((mf) => {
-          console.log(mf);
-        });
         setTFAEnabled(true);
       }
       loadingRef.current?.classList.add("hidden");
@@ -149,7 +146,7 @@ const Login: React.FC = () => {
             } else if (errorCode === "auth/weak-password") {
               setNotice("パスワードは6文字以上である必要があります");
             } else {
-              setNotice("エラーが発生しました: ") + errorMessage;
+              setNotice(`エラーが発生しました: ${errorMessage}`);
             }
           });
       })
@@ -186,7 +183,7 @@ const Login: React.FC = () => {
                 setNotice("パスワードが変更されました");
               });
             } catch (e) {
-              console.log(e);
+              console.error("An error occurred while resolving multi-factor sign-in: ", e);
               setNotice("無効な認証コードです。もう一度お試しください。");
             }
           }
@@ -243,7 +240,7 @@ const Login: React.FC = () => {
                   setTFAEnabled(false);
                 });
             } catch (e) {
-              console.log(e);
+              console.error("An error occurred while resolving multi-factor sign-in: ", e);
               setNoticeTFA("無効な認証コードです。もう一度お試しください。");
             }
           }
@@ -254,7 +251,7 @@ const Login: React.FC = () => {
           return;
         }
       } else {
-        setNoticeTFA("エラーが発生しました: ") + error.message;
+        setNotice(`エラーが発生しました: ${error.message}`);
       }
     }
   };
@@ -279,7 +276,6 @@ const Login: React.FC = () => {
         const tfaSecret =
           await TotpMultiFactorGenerator.generateSecret(multiFactorSession);
 
-        console.log("aaaa2");
         setRegisterTFAPhase(1);
 
         if (qrCodeCanvasRef.current) {
@@ -288,8 +284,6 @@ const Login: React.FC = () => {
           const qrCode = new URL(
             `otpauth://totp/UpLauncher?secret=${tfaSecret.secretKey}&issuer=UpLauncher`
           );
-
-          console.log("aaaa");
 
           qrcode.toCanvas(
             qrCodeCanvasRef.current,
