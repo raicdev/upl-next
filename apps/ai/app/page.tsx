@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { cn } from "@workspace/ui/lib/utils";
 import { CircleDollarSign, LockIcon, Zap } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
-import { useChatSessions } from "@/hooks/use-chat-sessions";
-import { useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,7 +25,7 @@ const ChatApp: React.FC = () => {
             すべての人のために作られた、無制限・完全無料で安全な AI
             チャットサービス
           </p>
-          <div className="mx-auto mt-8 w-full max-w-5xl overflow-hidden animate-up px-4">
+          <div className="mx-auto mt-8 w-full max-w-5xl overflow-hidden animate-up translate-y-[32px] px-4">
             <div className="relative items-center justify-center rounded-xl border border-muted bg-[#b4b2b21a] p-1 shadow-xl shadow-black backdrop-blur-lg md:flex md:animate-move-up md:p-5">
               <Image
                 alt="ヒーロー"

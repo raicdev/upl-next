@@ -19,7 +19,7 @@ import { Badge } from "@workspace/ui/components/badge";
 import { useParams } from "next/navigation";
 
 export function ChatSidebar() {
-  const { sessions, getSession, createSession, selectSession, deleteSession } = useChatSessions();
+  const { sessions, getSession, createSession, selectSession } = useChatSessions();
   const params = useParams<{ id: string }>();
 
   return (

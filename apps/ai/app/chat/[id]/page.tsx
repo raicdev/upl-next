@@ -42,18 +42,18 @@ const ChatApp: React.FC = () => {
 
   const modelDescription = useMemo(
     () => modelDescriptions[model]?.displayName || "gpt-4o-2024-08-06",
-    [model, modelDescriptions]
+    [model]
   );
 
   useEffect(() => {
     if (!currentSession) {
       router.push("/");
     }
-  }, [currentSession]);
+  }, [currentSession, router]);
 
   // メッセージ送信のユーティリティ関数
   const sendChatMessage = async (messages: ChatMessage[]) => {
-    var systemMessage = "";
+    let systemMessage = "";
     if (!model.includes("o1")) {
       if (deniThink) {
         systemMessage = [
@@ -94,7 +94,7 @@ const ChatApp: React.FC = () => {
       //   ].join("\n");
       // }
     }
-    var bodyContent: any = {
+    const bodyContent = {
       model,
       messages: [
         ...(model.includes("o1")
@@ -228,7 +228,7 @@ const ChatApp: React.FC = () => {
     try {
       const response = await sendChatMessage(currentSession.messages);
       if (response.ok) {
-        let aiMessage = await response.text();
+        const aiMessage = await response.text();
         setIsThinking(false);
 
         const messageJson: ChatMessage = {
@@ -283,7 +283,6 @@ const ChatApp: React.FC = () => {
                   log={log}
                   index={index}
                   onRefresh={refreshCw}
-                  modelDescription={modelDescription}
                 />
               ))}
               {isThinking && (

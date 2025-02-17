@@ -87,6 +87,7 @@ export default function SettingsPage() {
         });
       };
       reader.readAsText(file);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.name === "AbortError") {
         return;

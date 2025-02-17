@@ -74,4 +74,5 @@ const ChatInput = forwardRef<ChatInputHandles, ChatInputProps>(
   }
 );
 
+ChatInput.displayName = "ChatInput";
 export default React.memo(ChatInput);

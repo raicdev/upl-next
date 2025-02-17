@@ -13,7 +13,7 @@ import { Moon, Sun } from "lucide-react";
 
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const theme = typeof window !== "undefined" ? useTheme() : null;
+  const theme = useTheme();
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -30,7 +30,9 @@ const Header: React.FC = () => {
             }, 10);
           }
         }
-      } catch (e) {}
+      } catch (error) {
+        console.error("Error in handleClickOutside:", error);
+      }
     };
 
     document.addEventListener("mouseup", handleClickOutside);
@@ -40,10 +42,10 @@ const Header: React.FC = () => {
     <header className={cn("fixed w-[98%]", "flex items-center justify-between", "h-16 px-4 m-4", "bg-sidebar", "rounded-lg shadow-lg", "z-50")}>
       {/* Left Side: Logo */}
       <div className="flex items-center justify-center sm:none space-x-2">
-        <a href="/" className="flex items-center space-x-2">
+        <Link href="/" className="flex items-center space-x-2">
           <span className="font-bold text-lg sm:text-xl">雷のサイト</span>
           <Badge className="align-middle" variant={"outline"}>Beta</Badge>
-        </a>
+        </Link>
       </div>
 
 

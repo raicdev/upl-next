@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { auth } from "@/util/firebaseConfig";
+import { auth } from "@firebase/config";
 import {
   signInWithEmailAndPassword,
   getMultiFactorResolver,
   TotpMultiFactorGenerator,
   signInWithPopup,
   GoogleAuthProvider,
-  OAuthProvider,
   GithubAuthProvider,
 } from "firebase/auth";
 import { Button } from "@workspace/ui/components/button";
@@ -141,7 +140,7 @@ const Login: React.FC = () => {
                     window.location.pathname = "/account";
                   });
               } catch (e) {
-                console.log(e);
+                console.error("An error occurred while resolving multi-factor sign-in: ", e);
                 notice.textContent =
                   "無効な認証コードです。もう一度お試しください。";
               }

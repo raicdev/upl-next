@@ -1,9 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { UserDataInterface, MessageDataInterface } from "@/util/raiChatTypes";
+import {
+  UserDataInterface,
+  MessageDataInterface,
+  UserSettingsInterface,
+} from "@/util/raiChatTypes";
 import { User } from "firebase/auth";
 import { isCheckmarker, xssProtectedText } from "@/util/rai";
-import { Card, CardContent, CardFooter, CardHeader } from "@workspace/ui/components/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@workspace/ui/components/avatar";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@workspace/ui/components/card";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@workspace/ui/components/avatar";
 import {
   Ban,
   Check,
@@ -15,20 +28,23 @@ import {
 } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
-import { firestore, database } from "@/util/firebaseConfig";
+import { firestore, db } from "@firebase/config";
 import { get, ref, set } from "firebase/database";
-import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@workspace/ui/components/popover";
 import { Separator } from "@workspace/ui/components/separator";
 import { Input } from "@workspace/ui/components/input";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 interface MessageElementProps {
   userData: UserDataInterface;
   messageData: MessageDataInterface;
   user: User;
-  userSettings: any;
+  userSettings: UserSettingsInterface;
   isStaff: boolean;
 }
 
@@ -42,8 +58,9 @@ const MessageElement: React.FC<MessageElementProps> = ({
   const [favoriteCount, setFavoriteCount] = useState(messageData.favorite || 0);
   const [isFavorited, setIsFavorited] = useState(false);
   const [banReason, setBanReason] = useState("");
+  const [isDeleted, setIsDeleted] = useState(false); // New state to track deletion
 
-  const messageId = messageData.id.toString() || "undefined";
+  const messageId = messageData.id || "undefined";
   const userId = messageData.uid || "undefined";
   const isSent = user?.uid === messageData.uid;
 
@@ -63,7 +80,7 @@ const MessageElement: React.FC<MessageElementProps> = ({
       // Set up interval for favorite count updates
       const interval = setInterval(async () => {
         const messageDoc = await get(
-          ref(database, `messages_new_20240630/${messageId}`)
+          ref(db, `messages_new_20240630/${messageId}`)
         );
         if (messageDoc.exists()) {
           const messageData = messageDoc.val();
@@ -75,7 +92,7 @@ const MessageElement: React.FC<MessageElementProps> = ({
 
       // Initial favorite count check
       const messageDoc = await get(
-        ref(database, `messages_new_20240630/${messageId}`)
+        ref(db, `messages_new_20240630/${messageId}`)
       );
       if (messageDoc.exists()) {
         const messageData = messageDoc.val();
@@ -111,7 +128,7 @@ const MessageElement: React.FC<MessageElementProps> = ({
         { pattern: /\[img\]/g, replacement: '<br><img src="' },
         {
           pattern: /\[\/img\]/g,
-          replacement: '" width=250>',
+          replacement: '" onclick="window.open(this.src)" class="mt-2 rounded-md border-2" width=250>',
         },
         { pattern: /\[video\]/g, replacement: '<br><video src="' },
         {
@@ -146,7 +163,7 @@ const MessageElement: React.FC<MessageElementProps> = ({
       // Remove favorite
       await deleteDoc(favoriteDoc);
       const newCount = favoriteCount - 1;
-      await set(ref(database, `messages_new_20240630/${messageId}`), {
+      await set(ref(db, `messages_new_20240630/${messageId}`), {
         ...messageData,
         favorite: newCount,
       });
@@ -156,7 +173,7 @@ const MessageElement: React.FC<MessageElementProps> = ({
       // Add favorite
       await setDoc(favoriteDoc, { isFavorited: true });
       const newCount = favoriteCount + 1;
-      await set(ref(database, `messages_new_20240630/${messageId}`), {
+      await set(ref(db, `messages_new_20240630/${messageId}`), {
         ...messageData,
         favorite: newCount,
       });
@@ -182,8 +199,20 @@ const MessageElement: React.FC<MessageElementProps> = ({
   const handleForceRemove = async () => {
     if (!isStaff) return;
 
-    await set(ref(database, `messages_new_20240630/${messageId}`), null);
+    await set(ref(db, `messages_new_20240630/${messageId}`), null);
+    setIsDeleted(true);
   };
+
+  const handleRemove = async () => {
+    if (messageData.uid === user.uid) {
+      await set(ref(db, `messages_new_20240630/${messageId}`), null);
+      setIsDeleted(true);
+    }
+  };
+
+  if (isDeleted) {
+    return null;
+  }
 
   if (userData.banned) {
     return (
@@ -315,7 +344,7 @@ const MessageElement: React.FC<MessageElementProps> = ({
               <PopoverTrigger asChild>
                 <Button
                   variant={"destructive"}
-                  size="sm"
+                  size="lg"
                   className="flex items-center gap-2 text-xs md:text-sm"
                 >
                   <Ban className="text-yellow-400 ban cursor-pointer" />
@@ -356,7 +385,7 @@ const MessageElement: React.FC<MessageElementProps> = ({
               <PopoverTrigger asChild>
                 <Button
                   variant={"destructive"}
-                  size="sm"
+                  size="lg"
                   className="flex items-center gap-2 text-xs md:text-sm"
                 >
                   <Trash2 className="text-yellow-400 remove-manually cursor-pointer" />
@@ -387,14 +416,44 @@ const MessageElement: React.FC<MessageElementProps> = ({
             </Popover>
           </>
         )}
-        {messageData.uid === user.uid && (
-          <Button variant={"ghost"} className="flex items-center gap-2 remove">
-            <Trash2 className=" text-red-500 items-center justify-center" />
-            削除
-          </Button>
+        {userData.uid === user.uid && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"destructive"}
+                size="lg"
+                className="flex items-center gap-2 remove"
+              >
+                <Trash2 className="text-red-300 items-center justify-center" />
+                削除
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">
+                    メッセージを削除しますか？
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    このメッセージは永久的に削除されます。本当に削除しますか？
+                  </p>
+                  <div className="grid gap-2">
+                    <Button
+                      variant={"destructive"}
+                      onClick={handleRemove}
+                      className="w-full"
+                    >
+                      削除
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         )}
       </CardFooter>
     </Card>
   );
 };
+
 export default MessageElement;

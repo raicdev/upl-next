@@ -13,7 +13,7 @@ import { Moon, Sun } from "lucide-react";
 
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const theme = typeof window !== "undefined" ? useTheme() : null;
+  const theme = useTheme();
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);

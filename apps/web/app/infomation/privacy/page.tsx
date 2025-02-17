@@ -1,4 +1,5 @@
 // PrivacyPolicy.tsx
+import Link from "next/link";
 import React from "react";
 
 const PrivacyPolicy: React.FC = () => {
@@ -26,9 +27,9 @@ const PrivacyPolicy: React.FC = () => {
       <h1 className="text-xl font-bold mb-4">第5条（お問い合わせ）</h1>
       <p className="mb-6 text-base leading-relaxed">
         本ポリシーやウェブサイトに関するお問い合わせは、
-        <a href="/#contact" className="text-blue-400 underline">
+        <Link href="/#contact" className="text-blue-400 underline">
           こちら
-        </a>
+        </Link>
         をご覧ください。
       </p>
     </div>  );

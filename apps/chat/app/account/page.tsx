@@ -44,9 +44,6 @@ const Login: React.FC = () => {
         }
       }
       if (multiFactor(user).enrolledFactors.length > 0 && noticeTFARef.current) {
-        multiFactor(user).enrolledFactors.forEach((mf) => {
-          console.log(mf);
-        });
         noticeTFARef.current.textContent = "二段階認証は有効になっています！";
       }
       if (loadingRef.current) {
@@ -119,7 +116,7 @@ const Login: React.FC = () => {
                   });
               });
             } catch (e) {
-              console.log(e);
+              console.error("An error occurred while resolving multi-factor sign-in: ", e);
               notice.textContent = "無効な認証コードです。もう一度お試しください。";
             }
           }

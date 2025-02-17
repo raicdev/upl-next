@@ -1,14 +1,10 @@
 "use client";
 
 import {
-  MessageDataInterface,
-  MessageElementDataInterface,
-  SubscriptionDataInterface,
   UserDataInterface,
-  returnSettingsJson,
 } from "@/util/raiChatTypes";
-import { auth, database, firestore } from "@/util/firebaseConfig";
-import { getPlan, isCheckmarker } from "@/util/rai";
+import { auth, firestore } from "@firebase/config";
+import { isCheckmarker } from "@/util/rai";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@workspace/ui/components/button";
 import { Input } from "@workspace/ui/components/input";
@@ -37,27 +33,20 @@ import {
 } from "firebase/firestore";
 import React, { useState, useEffect } from "react";
 import {
-  endAt,
-  orderByChild,
-  ref,
-  query as queryDb,
-  startAt,
-  onChildAdded,
-} from "firebase/database";
-import MessageElement from "@/components/MessageElement";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@workspace/ui/components/popover";
 import Image from "next/image";
 import { Check, Edit, Gavel, MinusCircle, PlusCircle, UserIcon } from "lucide-react";
+import MessageElements from "@/components/MessageElements";
+import ProfileSkeleton from "@/components/ProfileSkeleton";
+import { useTitle } from "@/hooks/use-title";
 
 const ProfilePage = () => {
   const router = useRouter();
   const params = useParams();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [isStaff, setIsStaff] = useState(false);
   const [editName, setEditName] = useState("");
   const [editHandle, setEditHandle] = useState("");
   const [editPicture, setEditPicture] = useState("");
@@ -67,11 +56,10 @@ const ProfilePage = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followers, setFollowers] = useState(0);
   const [userData, setUserData] = useState<UserDataInterface | null>(null);
-  const [userMessages, setUserMessages] = useState<
-    MessageElementDataInterface[]
-  >([]);
   const [alertText, setAlertText] = useState("");
   const [isFollowButtonDisabled, setIsFollowButtonDisabled] = useState(false);
+
+  useTitle("プロフィール");
 
   const handleEditClick = () => {
     if (!currentUser) return;
@@ -212,7 +200,7 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    const handleAuth = async (user: import("firebase/auth").User | null) => {
+    const handleAuth = async (user: User | null) => {
       if (!user) {
         router.push("/login");
         return;
@@ -249,58 +237,6 @@ const ProfilePage = () => {
         doc(firestore, "raichat-user-status", uid, "followersInfo", user.uid)
       );
       setIsFollowing(followDoc.exists());
-
-      const settingsDoc = await getDoc(
-        doc(firestore, "rai-user-settings", user.uid)
-      );
-      if (!settingsDoc.exists()) {
-        await setDoc(
-          doc(firestore, "rai-user-settings", user.uid),
-          returnSettingsJson()
-        );
-      }
-      const settingData = settingsDoc.data();
-
-      const subscriptionDoc = await getDoc(
-        doc(firestore, "subscription-state", user.uid)
-      );
-      if (subscriptionDoc.exists()) {
-        const subData = subscriptionDoc.data() as SubscriptionDataInterface;
-
-        setIsStaff(subData.isStaff);
-
-        if (getPlan(subData.plan) != "pro" && getPlan(subData.plan) != "premiumplus") {
-          router.push("/");
-          return;
-        }
-      } else {
-        router.push("/");
-        return;
-      }
-
-      const userMessagesRef = ref(database, "messages_new_20240630/");
-      const userMessagesQuery = queryDb(
-        userMessagesRef,
-        orderByChild("uid"),
-        startAt(uid),
-        endAt(user.uid)
-      );
-
-      onChildAdded(userMessagesQuery, (snapshot) => {
-        const messageData = snapshot.val() as MessageDataInterface;
-        if (messageData.replyTo) return;
-
-        if (!userData) return;
-
-        const newMessage: MessageElementDataInterface = {
-          userData,
-          messageData,
-          user: user,
-          userSettings: settingData,
-        };
-
-        setUserMessages((prev) => [newMessage, ...prev]);
-      });
     };
 
     const unsubscribe = onAuthStateChanged(auth, handleAuth);
@@ -308,7 +244,7 @@ const ProfilePage = () => {
   }, [router, params]);
 
   if (!userData || !currentUser) {
-    return <div>Loading...</div>;
+    return <ProfileSkeleton />;
   }
 
   return (
@@ -465,16 +401,7 @@ const ProfilePage = () => {
           )}
 
           <div className={`flex flex-col gap-4 mt-3`}>
-            {userMessages.map((msg, index) => (
-              <MessageElement
-                key={`${msg.messageData.id}-${index}`}
-                userData={msg.userData}
-                messageData={msg.messageData}
-                user={msg.user}
-                userSettings={msg.userSettings}
-                isStaff={isStaff}
-              />
-            ))}
+            <MessageElements type="other" profile={userData} />
           </div>
         </div>
       </div>

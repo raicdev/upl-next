@@ -88,33 +88,23 @@ export default function Home() {
                     <ul className="list-disc ml-5">
                       <li>
                         新しい機能追加して！{" "}
-                        <small className="opacity-50">
-                          ( . . . . . . . . . . . . . . . )
-                        </small>
+                        <small className="opacity-50">( . . . )</small>
                       </li>
                       <li>
                         ここにバグがあるから修正して！
-                        <small className="opacity-50">
-                          ( . . . . . . . . . . . . . . . )
-                        </small>
+                        <small className="opacity-50">( . . . )</small>
                       </li>
                       <li>
                         これ使いにくいから改善して！
-                        <small className="opacity-50">
-                          ( . . . . . . . . . . . . . . . . )
-                        </small>
+                        <small className="opacity-50">( . . . )</small>
                       </li>
                       <li>
                         脆弱性あるから今すぐ直して！
-                        <small className="opacity-50">
-                          ( . . . . . . . . . . . . . . . )
-                        </small>
+                        <small className="opacity-50">( . . . )</small>
                       </li>
                       <li>
                         ここのデザインダサい！
-                        <small className="opacity-50">
-                          ( . . . . . . . . . . . . . . . )
-                        </small>
+                        <small className="opacity-50">( . . . )</small>
                       </li>
                     </ul>
                   </div>
@@ -139,45 +129,29 @@ export default function Home() {
                   </div>
 
                   <div className="border rounded-xl p-2">
-                    <p className="inline-flex">
+                    <p className="inline-flex line-through">
                       <Eye className="mr-2" />
-                      3:00 PM Hello! [BAN]
+                      3:10 PM **** you [BAN]
+                    </p>
+                    <p className="inline-flex line-through">
+                      <Eye className="mr-2" />
+                      3:09 PM **** *** [BAN]
                     </p>
                     <p className="inline-flex">
                       <Eye className="mr-2" />
-                      3:00 PM Hello! [BAN]
+                      3:08 PM dont use these words [BAN]
                     </p>
-                    <p className="inline-flex">
+                    <p className="inline-flex line-through">
                       <Eye className="mr-2" />
-                      3:00 PM Hello! [BAN]
+                      3:07 PM *** ****** [BAN]
                     </p>
-                    <p className="inline-flex">
+                    <p className="inline-flex line-through">
                       <Eye className="mr-2" />
-                      3:00 PM Hello! [BAN]
+                      3:06 PM **** you [BAN]
                     </p>
-                    <p className="inline-flex">
+                    <p className="inline-flex line-through">
                       <Eye className="mr-2" />
-                      3:00 PM Hello! [BAN]
-                    </p>
-                    <p className="inline-flex">
-                      <Eye className="mr-2" />
-                      3:00 PM Hello! [BAN]
-                    </p>
-                    <p className="inline-flex">
-                      <Eye className="mr-2" />
-                      3:00 PM Hello! [BAN]
-                    </p>
-                    <p className="inline-flex">
-                      <Eye className="mr-2" />
-                      3:00 PM Hello! [BAN]
-                    </p>
-                    <p className="inline-flex">
-                      <Eye className="mr-2" />
-                      3:00 PM Hello! [BAN]
-                    </p>
-                    <p className="inline-flex">
-                      <Eye className="mr-2" />
-                      3:00 PM Hello! [BAN]
+                      3:05 PM **** *** [BAN]
                     </p>
                   </div>
                 </div>
@@ -295,18 +269,6 @@ export default function Home() {
                       [main 1a2b3c4] feat: Add new features
                       <br />
                       10 files changed, 342 insertions(+), 12 deletions(-)
-                      <br />
-                      Enumerating objects: 24, done.
-                      <br />
-                      Counting objects: 100% (24/24), done.
-                      <br />
-                      Writing objects: 100% (14/14), 2.05 KiB | 1.02 MiB/s,
-                      done.
-                      <br />
-                      Total 14 (delta 10), reused 0 (delta 0)
-                      <br />
-                      remote: Resolving deltas: 100% (10/10), completed with 8
-                      local objects.
                       <br />
                       To github.com:raidesuuu/rai-chat.git
                       <br />

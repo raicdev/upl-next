@@ -18,11 +18,10 @@ interface MessageLogProps {
   log: ChatMessage;
   index: number;
   onRefresh: (index: number) => void;
-  modelDescription: string;
 }
 
 export const MessageLog: FC<MessageLogProps> = memo(
-  ({ log, index, onRefresh, modelDescription }) => {
+  ({ log, index, onRefresh }) => {
     const handleCopy = (event: React.MouseEvent<HTMLButtonElement>) => {
       navigator.clipboard.writeText(log.message);
       const target = event.currentTarget;

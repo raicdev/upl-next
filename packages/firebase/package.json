@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "firebase": "^11.1.0"
+    "firebase": "^11.3.1"
   }
 }

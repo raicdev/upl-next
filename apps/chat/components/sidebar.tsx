@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AuthStatusButton } from "@/components/AuthStatusButton";
 import {
   Sidebar as SidebarRoot,
   SidebarContent as SidebarContentRoot,
@@ -17,8 +18,7 @@ import {
   FlaskConical,
   Home,
   KeyRound,
-  LogIn,
-  LogOut,
+  LinkIcon,
   Menu,
   Monitor,
   Moon,
@@ -31,16 +31,9 @@ import {
 } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { auth } from "@firebase/config";
-import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@workspace/ui/components/tooltip";
 import { useIsMobile } from "@workspace/ui/hooks/use-mobile";
 import {
   Drawer,
@@ -155,15 +148,6 @@ const SidebarItems = ({ items }: { items: SidebarItem[] }) => {
 
 const SidebarMainContent = () => {
   const { theme, setTheme } = useTheme();
-  const [user, setUser] = useState(auth.currentUser);
-  const router = useRouter();
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user);
-    });
-    return () => unsubscribe();
-  }, []);
 
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
@@ -178,39 +162,15 @@ const SidebarMainContent = () => {
           </h1>
 
           <div className="flex gap-3">
-            {user ? (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Button
-                      asChild
-                      size="icon"
-                      variant="destructive"
-                      className="cursor-pointer"
-                      onClick={async () => {
-                        try {
-                          await signOut(auth);
-                          router.push("/");
-                        } catch (error) {
-                          console.error("ログアウトエラー:", error);
-                        }
-                      }}
-                    >
-                      <LogOut className="w-5 h-5 p-2.5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>ログアウト</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : (
-              <Button asChild variant="secondary" size="icon">
-                <Link href="/login">
-                  <LogIn className="h-[1.2rem] w-[1.2rem]" />
-                </Link>
-              </Button>
-            )}
+            <Suspense
+              fallback={
+                <Button variant="secondary" size="icon" disabled>
+                  <LinkIcon />
+                </Button>
+              }
+            >
+              <AuthStatusButton />
+            </Suspense>
 
             <Button
               variant="secondary"

@@ -4,7 +4,8 @@ import { useTheme } from "next-themes";
 import React from "react";
 
 const Footer: React.FC = () => {
-  const theme = typeof window !== "undefined" ? useTheme() : null;
+  const theme = useTheme();
+
   return (
     <footer className="w-full z-10 bg-background border-t">
       <div className="container mx-auto px-4 py-6 text-center">

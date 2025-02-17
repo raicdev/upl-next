@@ -1,9 +1,9 @@
 import { Button } from "@workspace/ui/components/button";
 import { Check, Copy } from "lucide-react";
 import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/default-highlight";
-import { useMemo, ClassAttributes, HTMLAttributes, useState } from "react";
+import { ClassAttributes, HTMLAttributes, useState } from "react";
 import { ExtraProps } from "react-markdown";
-import { dark, vs2015 } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { vs2015 } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 export const Pre = ({
   children,
@@ -52,7 +52,7 @@ export const Pre = ({
         <Button
           variant={"default"}
           className="cursor-pointer"
-          onClick={(event) => {
+          onClick={() => {
             const codeString = String(code);
             navigator.clipboard.writeText(codeString);
 
