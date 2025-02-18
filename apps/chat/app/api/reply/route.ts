@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     replyTo: string;
   };
 
-  if (notAvailable) {
+  if (notAvailable || !authAdmin || !databaseAdmin || !firestoreAdmin) {
     return NextResponse.json(
       {
         statusMessage: "Internal Server Error",
