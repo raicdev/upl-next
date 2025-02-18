@@ -7,6 +7,7 @@ export async function POST(req: Request) {
     content: string;
     image: string;
   };
+  if (req.body === undefined) return
   try {
     body = await req.json();
   } catch (error) {
