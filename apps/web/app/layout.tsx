@@ -1,11 +1,11 @@
 "use client";
 
-import { Loading } from "@workspace/ui/components/loading";
-import "@workspace/ui/styles/globals.css";
+import { Loading } from "@repo/ui/components/loading";
+import "@repo/ui/styles/globals.css";
 import { Suspense } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ThemeProvider } from "@workspace/ui/components/theme-provider";
+import { ThemeProvider } from "@repo/ui/components/theme-provider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

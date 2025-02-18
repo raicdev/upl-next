@@ -2,13 +2,13 @@
 
 import {
   UserDataInterface,
-} from "@/util/raiChatTypes";
+} from "@firebase/types";
 import { auth, firestore } from "@firebase/config";
-import { isCheckmarker } from "@/util/rai";
+import { isCheckmarker } from "@firebase/tools";
 import { useParams, useRouter } from "next/navigation";
-import { Button } from "@workspace/ui/components/button";
-import { Input } from "@workspace/ui/components/input";
-import { Textarea } from "@workspace/ui/components/textarea";
+import { Button } from "@repo/ui/components/button";
+import { Input } from "@repo/ui/components/input";
+import { Textarea } from "@repo/ui/components/textarea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@workspace/ui/components/alert-dialog";
+} from "@repo/ui/components/alert-dialog";
 import { User, onAuthStateChanged, updateProfile } from "firebase/auth";
 import {
   doc,
@@ -36,7 +36,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@workspace/ui/components/popover";
+} from "@repo/ui/components/popover";
 import Image from "next/image";
 import { Check, Edit, Gavel, MinusCircle, PlusCircle, UserIcon } from "lucide-react";
 import MessageElements from "@/components/MessageElements";

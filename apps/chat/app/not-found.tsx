@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@repo/ui/components/button";
 import { useTitle } from "@/hooks/use-title";
 import Link from "next/link";
 

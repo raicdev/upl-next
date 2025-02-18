@@ -1,11 +1,11 @@
 {
-  "extends": "@workspace/typescript-config/nextjs.json",
+  "extends": "@repo/typescript-config/nextjs.json",
   "compilerOptions": {
     "baseUrl": ".",
     "types": [ "@types/wicg-file-system-access", "@types/react-syntax-highlighter"],
     "paths": {
       "@/*": ["./*"],
-      "@workspace/ui/*": ["../../packages/ui/src/*"],
+      "@repo/ui/*": ["../../packages/ui/src/*"],
       "@firebase/*": ["../../packages/firebase/src/*"]
     },
     "plugins": [
@@ -20,6 +20,6 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ],
+, "../../packages/ui/src/components/easytip.tsx"  ],
   "exclude": ["node_modules"]
 }

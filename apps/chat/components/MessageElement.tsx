@@ -3,42 +3,64 @@ import {
   UserDataInterface,
   MessageDataInterface,
   UserSettingsInterface,
-} from "@/util/raiChatTypes";
+} from "@firebase/types";
+import { toast } from "sonner";
 import { User } from "firebase/auth";
-import { isCheckmarker, xssProtectedText } from "@/util/rai";
+import {
+  isCheckmarker,
+  isHighlightAvailable,
+  xssProtectedText,
+} from "@firebase/tools";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
-} from "@workspace/ui/components/card";
+} from "@repo/ui/components/card";
 import {
   Avatar,
   AvatarImage,
   AvatarFallback,
-} from "@workspace/ui/components/avatar";
+} from "@repo/ui/components/avatar";
 import {
   Ban,
   Check,
   Gavel,
   HeartIcon,
+  MenuSquare,
+  Reply,
+  Share,
   Shield,
   Trash2,
   UserIcon,
 } from "lucide-react";
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@repo/ui/components/button";
 import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 import { firestore, db } from "@firebase/config";
 import { get, ref, set } from "firebase/database";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@workspace/ui/components/popover";
-import { Separator } from "@workspace/ui/components/separator";
-import { Input } from "@workspace/ui/components/input";
 import Link from "next/link";
 import Image from "next/image";
+// New imports for DropdownMenu and AlertDialog
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+} from "@repo/ui/components/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@repo/ui/components/alert-dialog";
+import { Separator } from "@repo/ui/components/separator";
+import { Input } from "@repo/ui/components/input";
+import { cn } from "@repo/ui/lib/utils";
 
 interface MessageElementProps {
   userData: UserDataInterface;
@@ -47,6 +69,8 @@ interface MessageElementProps {
   userSettings: UserSettingsInterface;
   isStaff: boolean;
 }
+
+type ActionType = "ban" | "forceRemove" | "remove" | null;
 
 const MessageElement: React.FC<MessageElementProps> = ({
   userData,
@@ -58,11 +82,18 @@ const MessageElement: React.FC<MessageElementProps> = ({
   const [favoriteCount, setFavoriteCount] = useState(messageData.favorite || 0);
   const [isFavorited, setIsFavorited] = useState(false);
   const [banReason, setBanReason] = useState("");
-  const [isDeleted, setIsDeleted] = useState(false); // New state to track deletion
+  const [isDeleted, setIsDeleted] = useState(false);
+
+  const [isFavoriting, setIsFavoriting] = useState(false);
+
+  const [shouldShowImageDialog, setShouldShowImageDialog] = useState(false);
+
+  // New state for AlertDialog
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<ActionType>(null);
 
   const messageId = messageData.id || "undefined";
   const userId = messageData.uid || "undefined";
-  const isSent = user?.uid === messageData.uid;
 
   useEffect(() => {
     const checkInitialFavoriteStatus = async () => {
@@ -128,7 +159,8 @@ const MessageElement: React.FC<MessageElementProps> = ({
         { pattern: /\[img\]/g, replacement: '<br><img src="' },
         {
           pattern: /\[\/img\]/g,
-          replacement: '" onclick="window.open(this.src)" class="mt-2 rounded-md border-2" width=250>',
+          replacement:
+            '" onclick="window.open(this.src)" class="mt-2 rounded-md border-2" width=250>',
         },
         { pattern: /\[video\]/g, replacement: '<br><video src="' },
         {
@@ -146,14 +178,21 @@ const MessageElement: React.FC<MessageElementProps> = ({
     return message;
   }, [messageData.message, userSettings.markdown]);
 
-  const handleFavorite = async (e: React.MouseEvent<SVGSVGElement>) => {
+  const handleFavorite = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    const messageId = messageData.id.toString();
+    if (isFavoriting) {
+      toast.error("お気に入りできませんでした", {
+        description: "このメッセージへのお気に入り追加・削除は現在進行中です。",
+      });
+      return;
+    }
+    setIsFavoriting(true);
+    const favMessageId = messageData.id.toString();
 
     const favoriteDoc = doc(
       firestore,
       "raichat-message-status",
-      messageId,
+      favMessageId,
       user.uid,
       "data"
     );
@@ -163,22 +202,30 @@ const MessageElement: React.FC<MessageElementProps> = ({
       // Remove favorite
       await deleteDoc(favoriteDoc);
       const newCount = favoriteCount - 1;
-      await set(ref(db, `messages_new_20240630/${messageId}`), {
+      await set(ref(db, `messages_new_20240630/${favMessageId}`), {
         ...messageData,
         favorite: newCount,
       });
+      toast.success("お気に入りを解除しました", {
+        description: "このメッセージのお気に入りを解除しました",
+      });
       setFavoriteCount(newCount);
       setIsFavorited(false);
+      setIsFavoriting(false);
     } else {
       // Add favorite
       await setDoc(favoriteDoc, { isFavorited: true });
       const newCount = favoriteCount + 1;
-      await set(ref(db, `messages_new_20240630/${messageId}`), {
+      await set(ref(db, `messages_new_20240630/${favMessageId}`), {
         ...messageData,
         favorite: newCount,
       });
+      toast.success("お気に入りに追加しました", {
+        description: "このメッセージをお気に入りへ追加しました",
+      });
       setFavoriteCount(newCount);
       setIsFavorited(true);
+      setIsFavoriting(false);
     }
   };
 
@@ -187,9 +234,9 @@ const MessageElement: React.FC<MessageElementProps> = ({
     const userDoc = doc(firestore, "raichat-user-status", messageData.uid);
     const userSnapshot = await getDoc(userDoc);
     if (userSnapshot.exists()) {
-      const userData = userSnapshot.data() as UserDataInterface;
+      const userDataDoc = userSnapshot.data() as UserDataInterface;
       await setDoc(userDoc, {
-        ...userData,
+        ...userDataDoc,
         banned: true,
         banReason: banReason,
       });
@@ -198,7 +245,6 @@ const MessageElement: React.FC<MessageElementProps> = ({
 
   const handleForceRemove = async () => {
     if (!isStaff) return;
-
     await set(ref(db, `messages_new_20240630/${messageId}`), null);
     setIsDeleted(true);
   };
@@ -208,6 +254,19 @@ const MessageElement: React.FC<MessageElementProps> = ({
       await set(ref(db, `messages_new_20240630/${messageId}`), null);
       setIsDeleted(true);
     }
+  };
+
+  const handleConfirmAction = async () => {
+    if (selectedAction === "ban") {
+      await handleBAN();
+    } else if (selectedAction === "forceRemove") {
+      await handleForceRemove();
+    } else if (selectedAction === "remove") {
+      await handleRemove();
+    }
+    // Reset the state
+    setSelectedAction(null);
+    setDialogOpen(false);
   };
 
   if (isDeleted) {
@@ -232,228 +291,257 @@ const MessageElement: React.FC<MessageElementProps> = ({
       </div>
     );
   }
-  return (
-    <Card
-      data-messageid={messageId}
-      id={messageId}
-      data-userid={userId}
-      className={`isMessageDiv inline-block rounded-lg p-2 px-3 md:px-6 w-full
-        ${isSent ? "sent" : "receive"}
-        ${
-          isCheckmarker(userData)
-            ? userData.isStaff
-              ? "admin"
-              : userData.isStudent
-                ? "student"
-                : "verified"
-            : "free"
-        }
-        ${
-          userData.paid !== "free" && userData.highlightActive
-            ? "highlighted"
-            : "not_highlighted"
-        }`}
-    >
-      <CardHeader className="flex gap-4 p-4">
-        <Avatar className="w-12 h-12">
-          <AvatarImage
-            src={userData.image || "/images/chat-defaultProfile.png"}
-            alt="user"
-          />
-          <AvatarFallback>
-            <Image
-              alt="Default"
-              src="/images/chat-defaultProfile.png"
-              width={128}
-              height={128}
-            ></Image>
-          </AvatarFallback>
-        </Avatar>
-        <div className="space-y-1">
-          <div className="font-medium flex items-center gap-1">
-            <Link href={`/profile/${userData.uid}`} className="hover:underline">
-              {userData.username}{" "}
-            </Link>
 
-            {isCheckmarker(userData) && (
-              <Popover>
-                <PopoverTrigger asChild>
+  return (
+    <>
+      <Card
+        data-messageid={messageId}
+        id={messageId}
+        data-userid={userId}
+        className={cn(
+          "inline-block rounded-lg p-2 px-3 md:px-6 w-full",
+          isHighlightAvailable(userData) && "border-amber-300"
+        )}
+      >
+        <CardHeader className="flex gap-4 p-4">
+          <Avatar className="w-12 h-12">
+            <AvatarImage
+              src={userData.image || "/images/chat-defaultProfile.png"}
+              alt="user"
+            />
+            <AvatarFallback>
+              <Image
+                alt="Default"
+                src="/images/chat-defaultProfile.png"
+                width={128}
+                height={128}
+              />
+            </AvatarFallback>
+          </Avatar>
+          <div className="space-y-1">
+            <div className="font-medium flex items-center gap-1">
+              <Link
+                href={`/profile/${userData.uid}`}
+                className="hover:underline"
+              >
+                {userData.username}{" "}
+              </Link>
+              {isCheckmarker(userData) && (
+                <>
                   {userData.isStaff ? (
-                    <Gavel className="admin text-yellow-400" />
+                    <Gavel className="text-yellow-400 cursor-pointer" />
                   ) : userData.isGov ? (
-                    <Check className="gov text-neutral-400" />
+                    <Check className="text-neutral-400 cursor-pointer" />
                   ) : userData.isStudent ? (
-                    <UserIcon className="student text-green-400" />
+                    <UserIcon className="text-green-400 cursor-pointer" />
                   ) : (
-                    <Check className="verified text-blue-400" />
+                    <Check className="text-blue-400 cursor-pointer" />
                   )}
-                </PopoverTrigger>
-                <PopoverContent>
-                  <div className="flex items-start gap-2">
-                    {userData.isStaff ? (
-                      <Gavel className="admin text-yellow-400 size-8" />
-                    ) : userData.isGov ? (
-                      <Check className="gov text-neutral-400 size-8" />
-                    ) : userData.isStudent ? (
-                      <UserIcon className="student text-green-400 size-8" />
-                    ) : (
-                      <Check className="verified text-blue-400 size-8" />
-                    )}
-                    {userData.isStaff
-                      ? "このアカウントは、Rai Chat のスタッフのアカウントであるため認証されています。"
-                      : userData.isGov
-                        ? "このアカウントは、政府または多国間機関のアカウントであるため認証されています。"
-                        : userData.isStudent
-                          ? "このアカウントは、学生特典が有効なアカウントであるため認証されています。"
-                          : "このアカウントは、プレミアムを購入しているアカウントであるため認証されています。"}
-                  </div>
-                </PopoverContent>
-              </Popover>
-            )}
-            <div className="ml-2 text-sm text-muted-foreground">
-              @{userData.handle} ({messageData.time})
+                </>
+              )}
+              <div className="ml-2 text-sm text-muted-foreground">
+                @{userData.handle} ({messageData.time})
+              </div>
             </div>
           </div>
-        </div>
-      </CardHeader>
+        </CardHeader>
 
-      <CardContent className="pl-4">
-        <Button variant={"secondary"} asChild>
-          <Link href={`/message/${messageData.id}`}> メッセージへ飛ぶ</Link>
-        </Button>
-        <br /> <br />
-        {messageData.isSystemMessage && (
-          <Shield className="system color-red inline mr-1" />
-        )}
-        <span dangerouslySetInnerHTML={{ __html: processedMessage }} />
-      </CardContent>
+        <CardContent className="pl-4">
+          {messageData.isSystemMessage && (
+            <Shield className="text-red-500 dark:text-red-400 inline mr-1" />
+          )}
+          <span dangerouslySetInnerHTML={{ __html: processedMessage }} />
 
-      <Separator />
-      <CardFooter className="flex items-center justify-between p-4 border-muted">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <HeartIcon
+          {messageData.image && (
+            <div className="mt-2">
+              <Image
+                src={messageData.image}
+                onClick={() => setShouldShowImageDialog(true)}
+                alt="Message Image"
+                width={400}
+                height={400}
+                className="rounded-lg"
+              />
+            </div>
+          )}
+        </CardContent>
+
+        <Separator />
+
+        <CardFooter className="flex items-center justify-between p-4 border-muted">
+          <Button
+            className="flex items-center gap-2"
+            variant={"secondary"}
             onClick={handleFavorite}
-            className={`favorite`}
-            {...(isFavorited && { fill: "#FF0000", stroke: "#FF0000" })}
-          />
-          <span>{favoriteCount} いいね</span>
-        </div>
-        {isStaff && (
-          <>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"destructive"}
-                  size="lg"
-                  className="flex items-center gap-2 text-xs md:text-sm"
-                >
-                  <Ban className="text-yellow-400 ban cursor-pointer" />
-                  BAN
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent>
-                <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <h4 className="font-medium leading-none">
-                      ユーザーをBANしますか？
-                    </h4>
-                    <p className="text-sm text-muted-foreground">
-                      このユーザーをBANした場合、このユーザーはRai
-                      Chatを利用できなくなります。本当にBANしますか？
-                    </p>
-                    <h2 className="font-semibold">BANする理由</h2>
-                    <Input
-                      placeholder="BANする理由を入力してください。"
-                      value={banReason}
-                      onChange={(e) => setBanReason(e.target.value)}
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Button
-                      variant={"destructive"}
-                      onClick={handleBAN}
-                      className="w-full"
-                    >
-                      BAN
-                    </Button>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
+          >
+            <Link
+              className="flex items-center gap-2"
+              href={`/message/${messageData.id}`}
+            >
+              <Reply />
+              返信
+            </Link>
+          </Button>
 
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"destructive"}
-                  size="lg"
-                  className="flex items-center gap-2 text-xs md:text-sm"
-                >
-                  <Trash2 className="text-yellow-400 remove-manually cursor-pointer" />
-                  強制削除
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent>
-                <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <h4 className="font-medium leading-none">
-                      メッセージを強制削除しますか？
-                    </h4>
-                    <p className="text-sm text-muted-foreground">
-                      このメッセージを強制削除した場合、このメッセージは削除されます。本当に強制削除しますか？
-                    </p>
-                    <div className="grid gap-2">
-                      <Button
-                        variant={"destructive"}
-                        onClick={handleForceRemove}
-                        className="w-full"
-                      >
-                        強制削除
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </>
-        )}
-        {userData.uid === user.uid && (
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"destructive"}
-                size="lg"
-                className="flex items-center gap-2 remove"
-              >
-                <Trash2 className="text-red-300 items-center justify-center" />
-                削除
+          <Button
+            className="flex items-center gap-2"
+            variant={"secondary"}
+            disabled={isFavoriting}
+            onClick={handleFavorite}
+          >
+            <HeartIcon
+              {...(isFavorited && { fill: "#FF0000", stroke: "#FF0000" })}
+            />
+            <span>{favoriteCount}</span>
+          </Button>
+
+          <Button
+            className="flex items-center gap-2"
+            variant={"secondary"}
+            onClick={() => {
+              navigator.clipboard.writeText(
+                `${window.location.origin}/message/${messageData.id}`
+              );
+
+              toast.success("リンクをコピーしました", {
+                description:
+                  "このメッセージへのリックをコピーしました。Rai Chat ユーザーなら共有できます。",
+              });
+            }}
+          >
+            <Share />
+            共有
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant={"secondary"} className="flex items-center gap-2">
+                <MenuSquare />
+                その他
               </Button>
-            </PopoverTrigger>
-            <PopoverContent>
-              <div className="grid gap-4">
-                <div className="space-y-2">
-                  <h4 className="font-medium leading-none">
-                    メッセージを削除しますか？
-                  </h4>
-                  <p className="text-sm text-muted-foreground">
-                    このメッセージは永久的に削除されます。本当に削除しますか？
-                  </p>
-                  <div className="grid gap-2">
-                    <Button
-                      variant={"destructive"}
-                      onClick={handleRemove}
-                      className="w-full"
-                    >
-                      削除
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-        )}
-      </CardFooter>
-    </Card>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>アクション</DropdownMenuLabel>
+              {messageData.uid === user.uid && (
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setSelectedAction("remove");
+                    setDialogOpen(true);
+                  }}
+                >
+                  <Trash2 className="inline mr-2" /> 削除
+                </DropdownMenuItem>
+              )}
+              {isStaff && (
+                <DropdownMenuItem
+                  className="text-yellow-500 dark:text-yellow-400"
+                  onSelect={() => {
+                    setSelectedAction("ban");
+                    setDialogOpen(true);
+                  }}
+                >
+                  <Ban className="inline mr-2" /> BAN
+                </DropdownMenuItem>
+              )}
+              {isStaff && (
+                <DropdownMenuItem
+                  className="text-yellow-500 dark:text-yellow-400"
+                  onSelect={() => {
+                    setSelectedAction("forceRemove");
+                    setDialogOpen(true);
+                  }}
+                >
+                  <Trash2 className="inline mr-2" /> 強制削除
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </CardFooter>
+      </Card>
+
+      <AlertDialog
+        open={shouldShowImageDialog}
+        onOpenChange={setShouldShowImageDialog}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>画像</AlertDialogTitle>
+          </AlertDialogHeader>
+          <Image
+            src={messageData.image || ""}
+            alt="Message Image"
+            width={750}
+            height={750}
+            unoptimized={true}
+            className="w-full h-auto"
+          />
+          <Link
+            className="text-blue-500 dark:text-blue-400 hover:underline w-fit"
+            target="_blank"
+            href={messageData.image || ""}
+          >
+            画像を開く
+          </Link>
+          <AlertDialogFooter>
+            <AlertDialogCancel>閉じる</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/** Alert Dialog to confirm actions */}
+      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {selectedAction === "ban"
+                ? "ユーザーをBANしますか？"
+                : selectedAction === "forceRemove"
+                  ? "メッセージを強制削除しますか？"
+                  : selectedAction === "remove"
+                    ? "メッセージを削除しますか？"
+                    : ""}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {selectedAction === "ban" ? (
+                <>
+                  このユーザーをBANした場合、チャットの利用ができなくなります。本当にBANしますか？
+                </>
+              ) : selectedAction === "forceRemove" ? (
+                <>
+                  このメッセージを強制削除すると取り消しできません。本当に削除しますか？
+                </>
+              ) : selectedAction === "remove" ? (
+                <>
+                  このメッセージを削除すると永久に取り消しできません。本当に削除しますか？
+                </>
+              ) : null}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div>
+            {selectedAction === "ban" ? (
+              <Input
+                placeholder="BANする理由を入力してください。"
+                value={banReason}
+                onChange={(e) => setBanReason(e.target.value)}
+              />
+            ) : null}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>キャンセル</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmAction}>
+              {selectedAction === "ban"
+                ? "BANする"
+                : selectedAction === "forceRemove"
+                  ? "強制削除する"
+                  : selectedAction === "remove"
+                    ? "削除する"
+                    : "実行"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
-export default MessageElement;
+export default React.memo(MessageElement);

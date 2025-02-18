@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Skeleton } from "@workspace/ui/components/skeleton";
+import { Skeleton } from "@repo/ui/components/skeleton";
 import MessageSkeleton from "./MessageSkeleton";
 
 const ProfileSkeleton = () => {

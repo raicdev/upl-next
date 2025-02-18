@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { useSubscriptionData } from "@/hooks/use-subscription";
 import { SubscriptionDataInterface } from "@firebase/types";
-import { Loading } from "@workspace/ui/components/loading";
-import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert";
+import { Loading } from "@repo/ui/components/loading";
+import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/alert";
 import {
   Select,
   SelectContent,
@@ -11,11 +11,11 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@workspace/ui/components/select";
-import { Button } from "@workspace/ui/components/button";
-import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group";
-import { Label } from "@workspace/ui/components/label";
-import { Badge } from "@workspace/ui/components/badge";
+} from "@repo/ui/components/select";
+import { Button } from "@repo/ui/components/button";
+import { RadioGroup, RadioGroupItem } from "@repo/ui/components/radio-group";
+import { Label } from "@repo/ui/components/label";
+import { Badge } from "@repo/ui/components/badge";
 import { ShoppingCart } from "lucide-react";
 
 const SubscriptionDetails: React.FC<{

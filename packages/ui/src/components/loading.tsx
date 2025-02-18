@@ -1,10 +1,6 @@
-
-import React from 'react'
+import { Loader2 } from "lucide-react";
+import React from "react";
 
 export const Loading: React.FC = () => {
-    return (
-        <div className="flex h-screen w-full items-center justify-center">
-            <div className="h-32 w-32 animate-spin rounded-full border-b-2 border-t-2 border-primary"></div>
-        </div>
-    )
-}
+  return <Loader2 size="64" className="animate-spin mx-auto" />;
+};

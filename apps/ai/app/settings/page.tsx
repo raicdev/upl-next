@@ -1,25 +1,23 @@
 "use client";
 
-import { Avatar } from "@workspace/ui/components/avatar";
-import { useToast } from "@workspace/ui/hooks/use-toast";
-import { Toaster } from "@workspace/ui/components/toaster";
-import { Separator } from "@workspace/ui/components/separator";
+import { Avatar } from "@repo/ui/components/avatar";
+import { Separator } from "@repo/ui/components/separator";
 import { Check, MoveRight, User } from "lucide-react";
-import { Badge } from "@workspace/ui/components/badge";
-import { Button } from "@workspace/ui/components/button";
+import { Badge } from "@repo/ui/components/badge";
+import { Button } from "@repo/ui/components/button";
 import { ChatSession, useChatSessions } from "@/hooks/use-chat-sessions";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "@workspace/ui/components/dropdown-menu";
+} from "@repo/ui/components/dropdown-menu";
 import { useTheme } from "next-themes";
 import { ChatSidebar } from "@/components/chat-sidebar";
-import { SidebarProvider } from "@workspace/ui/components/sidebar";
+import { SidebarProvider } from "@repo/ui/components/sidebar";
+import { toast, Toaster } from "sonner";
 
 export default function SettingsPage() {
-  const { toast } = useToast();
   const { sessions, deleteSession, addSession } = useChatSessions();
 
   const { setTheme, theme } = useTheme();
@@ -41,18 +39,13 @@ export default function SettingsPage() {
         link.click();
         URL.revokeObjectURL(url);
       } else {
-        toast({
-          title: "会話がありません",
+        toast.error("エラーが発生しました", {
           description: "会話が1つも存在しないため、エクスポートできません。",
         });
       }
-      toast({
-        title: "会話をエクスポートしました",
-        description: "会話をエクスポートしました",
-      });
+      toast.success("会話をエクスポートしました");
     } else {
-      toast({
-        title: "会話がありません",
+      toast.error("エラーが発生しました", {
         description: "会話が1つも存在しないため、エクスポートできません。",
       });
     }
@@ -81,9 +74,8 @@ export default function SettingsPage() {
           };
           addSession(newSession);
         });
-        toast({
-          title: "会話をインポートしました",
-          description: "ファイルのすべての会話をインポートしました",
+        toast.success("会話をインポートしました", {
+          description: "ファイルにあるすべての会話をインポートしました",
         });
       };
       reader.readAsText(file);
@@ -92,10 +84,8 @@ export default function SettingsPage() {
       if (error.name === "AbortError") {
         return;
       }
-      toast({
-        title: "インポートに失敗しました",
-        description: "ファイルの読み込み中にエラーが発生しました",
-        variant: "destructive",
+      toast.error("エラーが発生しました", { 
+        description: "ファイルの読み込み中にエラーが発生しました"
       });
     }
   };
@@ -104,10 +94,8 @@ export default function SettingsPage() {
     sessions.forEach((session) => {
       deleteSession(session.id);
     });
-    toast({
-      title: "会話を削除しました",
-      description: "すべての会話を削除しました",
-      variant: "destructive",
+    toast.success("会話を削除しました",{
+      description: "すべての会話を削除しました"
     });
   };
 

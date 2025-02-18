@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@workspace/ui/components/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
-import { Label } from "@workspace/ui/components/label";
-import { Switch } from "@workspace/ui/components/switch";
+import { Button } from "@repo/ui/components/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/tabs";
+import { Label } from "@repo/ui/components/label";
+import { Switch } from "@repo/ui/components/switch";
 import Link from "next/link";
 import { auth, firestore } from "@firebase/config";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -12,11 +12,11 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import {
   returnSettingsJson,
   SubscriptionDataInterface,
-} from "@/util/raiChatTypes";
-import { Badge } from "@workspace/ui/components/badge";
+} from "@firebase/types";
+import { Badge } from "@repo/ui/components/badge";
 import { useTitle } from "@/hooks/use-title";
 import { useRouter } from "next/navigation";
-import { getPlan } from "@/util/rai";
+import { getPlan } from "@firebase/tools";
 import { BadgeCheck } from "lucide-react";
 
 const Settings: React.FC = () => {

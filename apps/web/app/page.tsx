@@ -1,9 +1,9 @@
 "use client";
 
 import { SiGithub } from "@icons-pack/react-simple-icons";
-import { Button } from "@workspace/ui/components/button";
-import { Alert, AlertTitle, AlertDescription } from "@workspace/ui/components/alert";
-import { Loading } from "@workspace/ui/components/loading";
+import { Button } from "@repo/ui/components/button";
+import { Alert, AlertTitle, AlertDescription } from "@repo/ui/components/alert";
+import { Loading } from "@repo/ui/components/loading";
 import { ArrowDown, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import React, { lazy, Suspense, useEffect } from "react";

@@ -10,9 +10,9 @@ import {
   GoogleAuthProvider,
   GithubAuthProvider,
 } from "firebase/auth";
-import { Button } from "@workspace/ui/components/button";
-import { Label } from "@workspace/ui/components/label";
-import { Input } from "@workspace/ui/components/input";
+import { Button } from "@repo/ui/components/button";
+import { Label } from "@repo/ui/components/label";
+import { Input } from "@repo/ui/components/input";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,16 +22,16 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@workspace/ui/components/alert-dialog";
+} from "@repo/ui/components/alert-dialog";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
-} from "@workspace/ui/components/input-otp";
+} from "@repo/ui/components/input-otp";
 import Link from "next/link";
-import { cn } from "@workspace/ui/lib/utils";
-import { Separator } from "@workspace/ui/components/separator";
+import { cn } from "@repo/ui/lib/utils";
+import { Separator } from "@repo/ui/components/separator";
 import { SiGithub, SiGoogle } from "@icons-pack/react-simple-icons";
 
 const Login: React.FC = () => {

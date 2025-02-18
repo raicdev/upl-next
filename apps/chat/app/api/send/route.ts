@@ -1,4 +1,4 @@
-import { UserDataInterface } from "@/util/raiChatTypes";
+import { UserDataInterface } from "@firebase/types";
 import { authAdmin, databaseAdmin, firestoreAdmin } from "@firebase/server";
 import { NextResponse } from "next/server";
 
@@ -6,6 +6,7 @@ export async function POST(req: Request) {
   const body = await req.json();
 
   const content = body.content;
+  const image = body.image;
   const idToken = req.headers.get("Authorization");
 
   if (!content) {
@@ -126,6 +127,7 @@ export async function POST(req: Request) {
               ? "student"
               : snapshotData.paid,
           verified: snapshotData.verified,
+          image: image,
           uid: user.uid,
           id: timestamp + "-" + user.uid,
           edited: false,

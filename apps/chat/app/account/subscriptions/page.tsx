@@ -1,9 +1,9 @@
 "use client";
 
 import React, { Suspense } from "react";
-import { Loading } from "@workspace/ui/components/loading";
+import { Loading } from "@repo/ui/components/loading";
 import SubscriptionPage from "@/components/SubscriptionPage";
-import { SidebarProvider } from "@workspace/ui/components/sidebar";
+import { SidebarProvider } from "@repo/ui/components/sidebar";
 
 const Login: React.FC = () => {
   return (

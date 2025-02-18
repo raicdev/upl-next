@@ -4,14 +4,14 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@workspace/ui/components/tooltip";
+} from "@repo/ui/components/tooltip";
 
-interface CustomTooltipProps {
+interface EasyTipProps {
   content: React.ReactNode;
   children: React.ReactNode;
 }
 
-export const CustomTooltip = ({ content, children }: CustomTooltipProps) => {
+export const EasyTip = ({ content, children }: EasyTipProps) => {
   return (
     <TooltipProvider>
       <Tooltip>

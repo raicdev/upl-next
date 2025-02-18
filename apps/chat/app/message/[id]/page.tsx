@@ -22,11 +22,11 @@ import {
   UserDataInterface,
   UserSettingsInterface,
   returnSettingsJson,
-} from "@/util/raiChatTypes";
+} from "@firebase/types";
 import { auth, firestore, db } from "@firebase/config";
 import MessageElement from "@/components/MessageElement";
-import { Textarea } from "@workspace/ui/components/textarea";
-import { Button } from "@workspace/ui/components/button";
+import { Textarea } from "@repo/ui/components/textarea";
+import { Button } from "@repo/ui/components/button";
 import { useTitle } from "@/hooks/use-title";
 import { useParams } from "next/navigation";
 import MessageSkeleton from "@/components/MessageSkeleton";

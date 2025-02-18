@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@workspace/ui/components/table";
+} from "@repo/ui/components/table";
 import {
   BadgeCheck,
   BadgePlus,
@@ -24,7 +24,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@repo/ui/components/button";
 import Link from "next/link";
 
 const PatchNote: React.FC = () => {

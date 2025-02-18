@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { cn } from "@workspace/ui/lib/utils";
+import { cn } from "@repo/ui/lib/utils";
 import { CircleDollarSign, LockIcon, Zap } from "lucide-react";
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@repo/ui/components/button";
 import { Header } from "@/components/header";
 import Image from "next/image";
 import Link from "next/link";

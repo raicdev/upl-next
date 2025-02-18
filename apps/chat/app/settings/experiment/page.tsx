@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@repo/ui/components/button";
 import { useTitle } from "@/hooks/use-title";
-import { Label } from "@workspace/ui/components/label";
-import { Switch } from "@workspace/ui/components/switch";
+import { Label } from "@repo/ui/components/label";
+import { Switch } from "@repo/ui/components/switch";
 import Link from "next/link";
 import { auth, firestore } from "@firebase/config";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -12,8 +12,8 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import {
   returnSettingsJson,
   SubscriptionDataInterface,
-} from "@/util/raiChatTypes";
-import { Badge } from "@workspace/ui/components/badge";
+} from "@firebase/types";
+import { Badge } from "@repo/ui/components/badge";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -21,9 +21,9 @@ import {
   BreadcrumbLink,
   BreadcrumbSeparator,
   BreadcrumbPage,
-} from "@workspace/ui/components/breadcrumb";
+} from "@repo/ui/components/breadcrumb";
 import { useRouter } from "next/navigation";
-import { getPlan } from "@/util/rai";
+import { getPlan } from "@firebase/tools";
 
 const SettingsExperiment: React.FC = () => {
   // State Management

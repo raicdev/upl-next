@@ -8,7 +8,7 @@ import {
   returnSettingsJson,
   UserDataInterface,
   UserSettingsInterface,
-} from "@/util/raiChatTypes";
+} from "@firebase/types";
 import { SubscriptionDataInterface } from "@firebase/types";
 import { getDoc, doc, setDoc, getDocs, collection } from "firebase/firestore";
 import {

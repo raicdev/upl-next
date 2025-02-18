@@ -1,5 +1,5 @@
 import { auth } from "@firebase/config";
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@repo/ui/components/button";
 import { LogOut, LogIn } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

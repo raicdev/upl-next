@@ -1,7 +1,8 @@
 import { Loading } from "@/components/loading";
-import "@workspace/ui/styles/globals.css";
+import "@repo/ui/styles/globals.css";
 import { Suspense } from "react";
-import { ThemeProvider } from "@workspace/ui/components/theme-provider";
+import { ThemeProvider } from "@repo/ui/components/theme-provider";
+import { Toaster } from "@repo/ui/components/sonner";
 
 import type { Metadata } from "next";
 import { ChatSessionsProvider } from "@/hooks/use-chat-sessions";
@@ -54,6 +55,8 @@ export default function RootLayout({
             </Suspense>
           </ChatSessionsProvider>
         </ThemeProvider>
+
+        <Toaster />
       </body>
     </html>
   );

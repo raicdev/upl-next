@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { cn } from "@workspace/ui/lib/utils";
-import { SidebarProvider } from "@workspace/ui/components/sidebar";
+import { cn } from "@repo/ui/lib/utils";
+import { SidebarProvider } from "@repo/ui/components/sidebar";
 import { Loader } from "lucide-react";
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@repo/ui/components/button";
 import { useChatSessions } from "@/hooks/use-chat-sessions";
 import { useRouter } from "next/navigation";
 import { Footer } from "@/components/footer";

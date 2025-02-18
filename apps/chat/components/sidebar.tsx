@@ -11,8 +11,8 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-} from "@workspace/ui/components/sidebar";
-import { Badge } from "@workspace/ui/components/badge";
+} from "@repo/ui/components/sidebar";
+import { Badge } from "@repo/ui/components/badge";
 import {
   CircleUser,
   FlaskConical,
@@ -20,6 +20,7 @@ import {
   KeyRound,
   LinkIcon,
   Menu,
+  MessageCircle,
   Monitor,
   Moon,
   PartyPopper,
@@ -29,24 +30,23 @@ import {
   Sun,
   User,
 } from "lucide-react";
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@repo/ui/components/button";
 import { useTheme } from "next-themes";
-import { Suspense, useEffect, useState } from "react";
-import { auth } from "@firebase/config";
-import { useRouter } from "next/navigation";
-import { useIsMobile } from "@workspace/ui/hooks/use-mobile";
+import { Suspense } from "react";
+import { useIsMobile } from "@repo/ui/hooks/use-mobile";
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@workspace/ui/components/drawer";
+} from "@repo/ui/components/drawer";
 
 interface SidebarItem {
   href: string;
   icon: React.ReactNode;
   label: string;
+  disabled?: boolean;
   badge?: {
     text: string;
     icon?: React.ReactNode;
@@ -71,6 +71,15 @@ const mainMenuItems: SidebarItem[] = [
     badge: {
       text: "新機能",
       icon: <PartyPopper size="16" className="mr-1" />,
+    },
+  },
+  {
+    href: "/messages",
+    icon: <MessageCircle />,
+    label: "メッセージ",
+    disabled: true,
+    badge: {
+      text: "近日登場",
     },
   },
   {
@@ -128,7 +137,7 @@ const accountItems: SidebarSection = {
 const SidebarItems = ({ items }: { items: SidebarItem[] }) => {
   return items.map((item, index) => (
     <SidebarMenu key={index}>
-      <SidebarMenuItem>
+      <SidebarMenuItem className={item.disabled ? "opacity-50 pointer-events-none" : ""}>
         <SidebarMenuButton asChild>
           <Link href={item.href}>
             {item.icon}

@@ -13,8 +13,8 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@workspace/eslint-config": "workspace:*",
-    "@workspace/typescript-config": "workspace:*",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
     "prettier": "^3.5.1",
     "turbo": "^2.4.2",
     "typescript": "5.7.3",
@@ -27,7 +27,8 @@
     "@icons-pack/react-simple-icons": "^11.2.0",
     "firebase": "^11.3.1",
     "firebase-admin": "^13.1.0",
-    "next-themes": "^0.4.4"
+    "next-themes": "^0.4.4",
+    "shadcn": "^2.4.0-canary.6"
   },
   "packageManager": "bun@1.2.2"
 }

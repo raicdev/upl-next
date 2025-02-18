@@ -1,10 +1,11 @@
-import "@workspace/ui/styles/globals.css";
+import "@repo/ui/styles/globals.css";
 import Sidebar from "@/components/sidebar";
 import { ReactNode, Suspense } from "react";
-import { SidebarProvider } from "@workspace/ui/components/sidebar";
-import { ThemeProvider } from "@workspace/ui/components/theme-provider";
+import { SidebarProvider } from "@repo/ui/components/sidebar";
+import { ThemeProvider } from "@repo/ui/components/theme-provider";
 import { Loader2 } from "lucide-react";
 import { Metadata } from "next";
+import { Toaster } from "@repo/ui/components/sonner";
 import SidebarRight from "@/components/RightSidebar";
 
 interface LayoutProps {
@@ -70,6 +71,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </Suspense>
           </ThemeProvider>
         </SidebarProvider>
+
+        <Toaster />
       </body>
     </html>
   );

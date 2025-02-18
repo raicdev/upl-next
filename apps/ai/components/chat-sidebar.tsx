@@ -11,11 +11,11 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@workspace/ui/components/sidebar";
+} from "@repo/ui/components/sidebar";
 import { MessageCircleMore, Plus, Settings } from "lucide-react";
 import { ChatContextMenu } from "./context-menu";
 import Link from "next/link";
-import { Badge } from "@workspace/ui/components/badge";
+import { Badge } from "@repo/ui/components/badge";
 import { useParams } from "next/navigation";
 
 export function ChatSidebar() {

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
-import { cn } from "@workspace/ui/lib/utils";
+import React, { useState, useEffect } from "react";
+import { cn } from "@repo/ui/lib/utils";
 import {
   AlertDialog,
   AlertDialogHeader,
@@ -10,10 +10,10 @@ import {
   AlertDialogTitle,
   AlertDialogFooter,
   AlertDialogCancel,
-} from "@workspace/ui/components/alert-dialog";
-import { SidebarProvider } from "@workspace/ui/components/sidebar";
+} from "@repo/ui/components/alert-dialog";
+import { SidebarProvider } from "@repo/ui/components/sidebar";
 import { Bot, Brain } from "lucide-react";
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@repo/ui/components/button";
 import Compare from "@/components/compare";
 import { MessageLog } from "@/components/message-log";
 import { ChatMessage, useChatSessions } from "@/hooks/use-chat-sessions";
@@ -39,11 +39,6 @@ const ChatApp: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const [isThinking, setIsThinking] = useState(false);
-
-  const modelDescription = useMemo(
-    () => modelDescriptions[model]?.displayName || "gpt-4o-2024-08-06",
-    [model]
-  );
 
   useEffect(() => {
     if (!currentSession) {

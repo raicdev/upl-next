@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Suspense, useState, useEffect } from "react";
-import { Loading } from "@workspace/ui/components/loading";
+import { Loading } from "@repo/ui/components/loading";
 import { auth, firestore } from "@firebase/config";
 import {
   doc,
@@ -13,10 +13,8 @@ import {
   collection,
 } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { SidebarProvider } from "@workspace/ui/components/sidebar";
-import { Button } from "@workspace/ui/components/button";
-import { useToast } from "@workspace/ui/hooks/use-toast";
-import { Toaster } from "@workspace/ui/components/toaster";
+import { SidebarProvider } from "@repo/ui/components/sidebar";
+import { Button } from "@repo/ui/components/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,22 +23,20 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@workspace/ui/components/alert-dialog";
-import { Label } from "@workspace/ui/components/label";
-import { Input } from "@workspace/ui/components/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@workspace/ui/components/popover";
+} from "@repo/ui/components/alert-dialog";
+import { Label } from "@repo/ui/components/label";
+import { Input } from "@repo/ui/components/input";
 import { Eye, Trash } from "lucide-react";
-import { cn } from "@workspace/ui/lib/utils";
+import { cn } from "@repo/ui/lib/utils";
+import { toast } from "sonner";
 // react router
 
 const Credentials: React.FC = () => {
   const [apiKeys, setApiKeys] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [popoverOpen, setPopoverOpen] = useState(false);
   const [authToken, setAuthToken] = useState<string | undefined>(undefined);
   const [visibleKeyIndex, setVisibleKeyIndex] = useState<number | null>(null);
-  const { toast } = useToast();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -98,24 +94,21 @@ const Credentials: React.FC = () => {
             apiKeys: arrayUnion(data.apiKey),
           });
           setApiKeys((prevKeys) => [...prevKeys, data.apiKey]);
-          toast({
-            title: "作成しました",
-            description: "API キーの作成に成功しました",
+          toast.success("成功しました", {
+            description:
+              "API キーの作成に成功しました！API キーをコピーして利用しましょう！",
           });
         } else {
-          toast({
-            title: "失敗しました",
-            description: "API キーの作成に失敗しました",
-            variant: "destructive",
+          toast.error("失敗しました", {
+            description:
+              "API キーの作成に失敗しました。もう一度お試しください。",
           });
         }
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error";
-        toast({
-          title: "失敗しました",
-          description: "API キーの作成に失敗しました。(" + errorMessage + ")",
-          variant: "destructive",
+        toast.error("失敗しました", {
+          description: `API キーの作成に失敗しました。もう一度お試しください。(${errorMessage})`,
         });
       }
     }
@@ -139,15 +132,12 @@ const Credentials: React.FC = () => {
           apiKeys: arrayRemove(key),
         });
         setApiKeys((prevKeys) => prevKeys.filter((k) => k !== key));
-        toast({
-          title: "削除しました",
-          description: "API キーの削除に成功しました",
+        toast.success("成功しました", {
+          description: "API キーを削除しました。",
         });
       } else {
-        toast({
-          title: "削除に失敗しました",
-          description: "API キーの削除に失敗しました",
-          variant: "destructive",
+        toast.error("失敗しました", {
+          description: "API キーの削除に失敗しました。もう一度お試しください。",
         });
       }
     }
@@ -168,7 +158,7 @@ const Credentials: React.FC = () => {
             <h2 className="text-2xl lg:text-3xl font-bold mb-5">
               API キーを作成する
             </h2>
-            
+
             <Button onClick={createApiKey} className="mb-4 md:mb-0 mr-2">
               API キーを作成
             </Button>
@@ -179,23 +169,30 @@ const Credentials: React.FC = () => {
 
             <div className="mt-8">
               {loading ? (
-                <p>ロード中...</p>
+                <Loading />
               ) : (
                 apiKeys.map((key, index) => (
                   <div
                     key={index}
                     className="p-2 md:p-4 rounded bg-sidebar-accent flex flex-col md:flex-row justify-between items-start md:items-center space-y-2 md:space-y-0 mb-2"
                   >
-                    <span className="text-sm md:text-base">API キー {index + 1}</span>
+                    <span className="text-sm md:text-base">
+                      API キー {index + 1}
+                    </span>
                     <div className="flex items-center w-full md:w-auto">
-                      <span
+                      <Input
+                        onClick={(e) => {
+                          (e.target as HTMLInputElement).select();
+                          navigator.clipboard.writeText(key);
+                          toast.success("コピーしました");
+                        }}
                         className={cn(
                           "mr-2 md:mr-4 transition-opacity duration-200 text-sm md:text-base break-all",
                           visibleKeyIndex != index ? "opacity-0" : "opacity-100"
                         )}
                       >
                         {key}
-                      </span>
+                      </Input>
                       <Button
                         size="icon"
                         onClick={() =>
@@ -204,7 +201,7 @@ const Credentials: React.FC = () => {
                           )
                         }
                         className="mr-2 md:mr-4"
-                        title="APIキーを表示"
+                        title="API キーを表示"
                       >
                         <Eye className="h-4 w-4 md:h-6 md:w-6" />
                       </Button>
@@ -212,7 +209,7 @@ const Credentials: React.FC = () => {
                         size="icon"
                         variant={"destructive"}
                         onClick={() => deleteApiKey(key)}
-                        title="APIキーを削除"
+                        title="API キーを削除"
                       >
                         <Trash className="h-4 w-4 md:h-6 md:w-6" />
                       </Button>
@@ -221,7 +218,6 @@ const Credentials: React.FC = () => {
                 ))
               )}
             </div>
-            <Toaster />
           </div>
 
           <AlertDialog open={isDialogOpen}>
@@ -237,28 +233,20 @@ const Credentials: React.FC = () => {
               <Label className="text-muted-foreground" htmlFor="authToken">
                 認証トークン
               </Label>
-              <Popover open={popoverOpen}>
-                <PopoverContent>
-                  <span>Copied</span>
-                </PopoverContent>
-                <PopoverTrigger asChild>
-                  <Input
-                    type="text"
-                    id="authToken"
-                    value={authToken}
-                    readOnly
-                    onClick={(e) => {
-                      (e.target as HTMLInputElement).select();
-                      navigator.clipboard.writeText(authToken!);
-                      setPopoverOpen(true);
 
-                      setTimeout(() => {
-                        setPopoverOpen(false);
-                      }, 1000);
-                    }}
-                  />
-                </PopoverTrigger>
-              </Popover>
+              <Input
+                type="text"
+                id="authToken"
+                value={authToken}
+                readOnly
+                onClick={(e) => {
+                  (e.target as HTMLInputElement).select();
+                  navigator.clipboard.writeText(authToken!);
+
+                  toast.success("コピーしました");
+                }}
+              />
+
               <AlertDialogFooter>
                 <AlertDialogAction onClick={() => setIsDialogOpen(false)}>
                   閉じる

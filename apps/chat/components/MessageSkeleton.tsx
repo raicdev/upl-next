@@ -3,9 +3,9 @@ import {
   CardHeader,
   CardContent,
   CardFooter,
-} from "@workspace/ui/components/card";
-import { Separator } from "@workspace/ui/components/separator";
-import { Skeleton } from "@workspace/ui/components/skeleton";
+} from "@repo/ui/components/card";
+import { Separator } from "@repo/ui/components/separator";
+import { Skeleton } from "@repo/ui/components/skeleton";
 
 const MessageSkeleton: React.FC = () => {
   return (

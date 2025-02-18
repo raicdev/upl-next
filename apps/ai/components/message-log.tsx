@@ -2,14 +2,14 @@ import { FC, memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Bot, ChevronsUpDown, Copy, RefreshCw } from "lucide-react";
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@repo/ui/components/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@workspace/ui/components/collapsible";
-import { CustomTooltip } from "./tooltip";
-import { cn } from "@workspace/ui/lib/utils";
+} from "@repo/ui/components/collapsible";
+import { EasyTip } from "@repo/ui/components/easytip";
+import { cn } from "@repo/ui/lib/utils";
 import { Pre } from "@/components/markdown";
 import { ChatMessage } from "@/hooks/use-chat-sessions";
 import { modelDescriptions } from "@/lib/modelDescriptions";
@@ -101,7 +101,7 @@ export const MessageLog: FC<MessageLogProps> = memo(
               </div>{" "}
               <div className="flex items-center rounded mt-3 bg-secondary text-xs">
                 <div className="p-1 text-gray-400 hover:text-foreground">
-                  <CustomTooltip content="コピー">
+                  <EasyTip content="コピー">
                     <Button
                       size="sm"
                       className="p-0 ml-2"
@@ -110,10 +110,10 @@ export const MessageLog: FC<MessageLogProps> = memo(
                     >
                       <Copy size="16" />
                     </Button>
-                  </CustomTooltip>
+                  </EasyTip>
                 </div>
                 <div className="p-1 text-gray-400 hover:text-foreground">
-                  <CustomTooltip content={`再生成`}>
+                  <EasyTip content={`再生成`}>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -128,7 +128,7 @@ export const MessageLog: FC<MessageLogProps> = memo(
                         }
                       </span>
                     </Button>{" "}
-                  </CustomTooltip>
+                  </EasyTip>
                 </div>
               </div>
             </div>

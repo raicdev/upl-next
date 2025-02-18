@@ -14,17 +14,17 @@ import {
   TotpSecret,
 } from "firebase/auth";
 import qrcode from "qrcode";
-import { Loading } from "@workspace/ui/components/loading";
-import { SidebarProvider } from "@workspace/ui/components/sidebar";
-import { Button } from "@workspace/ui/components/button";
-import { Input } from "@workspace/ui/components/input";
-import { AlertDialogHeader, AlertDialogFooter } from "@workspace/ui/components/alert-dialog";
+import { Loading } from "@repo/ui/components/loading";
+import { SidebarProvider } from "@repo/ui/components/sidebar";
+import { Button } from "@repo/ui/components/button";
+import { Input } from "@repo/ui/components/input";
+import { AlertDialogHeader, AlertDialogFooter } from "@repo/ui/components/alert-dialog";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
   InputOTPSeparator,
-} from "@workspace/ui/components/input-otp";
+} from "@repo/ui/components/input-otp";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -32,9 +32,9 @@ import {
   AlertDialogDescription,
   AlertDialogCancel,
   AlertDialogAction,
-} from "@workspace/ui/components/alert-dialog";
-import { Label } from "@workspace/ui/components/label";
-import { cn } from "@workspace/ui/lib/utils";
+} from "@repo/ui/components/alert-dialog";
+import { Label } from "@repo/ui/components/label";
+import { cn } from "@repo/ui/lib/utils";
 
 const Login: React.FC = () => {
   const welcomeRef = useRef<HTMLHeadingElement | null>(null);

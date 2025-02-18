@@ -8,7 +8,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   navigationMenuTriggerStyle,
-} from "@workspace/ui/components/navigation-menu";
+} from "@repo/ui/components/navigation-menu";
 
 export function Header() {
   return (

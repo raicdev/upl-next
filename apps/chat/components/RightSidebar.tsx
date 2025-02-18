@@ -1,13 +1,36 @@
 "use client";
 
-import Link from "next/link";
 import {
   Sidebar as SidebarRoot,
   SidebarContent as SidebarContentRoot,
-} from "@workspace/ui/components/sidebar";
+} from "@repo/ui/components/sidebar";
 import { Search } from "lucide-react";
-import { raiChatBuildInfo } from "@/util/raiChatTypes";
-import { Badge } from "@workspace/ui/components/badge";
+import { raiChatBuildInfo } from "@firebase/types";
+import { Badge } from "@repo/ui/components/badge";
+
+interface News {
+  title: string;
+  description: string;
+  tag: string;
+}
+
+export const NewsList: News[] = [
+  {
+      title: "メッセージ機能が近日登場",
+      description: "ダイレクトメッセージがRai Chatで利用できるようになります！グループを作って話したり、特定のユーザーにメッセージを送れます！",
+      tag: "アップデート"
+  },
+  {
+      title: "Rai Chat が 1.0 (正式版) になりました！",
+      description: "プレミアムプラス+の制限を解除し、デザインをアップデートし、より安定、軽くしました！",
+      tag: "アップデート"
+  },
+  {
+      title: "Rai Chat の利用規約が更新されました！",
+      description: "Rai Chat の利用規約が更新されました！Rai Chat Docsから見れます。",
+      tag: "重要"
+  }
+]
 
 const SidebarMainContent = () => {
   return (
@@ -24,30 +47,15 @@ const SidebarMainContent = () => {
 
         <div className="border m-2 p-2 rounded-md">
           <h1 className="text-xl font-bold">ニュース</h1>
-          <div className="bg-secondary mt-2 p-2 rounded-md">
-            <Badge>アップデート</Badge>
-            <h2 className="font-bold">
-              Rai Chat が 1.0 (正式版) になりました！
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              プレミアムプラス+の制限を解除し、デザインをアップデートし、より安定、軽くしました！
-            </p>
-          </div>
-
-          <div className="bg-secondary mt-2 p-2 rounded-md">
-            <Badge>重要</Badge>
-            <h2 className="font-bold">Rai Chat の利用規約が更新されました！</h2>
-            <p className="text-sm text-muted-foreground">
-              Rai Chat の利用規約が更新されました。新しい規約は、{" "}
-              <Link
-                href="https://docs.raic.dev/chat/tos"
-                className="text-blue-500 dark:text-blue-400 hover:underline"
-              >
-                こちら
-              </Link>
-              でご確認できます。
-            </p>
-          </div>
+          {NewsList.map((news, index) => (
+            <div key={index} className="bg-secondary mt-2 p-2 rounded-md">
+              <Badge>{news.tag}</Badge>
+              <h2 className="font-bold">{news.title}</h2>
+              <p className="text-sm text-muted-foreground">
+                {news.description}
+              </p>
+            </div>
+          ))}{" "}
         </div>
 
         <div className="m-2 p-2 mt-auto rounded-md">

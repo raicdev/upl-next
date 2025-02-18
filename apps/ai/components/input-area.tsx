@@ -1,4 +1,4 @@
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@repo/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,7 +7,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@workspace/ui/components/dropdown-menu";
+} from "@repo/ui/components/dropdown-menu";
 import { modelDescriptionType } from "@/lib/modelDescriptions";
 import {
   SiClaude,
@@ -16,7 +16,7 @@ import {
   SiX,
 } from "@icons-pack/react-simple-icons";
 import { ArrowDown, Ban } from "lucide-react";
-import { Badge } from "@workspace/ui/components/badge";
+import { Badge } from "@repo/ui/components/badge";
 
 export function ModelSelector({
   modelDescriptions,

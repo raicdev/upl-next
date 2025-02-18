@@ -2,36 +2,28 @@
 
 import { useCallback } from "react";
 import { useEffect, useState, useRef } from "react";
-import { getDatabase } from "firebase/database";
-import { getDoc, doc, setDoc, getFirestore } from "firebase/firestore";
+import { getDoc, doc, setDoc } from "firebase/firestore";
 import { User } from "firebase/auth";
+import { toast } from "sonner";
 import {
-  MessageElementDataInterface,
   SubscriptionDataInterface,
   UserDataInterface,
   returnSettingsJson,
-} from "@/util/raiChatTypes";
+} from "@firebase/types";
 import { auth, firestore } from "@firebase/config";
-import { Textarea } from "@workspace/ui/components/textarea";
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@repo/ui/components/button";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@workspace/ui/components/tabs";
-import { Label } from "@workspace/ui/components/label";
+} from "@repo/ui/components/tabs";
 import { useTitle } from "@/hooks/use-title";
 import { useRouter } from "next/navigation";
-import {
-  Alert,
-  AlertTitle,
-  AlertDescription,
-} from "@workspace/ui/components/alert";
-import Link from "next/link";
-import { RefreshCw, X } from "lucide-react";
-import Image from "next/image";
+import { Send, X } from "lucide-react";
 import MessageElements from "@/components/MessageElements";
+import { cn } from "@repo/ui/lib/utils";
+import Link from "next/link";
 
 const RaiChatApp: React.FC = () => {
   // State Management
@@ -42,7 +34,8 @@ const RaiChatApp: React.FC = () => {
   const [myUserObject, setMyUserObject] = useState<User | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [messageInput, setMessageInput] = useState("");
-  const [alertText, setAlertText] = useState("");
+
+  const [image, setImage] = useState<string | null>("");
 
   // Refs
   const contentRef = useRef<HTMLDivElement>(null);
@@ -83,17 +76,21 @@ const RaiChatApp: React.FC = () => {
           const finalUrl = "https://s.kuku.lu/image.php/" + url2;
           return { url: finalUrl };
         } else {
-          throw new Error(
-            "サーバ側でエラーが発生しました。再度お試しください。"
-          );
+          toast.error("画像のアップロードに失敗しました", {
+            description:
+              "サーバー側でエラーが発生しました。再度お試しください。",
+          });
         }
       } else {
-        throw new Error("サーバ側でエラーが発生しました。再度お試しください。");
+        toast.error("画像のアップロードに失敗しました", {
+          description: "サーバー側でエラーが発生しました。再度お試しください。",
+        });
       }
     } catch (error) {
-      throw new Error(
-        `ネットワークエラーが発生しました。再度お試しください。${error}`
-      );
+      console.error("Error uploading image:", error);
+      toast.error("画像のアップロードに失敗しました", {
+        description: "ネットワークエラーが発生しました。再度お試しください。",
+      });
     }
   };
 
@@ -117,23 +114,31 @@ const RaiChatApp: React.FC = () => {
 
           // プレビュー用のURL生成
           const previewUrl = URL.createObjectURL(file);
-          setImagePreview(previewUrl);
 
           const result = await uploadImage(file);
-          setMessageInput((prev) => prev + "\n\n[img]" + result.url + "[/img]");
+          if (result) {
+            setImage(result.url);
+            setImagePreview(previewUrl);
+
+            toast.success("画像をアップロードしました");
+          }
         } catch (error) {
-          setAlertText(`画像のアップロードに失敗しました。${error}`);
+          toast.error("画像のアップロードに失敗しました", {
+            description: (error as string) || "",
+          });
         } finally {
           setIsSending(false);
         }
       }
     },
-    [setMessageInput, setIsSending, setAlertText, imagePreview]
+    [setIsSending, imagePreview]
   );
 
   const handleSendMessage = async () => {
     if (!messageInput) {
-      setAlertText("メッセージを入力してください。");
+      toast.error("メッセージを送信できませんでした", {
+        description: "メッセージを入力してください",
+      });
       return;
     }
     if (!messageInput || !myUserObject || isSending) return;
@@ -147,18 +152,24 @@ const RaiChatApp: React.FC = () => {
           "Content-Type": "application/json",
           Authorization: token,
         },
-        body: JSON.stringify({ content: messageInput }),
+        body: JSON.stringify({ content: messageInput, image }),
       });
 
       if (!response.ok) {
-        if (response.status === 429) {
-          setAlertText("メッセージの送信は60秒に5回までです。");
-        }
+        toast.error("メッセージを送信できませんでした", {
+          description: "メッセージの送信は現在制限中です。再度お試しください。",
+        });
         return;
       }
 
+      toast.success("メッセージを送信しました");
+
       setMessageInput("");
       setImagePreview(null);
+    } catch (error) {
+      toast.error("メッセージの送信に失敗しました", {
+        description: `もう一度お試しください (${error})`,
+      });
     } finally {
       setIsSending(false);
     }
@@ -264,52 +275,55 @@ const RaiChatApp: React.FC = () => {
                 ref={inputRef}
                 value={messageInput}
                 onChange={(e) => {
-                  e.target.style.height = 'auto'
-                  e.target.style.height = e.target.scrollHeight + 'px'
-                  setMessageInput(e.target.value)
+                  e.target.style.height = "auto";
+                  e.target.style.height = e.target.scrollHeight + "px";
+                  setMessageInput(e.target.value);
                 }}
                 onPaste={handlePaste}
                 className="w-full border-none bg-transparent p-3 h-auto min-h-0 outline-none text-sm resize-none overflow-hidden"
-                placeholder="メッセージを入力して送信。Ctrl+Vで画像を追加。"
-                style={{ height: 'auto', overflow: 'hidden' }}
-              />              {imagePreview && (
-                <div className="m-2 border bg-sidebar flex flex-col gap-1 rounded-md w-fit p-1 pl-2 pb-1">
-                  <Image
-                    src={imagePreview}
-                    alt="Preview"
-                    width={300}
-                    height={200}
-                    className="w-full"
-                    onClick={() => setImagePreview(null)}
-                  />
-                  <div className="flex justify-between items-center">
-                    <p>画像が添付済み</p>
+                placeholder="メッセージを入力して送信。Ctrl+Vで画像を追加できます。"
+                style={{ height: "auto", overflow: "hidden" }}
+              />{" "}
+              <div className="bg-sidebar flex justify-between items-center px-2">
+                <div
+                  className={cn(
+                    "m-2 border bg-sidebar flex flex-col gap-1 rounded-md w-fit p-1 pl-2 pb-1",
+                    imagePreview ? "" : "opacity-50 pointer-events-none"
+                  )}
+                >
+                  <div className="flex gap-2 items-center">
+                    <Link
+                      href={imagePreview || ""}
+                      className="text-blue-500 px-2 dark:text-blue-400 hover:underline"
+                      target="_blank"
+                    >
+                      <p>画像 (クリックして開く)</p>
+                    </Link>
                     <Button
                       variant="secondary"
                       onClick={() => {
                         setImagePreview(null);
-                        setMessageInput(
-                          messageInput.replace(/\[img\].*?\[\/img\]/g, "")
-                        );
+                        setImage(null);
+
+                        toast.success("画像を削除しました");
                       }}
                     >
-                      <X /> 削除
+                      <X />
                     </Button>
                   </div>
                 </div>
-              )}
-            </div>            <Button
-              type="button"
-              onClick={() => handleSendMessage()}
-              disabled={isSending}
-              className="w-full md:w-24 h-10"
-            >
-              送信
-            </Button>
+
+                <Button
+                  type="button"
+                  size="icon"
+                  onClick={() => handleSendMessage()}
+                  disabled={isSending || (!messageInput && !imagePreview)}
+                >
+                  <Send />
+                </Button>
+              </div>
+            </div>{" "}
           </div>
-          <Label htmlFor="message" className="hidden">
-            {alertText}
-          </Label>
         </div>
 
         <div className="space-y-3">

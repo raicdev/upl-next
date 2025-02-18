@@ -1,4 +1,4 @@
-import { UserDataInterface } from "@/util/raiChatTypes";
+import { UserDataInterface } from "@firebase/types";
 import { authAdmin, databaseAdmin, firestoreAdmin } from "@firebase/server";
 import { NextResponse } from "next/server";
 
