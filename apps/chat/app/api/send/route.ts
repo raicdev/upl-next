@@ -3,7 +3,23 @@ import { authAdmin, databaseAdmin, firestoreAdmin } from "@firebase/server";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  let body: {
+    content: string;
+    image: string;
+  };
+  try {
+    body = await req.json();
+  } catch (error) {
+    console.error("[ERROR] Client Side Response Error: Invalid JSON format", error);
+    return NextResponse.json(
+      {
+        statusMessage: "Bad Request",
+        errorCode: "invalid-json-format",
+        errorMessage: "リクエストボディが正しいJSON形式ではありません。",
+      },
+      { status: 400 }
+    );
+  }
 
   const content = body.content;
   const image = body.image;

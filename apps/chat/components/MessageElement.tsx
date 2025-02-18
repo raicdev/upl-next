@@ -372,7 +372,7 @@ const MessageElement: React.FC<MessageElementProps> = ({
           <Button
             className="flex items-center gap-2"
             variant={"secondary"}
-            onClick={handleFavorite}
+            asChild
           >
             <Link
               className="flex items-center gap-2"
