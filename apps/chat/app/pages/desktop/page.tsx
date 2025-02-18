@@ -16,7 +16,7 @@ export default function Home() {
   useTitle("ホーム");
 
   return (
-    <main className="w-2/3 mx-auto">
+    <main className="w-full mx-auto">
       <section className="w-full mt-16 pt-12 pb-12 border">
         <div className="container text-center">
           <div className="gap-4 px-10">

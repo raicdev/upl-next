@@ -1,5 +1,5 @@
 import { UserDataInterface } from "@firebase/types";
-import { authAdmin, databaseAdmin, firestoreAdmin } from "@firebase/server";
+import { authAdmin, databaseAdmin, firestoreAdmin, notAvailable } from "@firebase/server";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -7,7 +7,18 @@ export async function POST(req: Request) {
     content: string;
     replyTo: string;
   };
-  if (req.body === undefined) return
+
+  if (notAvailable) {
+    return NextResponse.json(
+      {
+        statusMessage: "Internal Server Error",
+        errorCode: "not-available",
+        errorMessage: "サーバーが利用できません。",
+      },
+      { status: 500 }
+    );
+  }
+
   try {
     body = await req.json();
   } catch (error) {

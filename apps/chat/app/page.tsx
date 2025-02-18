@@ -46,7 +46,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="w-full md:w-2/3 m-auto">
+      <div className="w-full m-auto">
         <div>
           <section className="w-full pt-12 pb-12 md:pt-24 md:pb-24 lg:pt-32 lg:pb-32 border">
             <div className="container">

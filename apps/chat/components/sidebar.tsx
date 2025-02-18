@@ -15,6 +15,7 @@ import {
 import { Badge } from "@repo/ui/components/badge";
 import {
   CircleUser,
+  ExternalLink,
   FlaskConical,
   Home,
   KeyRound,
@@ -23,6 +24,7 @@ import {
   MessageCircle,
   Monitor,
   Moon,
+  NotepadText,
   PartyPopper,
   Settings,
   Shield,
@@ -100,6 +102,15 @@ const mainMenuItems: SidebarItem[] = [
 const informationItems: SidebarSection = {
   label: "情報",
   items: [
+    {
+      href: "https://docs.raic.dev/chat/tos",
+      icon: <NotepadText />,
+      label: "利用規約",
+      badge: {
+        text: "外部リンク",
+        icon: <ExternalLink size={16} className="mr-1" />,
+      }
+    },
     {
       href: "/pages/desktop",
       icon: <Monitor />,
