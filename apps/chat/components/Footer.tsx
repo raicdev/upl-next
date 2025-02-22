@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
         <div className="flex justify-center text-xl">
           <div className="flex flex-col items-start gap-2">
             <p className="text-base">Powered by</p>
-            <span className="inline-flex items-center text-4xl font-semibold gap-2">
+            <span className="inline-flex items-center text-4xl font-bold gap-2">
               <SiReact style={{ color: "#58c4dc" }} /> React
             </span>
             <span className="inline-flex items-center gap-2">

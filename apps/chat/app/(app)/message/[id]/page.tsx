@@ -1,20 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  ref,
-  orderByChild,
-  query,
-  equalTo,
-  get,
-} from "firebase/database";
-import {
-  getDoc,
-  doc,
-  setDoc,
-  collection,
-  getDocs,
-} from "firebase/firestore";
+import { ref, orderByChild, query, equalTo, get } from "firebase/database";
+import { getDoc, doc, setDoc, collection, getDocs } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import {
   MessageDataInterface,
@@ -31,6 +19,8 @@ import { useTitle } from "@/hooks/use-title";
 import { useParams } from "next/navigation";
 import MessageSkeleton from "@/components/MessageSkeleton";
 import MessageElements from "@/components/MessageElements";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 const MessagePage = () => {
   // State Management
@@ -45,6 +35,7 @@ const MessagePage = () => {
   const [alertText, setAlertText] = useState("");
   useTitle("メッセージ");
   const params = useParams();
+  const router = useRouter();
 
   // const handleTextAreaChange = useCallback(
   //   debounce((e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -101,13 +92,17 @@ const MessagePage = () => {
         equalTo(messageId)
       );
 
-      const userDoc = await getDoc(doc(firestore, "raichat-user-status", user.uid));
+      const userDoc = await getDoc(
+        doc(firestore, "raichat-user-status", user.uid)
+      );
       if (userDoc.exists()) {
         const userData = userDoc.data() as UserDataInterface;
         setIsStaff(userData.isStaff);
       }
 
-      const settingsDoc = await getDoc(doc(firestore, "rai-user-settings", user.uid));
+      const settingsDoc = await getDoc(
+        doc(firestore, "rai-user-settings", user.uid)
+      );
       if (!settingsDoc.exists()) {
         await setDoc(
           doc(firestore, "rai-user-settings", user.uid),
@@ -116,7 +111,9 @@ const MessagePage = () => {
       }
       const settingData = settingsDoc.data() as UserSettingsInterface;
 
-      const userDocs = await getDocs(collection(firestore, "raichat-user-status"));
+      const userDocs = await getDocs(
+        collection(firestore, "raichat-user-status")
+      );
       const userMap = new Map(
         userDocs.docs.map((doc) => [doc.id, doc.data() as UserDataInterface])
       );
@@ -157,6 +154,12 @@ const MessagePage = () => {
   return (
     <main className="p-5 w-full">
       <div className="w-full space-y-4">
+        <div className="flex justify-between items-center rounded-md border px-4 py-2">
+          <h1>メッセージ</h1>
+          <Button variant="secondary" size="icon" onClick={() => router.back()}>
+            <ArrowLeft />
+          </Button>
+        </div>
         <div className="space-y-4 w-full">
           <h2 className="text-2xl font-bold">元のメッセージ</h2>
           {isLoading ? <MessageSkeleton /> : null}

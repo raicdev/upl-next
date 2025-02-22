@@ -95,7 +95,7 @@ const Register: React.FC = () => {
         <div className="m-auto h-screen flex flex-col justify-center space-y-6 w-[96%] md:w-[50%] lg:w-[33%]">
           <div className="bg-sidebar p-8 rounded-sm flex flex-col gap-5">
             <div className="flex flex-col space-y-2 text-center">
-              <h1 className="text-2xl font-semibold tracking-tight">
+              <h1 className="text-2xl font-bold tracking-tight">
                 アカウントの登録
               </h1>
               <p className="text-sm text-muted-foreground">

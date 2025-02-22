@@ -76,12 +76,12 @@ const mainMenuItems: SidebarItem[] = [
     },
   },
   {
-    href: "/messages",
+    href: "/conversion",
     icon: <MessageCircle />,
     label: "メッセージ",
-    disabled: true,
     badge: {
-      text: "近日登場",
+      text: "ベータ",
+      icon: <FlaskConical size="16" className="mr-1" />,
     },
   },
   {
@@ -252,7 +252,7 @@ const Sidebar = () => {
               </div>
 
               <div className="py-4">
-                <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
+                <h2 className="mb-2 px-4 text-lg font-bold tracking-tight">
                   {informationItems.label}
                 </h2>
                 <div className="space-y-1">
@@ -261,7 +261,7 @@ const Sidebar = () => {
               </div>
 
               <div className="py-4">
-                <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
+                <h2 className="mb-2 px-4 text-lg font-bold tracking-tight">
                   {accountItems.label}
                 </h2>
                 <div className="space-y-1">

@@ -7,8 +7,21 @@ const nextConfig = {
         protocol: 'https',
         hostname: 's.kuku.lu'
       },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com'
+      }
     ],
   },
+  redirects: async () => {
+    return [
+      {
+        source: '/@:username',
+        destination: '/user/:username',
+        permanent: true,
+      },
+    ]
+  }
 }
 
 export default nextConfig

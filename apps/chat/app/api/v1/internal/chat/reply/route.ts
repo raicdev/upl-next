@@ -1,5 +1,10 @@
 import { UserDataInterface } from "@firebase/types";
-import { authAdmin, databaseAdmin, firestoreAdmin, notAvailable } from "@firebase/server";
+import {
+  authAdmin,
+  databaseAdmin,
+  firestoreAdmin,
+  notAvailable,
+} from "@firebase/server";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -22,7 +27,10 @@ export async function POST(req: Request) {
   try {
     body = await req.json();
   } catch (error) {
-    console.error("[ERROR] Client Side Response Error: Invalid JSON format", error);
+    console.error(
+      "[ERROR] Client Side Response Error: Invalid JSON format",
+      error
+    );
     return NextResponse.json(
       {
         statusMessage: "Bad Request",
@@ -125,11 +133,7 @@ export async function POST(req: Request) {
     ) {
       await ref.set({
         username: user.displayName,
-        paid: snapshotData.checkmarkState
-          ? "free"
-          : snapshotData.isStudent
-            ? "student"
-            : snapshotData.paid,
+        paid: snapshotData.checkmarkState ? "free" : snapshotData.paid,
         replyTo: replyingTo,
         verified: false,
         uid: user.uid,
@@ -141,7 +145,7 @@ export async function POST(req: Request) {
         favorite: 0,
       });
       snapshotData.banned = true;
-      
+
       if (ngWords.some((word) => content.includes(word))) {
         snapshotData.banReason = "不適切な言葉遣い";
       }
@@ -165,11 +169,7 @@ export async function POST(req: Request) {
         await ref.set({
           //todo: message id
           username: user.displayName,
-          paid: snapshotData.checkmarkState
-            ? "free"
-            : snapshotData.isStudent
-              ? "student"
-              : snapshotData.paid,
+          paid: snapshotData.checkmarkState ? "free" : snapshotData.paid,
           replyTo: replyingTo,
           verified: snapshotData.verified,
           uid: user.uid,

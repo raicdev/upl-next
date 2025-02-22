@@ -62,10 +62,6 @@ const SettingsExperiment: React.FC = () => {
         );
         if (premiumDoc.exists()) {
           const subData = premiumDoc.data() as SubscriptionDataInterface;
-          if (getPlan(subData.plan) != "pro" && getPlan(subData.plan) != "premiumplus") {
-            router.push("/");
-            return;
-          }
           setIsPremium(
             (subData.plan as string) != "free" &&
               (subData.plan as string) != "premium"
@@ -114,7 +110,7 @@ const SettingsExperiment: React.FC = () => {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <h1 className="text-3xl font-semibold mb-1">実験中の機能</h1>
+      <h1 className="text-3xl font-bold mb-1">実験中の機能</h1>
       <p className="mb-3">機能の有効／無効を切り替えたりすることができます。</p>
 
       <div className="flex flex-col gap-4">

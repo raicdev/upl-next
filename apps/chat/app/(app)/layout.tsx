@@ -6,6 +6,7 @@ import { ThemeProvider } from "@repo/ui/components/theme-provider";
 import { Loader2 } from "lucide-react";
 import { Metadata } from "next";
 import { Toaster } from "@repo/ui/components/sonner";
+import SidebarRight from "@/components/RightSidebar";
 import { Noto_Sans_JP } from "next/font/google";
 
 interface LayoutProps {
@@ -39,47 +40,46 @@ export const metadata: Metadata = {
 };
 
 const notoSansJP = Noto_Sans_JP({
-  weight: ["400", "700"],
-  subsets: ["latin"],
+  weight: ["300", "700"],
+  subsets: ["cyrillic"],
 });
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <html lang="ja">
-      <body className={notoSansJP.className}>
-        <SidebarProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Suspense
-              fallback={
-                <div className="flex h-screen w-screen items-center justify-center">
-                  <Loader2 className="h-8 w-8 animate-spin" />
-                </div>
-              }
-            >
-              <div className="flex w-full justify-between">
-                <Suspense
-                  fallback={
-                    <div className="flex h-screen items-center justify-center">
-                      <Loader2 className="h-8 w-8 animate-spin" />
-                    </div>
-                  }
-                >
-                  <Sidebar />
-                  <main className="w-full md:w-2/3 mx-auto">{children}</main>
-                </Suspense>
+    <body className={`${notoSansJP.className}`}>
+      <SidebarProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Suspense
+            fallback={
+              <div className="flex h-screen w-screen items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin" />
               </div>
-            </Suspense>
-          </ThemeProvider>
-        </SidebarProvider>
+            }
+          >
+            <div className="flex w-full justify-between">
+              <Suspense
+                fallback={
+                  <div className="flex h-screen items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                }
+              >
+                <Sidebar />
+                <main className="w-full md:w-1/2 mx-auto">{children}</main>
+                <SidebarRight />
+              </Suspense>
+            </div>
+          </Suspense>
+        </ThemeProvider>
+      </SidebarProvider>
 
-        <Toaster />
-      </body>
-    </html>
+      <Toaster />
+    </body>
   );
 };
 
