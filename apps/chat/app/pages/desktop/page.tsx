@@ -93,7 +93,7 @@ export default function Home() {
               </div>
               <div className="border flex rounded-xl p-2 h-72 flex-col justify-between">
                 <div className="w-full h-full flex rounded-xl p-2 flex-col justify-between">
-                  <div className="m-auto p-2 w-full font-semibold text-center">
+                  <div className="m-auto p-2 w-full font-bold text-center">
                     <div className="flex items-center justify-center mb-2">
                       <Chrome size="64" className="mt-1 mr-2" />
                       <p className="text-5xl">Chrome Based</p>
@@ -108,7 +108,7 @@ export default function Home() {
 
       <section className="w-full pt-8 pb-4 mb-4 border">
         <div className="text-center flex justify-between pl-5 pr-5 items-center">
-          <h1 className="lg:leading-tighter text-4xl mb-4 font-semibold tracking-tighter">
+          <h1 className="lg:leading-tighter text-4xl mb-4 font-bold tracking-tighter">
             デスクトップアプリをインストール
           </h1>
           <Button asChild>

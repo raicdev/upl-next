@@ -10,7 +10,7 @@ import {
   UserSettingsInterface,
 } from "@firebase/types";
 import { SubscriptionDataInterface } from "@firebase/types";
-import { getDoc, doc, setDoc, getDocs, collection } from "firebase/firestore";
+import { getDoc, doc, setDoc, getDocs, collection, where } from "firebase/firestore";
 import {
   orderByChild,
   query,
@@ -19,7 +19,6 @@ import {
   startAt,
   onChildAdded,
   equalTo,
-  endAt,
   get,
 } from "firebase/database";
 import { Loader2 } from "lucide-react";
@@ -96,8 +95,7 @@ const MessageElements: React.FC<TypeProps> = ({ type, profile, replyTo }) => {
         messageQuery = query(
           ref(db, "messages_new_20240630/"),
           orderByChild("uid"),
-          startAt(profile.uid),
-          endAt(user.uid)
+          equalTo("uid", profile.uid)
         );
       } else {
         messageQuery = query(

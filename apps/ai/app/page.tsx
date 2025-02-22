@@ -42,7 +42,7 @@ const ChatApp: React.FC = () => {
         {/* Features Section */}
         <div className="mx-auto mt-20 max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:text-center">
-            <h2 className="text-base font-semibold leading-7 text-indigo-600">
+            <h2 className="text-base font-bold leading-7 text-indigo-600">
               主な特徴
             </h2>
             <p className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
@@ -60,7 +60,7 @@ const ChatApp: React.FC = () => {
                 <div className="rounded-md bg-indigo-600/10 p-2 ring-1 ring-indigo-600/10">
                   <CircleDollarSign className="h-6 w-6 text-indigo-600" />
                 </div>
-                <dt className="mt-4 font-semibold">完全無料</dt>
+                <dt className="mt-4 font-bold">完全無料</dt>
                 <dd className="mt-2 leading-7 text-muted-foreground">
                   サブスクリプションや隠れた料金は一切なし。すべての機能を無料で利用可能。
                 </dd>
@@ -71,7 +71,7 @@ const ChatApp: React.FC = () => {
                 <div className="rounded-md bg-indigo-600/10 p-2  ring-1 ring-indigo-600/10">
                   <LockIcon className="h-6 w-6 text-indigo-600" />
                 </div>
-                <dt className="mt-4 font-semibold">プライバシー重視</dt>
+                <dt className="mt-4 font-bold">プライバシー重視</dt>
                 <dd className="mt-2 leading-7 text-muted-foreground">
                   個人情報は暗号化され、安全に保管。チャット履歴は完全に匿名化。
                 </dd>
@@ -82,7 +82,7 @@ const ChatApp: React.FC = () => {
                 <div className="rounded-md bg-indigo-600/10 p-2 ring-1 ring-indigo-600/10">
                   <Zap className="h-6 w-6 text-indigo-600" />
                 </div>
-                <dt className="mt-4 font-semibold">高速レスポンス</dt>
+                <dt className="mt-4 font-bold">高速レスポンス</dt>
                 <dd className="mt-2 leading-7 text-muted-foreground">
                   最適化された応答速度で、ストレスのないスムーズな会話を実現。
                 </dd>
@@ -92,7 +92,7 @@ const ChatApp: React.FC = () => {
         </div>
 
         <div className="mx-auto bg-sidebar mt-32 max-w-7xl mb-16 p-16 flex justify-between rounded-sm">
-          <h1 className="text-5xl font-semibold">今すぐ始める</h1>
+          <h1 className="text-5xl font-bold">今すぐ始める</h1>
           <Button asChild size="lg">
             <Link href="/home">始める</Link>
           </Button>

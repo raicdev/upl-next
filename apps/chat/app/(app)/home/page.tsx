@@ -220,6 +220,28 @@ const RaiChatApp: React.FC = () => {
 
       setMyUserObject(user);
 
+      // Me
+      const userDoc = await getDoc(
+        doc(firestore, "raichat-user-status", user.uid)
+      );
+      if (!userDoc.exists()) {
+        const defaultData: UserDataInterface = {
+          paid: "free",
+          bio: null,
+          image: null,
+          verified: false,
+          checkmarkState: false,
+          isStaff: false,
+          username: user.displayName || "新規ユーザー",
+          handle: "user_" + Math.random().toString(36).substring(2, 8),
+          uid: user.uid,
+          banned: false,
+          followers: 0,
+          highlightActive: false,
+        };
+        await setDoc(doc(firestore, "raichat-user-status", user.uid), defaultData);
+      }
+
       // User settings
       const settingsDoc = await getDoc(
         doc(firestore, "rai-user-settings", user.uid)
@@ -252,9 +274,6 @@ const RaiChatApp: React.FC = () => {
             );
           }
         }
-      } else {
-        router.push("/");
-        return;
       }
     };
 

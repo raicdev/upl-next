@@ -32,7 +32,7 @@ export default function Home() {
     <main>
       <div className="flex-grow flex h-screen flex-col justify-center md:items-center w-full">
         <h1 className="text-6xl font-bold mb-4 bold-h1">Rai Chat</h1>
-        <p className="text-xl mb-8 max-w-xl">
+        <p className="text-xl mb-8">
           Rai Chat は、平和で、シンプルで、日本産のチャットアプリです。
         </p>
 
@@ -179,7 +179,7 @@ export default function Home() {
             </div>
           </section>
 
-          <div className="flex text-xl m-auto items-center justify-center gap-1 mt-3 mb-3 font-semibold">
+          <div className="flex text-xl m-auto items-center justify-center gap-1 mt-3 mb-3 font-bold">
             <Plus /> 新しい Rai Chat の機能
           </div>
 
@@ -283,7 +283,7 @@ export default function Home() {
 
           <section className="w-full pt-8 pb-8 mb-4 border">
             <div className="text-center">
-              <h1 className="lg:leading-tighter text-4xl mb-4 font-semibold tracking-tighter">
+              <h1 className="lg:leading-tighter text-4xl mb-4 font-bold tracking-tighter">
                 Rai Chat でチャットの体験を向上しよう
               </h1>
               <Button asChild>
@@ -450,7 +450,7 @@ export default function Home() {
 
           <section className="w-full pt-8 pb-4 mb-4 border">
             <div className="text-center flex justify-between pl-5 pr-5 items-center">
-              <h1 className="lg:leading-tighter text-4xl mb-4 font-semibold tracking-tighter">
+              <h1 className="lg:leading-tighter text-4xl mb-4 font-bold tracking-tighter">
                 無料プランから始めよう
               </h1>
               <Button asChild>

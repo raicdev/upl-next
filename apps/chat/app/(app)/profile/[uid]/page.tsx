@@ -1,8 +1,6 @@
 "use client";
 
-import {
-  UserDataInterface,
-} from "@firebase/types";
+import { UserDataInterface } from "@firebase/types";
 import { auth, firestore } from "@firebase/config";
 import { isCheckmarker } from "@firebase/tools";
 import { useParams, useRouter } from "next/navigation";
@@ -31,14 +29,19 @@ import {
   where,
   getDocs,
 } from "firebase/firestore";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@repo/ui/components/popover";
-import Image from "next/image";
-import { Check, Edit, Gavel, MinusCircle, PlusCircle, UserIcon } from "lucide-react";
+import {
+  Check,
+  Edit,
+  Gavel,
+  MinusCircle,
+  PlusCircle,
+} from "lucide-react";
 import MessageElements from "@/components/MessageElements";
 import ProfileSkeleton from "@/components/ProfileSkeleton";
 import { useTitle } from "@/hooks/use-title";
@@ -61,14 +64,14 @@ const ProfilePage = () => {
 
   useTitle("プロフィール");
 
-  const handleEditClick = () => {
+  const handleEditClick = useCallback(() => {
     if (!currentUser) return;
 
     setEditPicture(currentUser.photoURL || "");
     setEditName(currentUser.displayName || "");
     setEditBio(currentBio.replace(/<br>/g, "\n"));
     setEditHandle(currentHandle);
-  };
+  }, [currentUser, currentBio, currentHandle]);
 
   const handleFollowClick = async (userId: string) => {
     if (!currentUser || userId === currentUser.uid) return;
@@ -104,6 +107,15 @@ const ProfilePage = () => {
       doc(
         firestore,
         "raichat-user-status",
+        currentUser!.uid,
+        "followedInfo",
+        userId
+      )
+    );
+    await deleteDoc(
+      doc(
+        firestore,
+        "raichat-user-status",
         userId,
         "followersInfo",
         currentUser!.uid
@@ -118,6 +130,23 @@ const ProfilePage = () => {
     const userDoc = doc(firestore, "raichat-user-status", userId);
     const userData = (await getDoc(userDoc)).data() as UserDataInterface;
 
+    const myDoc = await getDoc(
+      doc(firestore, "raichat-user-status", currentUser!.uid, "followedInfo", userId)
+    );
+
+    if (!myDoc.exists()) {
+      await setDoc(
+        doc(
+          firestore,
+          "raichat-user-status",
+          currentUser!.uid,
+          "followedInfo",
+          userId
+        ),
+        { followed: true, uid: userId}
+      );
+    }
+
     const newFollowers = (userData.followers || 0) + 1;
     await setDoc(userDoc, { ...userData, followers: newFollowers });
     await setDoc(
@@ -128,13 +157,12 @@ const ProfilePage = () => {
         "followersInfo",
         currentUser!.uid
       ),
-      { followed: true }
+      { followed: true, uid: userId}
     );
 
     setFollowers(newFollowers);
     setIsFollowing(true);
   };
-
   const handleEditConfirm = async (userId: string) => {
     if (!currentUser || userId !== currentUser.uid) return;
 
@@ -223,7 +251,7 @@ const ProfilePage = () => {
 
       const userDoc = await getDoc(doc(firestore, "raichat-user-status", uid));
       if (!userDoc.exists()) {
-        router.push("/home");
+        handleEditClick();
         return;
       }
 
@@ -241,7 +269,7 @@ const ProfilePage = () => {
 
     const unsubscribe = onAuthStateChanged(auth, handleAuth);
     return () => unsubscribe();
-  }, [router, params]);
+  }, [router, params, handleEditClick]);
 
   if (!userData || !currentUser) {
     return <ProfileSkeleton />;
@@ -251,7 +279,7 @@ const ProfilePage = () => {
     <main className="p-5 w-full">
       <div className="mx-auto">
         <div className="flex flex-col gap-2">
-          <Image
+          <img
             src={userData.image || "/images/chat-defaultProfile.png"}
             alt="Profile"
             width={128}
@@ -266,10 +294,6 @@ const ProfilePage = () => {
                 <PopoverTrigger asChild className="ml-2">
                   {userData.isStaff ? (
                     <Gavel className="admin text-yellow-400" />
-                  ) : userData.isGov ? (
-                    <Check className="gov text-neutral-400" />
-                  ) : userData.isStudent ? (
-                    <UserIcon className="student text-green-400" />
                   ) : (
                     <Check className="verified text-blue-400" />
                   )}
@@ -278,19 +302,11 @@ const ProfilePage = () => {
                   <div className="flex items-start gap-2">
                     {userData.isStaff ? (
                       <Gavel className="admin text-yellow-400 size-8" />
-                    ) : userData.isGov ? (
-                      <Check className="gov text-neutral-400 size-8" />
-                    ) : userData.isStudent ? (
-                      <UserIcon className="student text-green-400 size-8" />
                     ) : (
                       <Check className="verified text-blue-400 size-8" />
                     )}
                     {userData.isStaff
                       ? "このアカウントは、Rai Chat のスタッフのアカウントであるため認証されています。"
-                      : userData.isGov
-                      ? "このアカウントは、政府または多国間機関のアカウントであるため認証されています。"
-                      : userData.isStudent
-                      ? "このアカウントは、学生特典が有効なアカウントであるため認証されています。"
                       : "このアカウントは、プレミアムを購入しているアカウントであるため認証されています。"}
                   </div>
                 </PopoverContent>

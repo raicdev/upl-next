@@ -61,6 +61,11 @@ import {
 import { Separator } from "@repo/ui/components/separator";
 import { Input } from "@repo/ui/components/input";
 import { cn } from "@repo/ui/lib/utils";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@repo/ui/components/popover";
 
 interface MessageElementProps {
   userData: UserDataInterface;
@@ -310,7 +315,7 @@ const MessageElement: React.FC<MessageElementProps> = ({
               alt="user"
             />
             <AvatarFallback>
-              <Image
+              <img
                 alt="Default"
                 src="/images/chat-defaultProfile.png"
                 width={128}
@@ -327,17 +332,31 @@ const MessageElement: React.FC<MessageElementProps> = ({
                 {userData.username}{" "}
               </Link>
               {isCheckmarker(userData) && (
-                <>
-                  {userData.isStaff ? (
-                    <Gavel className="text-yellow-400 cursor-pointer" />
-                  ) : userData.isGov ? (
-                    <Check className="text-neutral-400 cursor-pointer" />
-                  ) : userData.isStudent ? (
-                    <UserIcon className="text-green-400 cursor-pointer" />
-                  ) : (
-                    <Check className="text-blue-400 cursor-pointer" />
-                  )}
-                </>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    {userData.isStaff ? (
+                      <Gavel className="text-yellow-400 cursor-pointer" />
+                    ) : (
+                      <Check className="text-blue-400 cursor-pointer" />
+                    )}
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80">
+                    <div className="flex items-center gap-2">
+                      {userData.isStaff ? (
+                        <Gavel size="32" className="text-yellow-400 cursor-pointer size-16" />
+                      ) : (
+                        <Check size="32" className="text-blue-400 cursor-pointer size-16" />
+                      )}
+                      <p>
+                        {userData.isStaff ? (
+                          "このアカウントは、UpLauncherのスタッフのアカウントであるため認証されています。"
+                        ) : (
+                          "このアカウントは、プレミアム以上のサブスクリプションを購入して、スタッフが確認したため認証されています。"
+                        )}
+                      </p>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               )}
               <div className="ml-2 text-sm text-muted-foreground">
                 @{userData.handle} ({messageData.time})
