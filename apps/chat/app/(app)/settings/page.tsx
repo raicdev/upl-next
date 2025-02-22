@@ -70,17 +70,11 @@ const Settings: React.FC = () => {
         );
         if (premiumDoc.exists()) {
           const subData = premiumDoc.data() as SubscriptionDataInterface;
-          if (getPlan(subData.plan) != "pro" && getPlan(subData.plan) != "premiumplus") {
-            router.push("/");
-            return;
-          }
           setIsPremium((subData.plan as string) != "free");
           if (settingData) {
             setPremiumEdit(settingData.premiumEdit);
             setPremiumCheckmark(settingData.hide_checkmark);
           }
-        } else {
-          router.push("/");
         }
       } else {
         window.location.href = "/login";
@@ -107,7 +101,7 @@ const Settings: React.FC = () => {
 
   return (
     <main className={`p-3 md:p-5 w-full`}>
-      <h1 className="text-2xl md:text-4xl font-semibold mb-2">Rai Chat の設定</h1>
+      <h1 className="text-2xl md:text-4xl font-bold mb-2">Rai Chat の設定</h1>
       <p className="text-sm md:text-base mb-4">機能の有効／無効を切り替えたりすることができます。</p>
 
       <Tabs defaultValue="general" className="w-full">

@@ -32,7 +32,7 @@ export default function NotFound() {
         >
           <h1 className="text-9xl font-bold text-white mb-4">404</h1>
         </motion.div>
-        <h2 className="text-3xl font-semibold text-gray-300 mb-8">
+        <h2 className="text-3xl font-bold text-gray-300 mb-8">
           ページが見つかりません
         </h2>
         <p className="text-gray-400 mb-8">

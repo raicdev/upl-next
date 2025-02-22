@@ -35,71 +35,67 @@ const ChatApp: React.FC = () => {
 
   const router = useRouter();
 
-  const [model, setModel] = useState("gpt-4o-2024-08-06");
+  const [model, setModel] = useState("o3-mini");
   const [isOpen, setIsOpen] = useState(false);
 
   const [isThinking, setIsThinking] = useState(false);
 
   useEffect(() => {
     if (!currentSession) {
-      router.push("/");
+      router.push("/home");
     }
   }, [currentSession, router]);
 
   // メッセージ送信のユーティリティ関数
   const sendChatMessage = async (messages: ChatMessage[]) => {
     let systemMessage = "";
-    if (!model.includes("o1")) {
-      if (deniThink) {
-        systemMessage = [
-          "あなたは高度な論理的思考と理由付け能力を持つアシスタントです。以下の指示に従って、すべての質問に対して深く考察し、正確で論理的な回答を生成してください。",
-          "",
-          "1. **段階的な思考:**",
-          "- 各回答は「ステップバイステップ」の形式で構成し、論理の展開や各ステップの根拠を明確に示してください。",
-          "- 複数の可能性がある場合は、それぞれの選択肢の検討過程も含めて説明してください。",
-          "",
-          "2. **正確性と事実確認:**",
-          "- 憶測や仮定に基づく回答は行わず、確実な情報に基づいて回答してください。",
-          "- 分からない情報や不確かな部分がある場合は、正直に「わからない」と回答し、必要に応じて信頼できる情報源の参照も示してください。",
-          "",
-          "3. **ハルシネーションの回避:**",
-          "- 架空の情報や誤った情報（ハルシネーション）の生成を厳に避け、事実に基づいた内容のみを提供してください。",
-          "",
-          "4. **完全かつ詳細な回答:**",
-          "- 回答は省略せず、すべての関連情報や理由を詳細に記述してください。",
-          "- 読み手が容易に理解できるよう、論理の流れや結論に至る過程を明示してください。",
-          "- 論理の流れ結論に至る過程は最初に<think>...</think>で記述し、その後に回答を記述してください。",
-          "",
-          "5. **内部の論理構造:**",
-          "- あなたの内部的な思考プロセス（内部チェーン・オブ・ソート）は外部に露呈しないようにしながらも、回答にはその論理的根拠が反映されるよう努めてください。",
-          "",
-          "6. **求めているもの:**",
-          "- ユーザーが何を求めているのかを<think>...</think>で記述してから回答を考え、出力するようにする。",
-          "- ユーザーの考えていることを<think>...</think>で推論してからメインの考えを出力する。",
-          "",
-          "以上の指示に従い、各回答において徹底した論理的理由付けと正確な情報の提供を行ってください。",
-        ].join("\n");
-      }
-      // if (search) {
-      //   systemMessage += [
-      //     "",
-      //     "## ツール",
-      //     "### search",
-      //     "検索ツールを使用して、ユーザーの質問に対する回答を検索してください。このツールは、あなたが知らない知識について、ユーザーに答えるために使用します。",
-      //   ].join("\n");
-      // }
+    if (deniThink) {
+      systemMessage += [
+        "あなたは高度な論理的思考と理由付け能力を持つアシスタントです。以下の指示に従って、すべての質問に対して深く考察し、正確で論理的な回答を生成してください。",
+        "",
+        "1. **段階的な思考:**",
+        "- 各回答は「ステップバイステップ」の形式で構成し、論理の展開や各ステップの根拠を明確に示してください。",
+        "- 複数の可能性がある場合は、それぞれの選択肢の検討過程も含めて説明してください。",
+        "",
+        "2. **正確性と事実確認:**",
+        "- 憶測や仮定に基づく回答は行わず、確実な情報に基づいて回答してください。",
+        "- 分からない情報や不確かな部分がある場合は、正直に「わからない」と回答し、必要に応じて信頼できる情報源の参照も示してください。",
+        "",
+        "3. **ハルシネーションの回避:**",
+        "- 架空の情報や誤った情報（ハルシネーション）の生成を厳に避け、事実に基づいた内容のみを提供してください。",
+        "",
+        "4. **完全かつ詳細な回答:**",
+        "- 回答は省略せず、すべての関連情報や理由を詳細に記述してください。",
+        "- 読み手が容易に理解できるよう、論理の流れや結論に至る過程を明示してください。",
+        "- 論理の流れ結論に至る過程は最初に<think>...</think>で記述し、その後に回答を記述してください。",
+        "",
+        "5. **内部の論理構造:**",
+        "- あなたの内部的な思考プロセス（内部チェーン・オブ・ソート）は外部に露呈しないようにしながらも、回答にはその論理的根拠が反映されるよう努めてください。",
+        "",
+        "6. **求めているもの:**",
+        "- ユーザーが何を求めているのかを<think>...</think>で記述してから回答を考え、出力するようにする。",
+        "- ユーザーの考えていることを<think>...</think>で推論してからメインの考えを出力する。",
+        "",
+        "以上の指示に従い、各回答において徹底した論理的理由付けと正確な情報の提供を行ってください。",
+      ].join("\n");
     }
+    // if (search) {
+    //   systemMessage += [
+    //     "",
+    //     "## ツール",
+    //     "### search",
+    //     "検索ツールを使用して、ユーザーの質問に対する回答を検索してください。このツールは、あなたが知らない知識について、ユーザーに答えるために使用します。",
+    //   ].join("\n");
+    //
     const bodyContent = {
       model,
       messages: [
-        ...(model.includes("o1")
-          ? []
-          : [
-              {
-                role: "system",
-                content: systemMessage,
-              },
-            ]),
+        ...[
+          {
+            role: "system",
+            content: systemMessage,
+          },
+        ],
         ...(messages.map((msg) => {
           if (msg.author == "ai") {
             return {
@@ -154,7 +150,7 @@ const ChatApp: React.FC = () => {
   };
 
   // refreshCwの修正バージョン
-  const refreshCw = async (messageIndex: number) => {
+  const refreshCw = async (messageIndex: number, model: string) => {
     if (!currentSession || !currentSession) return;
 
     try {
@@ -175,27 +171,31 @@ const ChatApp: React.FC = () => {
       const response = await sendChatMessage(messagesUpToIndex);
 
       if (response.ok) {
-        const reader = response.body?.getReader();
-        let aiMessage = "";
+        const aiMessage = await response.text();
 
-        if (reader) {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const chunk = new TextDecoder().decode(value);
-            if (aiMessage === "" && chunk) {
-              setIsThinking(false);
-            }
-            aiMessage += chunk;
-
-            currentSession.messages.push({
-              author: "ai",
-              message: aiMessage,
-              model: model,
-            });
-          }
-        }
+        currentSession.messages =
+          currentSession.messages[currentSession.messages.length - 1]
+            ?.author === "ai"
+            ? [
+                ...currentSession.messages.slice(0, -1),
+                {
+                  author: "ai",
+                  message:
+                    aiMessage ||
+                    "### エラーが発生しました。APIサーバーがダウンしているか、このモデルは現在オフラインです。",
+                  model: model,
+                },
+              ]
+            : [
+                ...currentSession.messages,
+                {
+                  author: "ai",
+                  message:
+                    aiMessage ||
+                    "### エラーが発生しました。APIサーバーがダウンしているか、このモデルは現在オフラインです。",
+                  model: model,
+                },
+              ];
       }
     } catch (error) {
       console.error("Error regenerating response:", error);
@@ -224,19 +224,30 @@ const ChatApp: React.FC = () => {
       const response = await sendChatMessage(currentSession.messages);
       if (response.ok) {
         const aiMessage = await response.text();
-        setIsThinking(false);
 
-        const messageJson: ChatMessage = {
-          author: "ai",
-          message: aiMessage,
-          model: model,
-        };
-
-        currentSession.messages = currentSession.messages[
-          currentSession.messages.length - 1
-        ]?.message.startsWith("AI:")
-          ? [...currentSession.messages.slice(0, -1), messageJson]
-          : [...currentSession.messages, messageJson];
+        currentSession.messages =
+          currentSession.messages[currentSession.messages.length - 1]
+            ?.author === "ai"
+            ? [
+                ...currentSession.messages.slice(0, -1),
+                {
+                  author: "ai",
+                  message:
+                    aiMessage ||
+                    "### エラーが発生しました。APIサーバーがダウンしているか、このモデルは現在オフラインです。",
+                  model: model,
+                },
+              ]
+            : [
+                ...currentSession.messages,
+                {
+                  author: "ai",
+                  message:
+                    aiMessage ||
+                    "### エラーが発生しました。APIサーバーがダウンしているか、このモデルは現在オフラインです。",
+                  model: model,
+                },
+              ];
       } else {
         currentSession.messages = [
           ...currentSession.messages,
@@ -304,6 +315,7 @@ const ChatApp: React.FC = () => {
           <div className="flex items-center gap-1">
             <ModelSelector
               model={model}
+              refreshIcon={false}
               handleModelChange={handleModelChange}
               modelDescriptions={modelDescriptions}
             />

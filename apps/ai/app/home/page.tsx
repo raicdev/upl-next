@@ -41,7 +41,7 @@ const ChatApp: React.FC = () => {
 
         {/* Input Area */}
         <div className="flex items-center flex-col w-full md:w-7/12 m-auto">
-          <h1 className="m-auto text-xl lg:text-3xl mb-1 font-semibold">
+          <h1 className="m-auto text-xl lg:text-3xl mb-1 font-bold">
             お手伝いできることはありますか？
           </h1>
           <p className="text-muted-foreground mb-2">

@@ -1,19 +1,27 @@
 import { User } from "firebase/auth";
 
+export interface followedInfoInterface {
+  [uid: string]: {followed: boolean};
+}
+
 export interface UserDataInterface {
+  followersInfo?: {
+    [uid: string]: {followed: boolean};
+  },
+  followedInfo?: {
+    [uid: string]: {followed: boolean};
+  }
   paid: string;
   bio: string | null;
   image: string | null;
   verified: boolean;
   checkmarkState: boolean;
   isStaff: boolean;
-  isStudent: boolean;
   username: string;
   uid: string;
   banned: boolean;
   banReason?: string;
   followers: number;
-  isGov: boolean;
   handle?: string;
   highlightActive: boolean;
 }
@@ -46,7 +54,6 @@ export interface SubscriptionDataInterface {
   isExpired: boolean;
   id: string;
   plan: string;
-  isStudent: boolean;
   isStaff: boolean;
 }
 

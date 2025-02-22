@@ -29,11 +29,11 @@ export function ChatSidebar() {
           <div className="flex items-center gap-2">
             <Link
               href="/home"
-              className="text-xl font-semibold transition-all hover:text-muted-foreground"
+              className="text-xl font-bold transition-all hover:text-muted-foreground"
             >
               Deni AI
             </Link>
-            <Badge>v1.2</Badge>
+            <Badge>v1.3</Badge>
           </div>
         </SidebarGroup>
         <SidebarGroup>

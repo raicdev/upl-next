@@ -1,6 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": [".env"],
+  "globalEnv": ["WEATHER_API_KEY"],
   "ui": "tui",
   "tasks": {
     "build": {

@@ -13,11 +13,16 @@ import { cn } from "@repo/ui/lib/utils";
 import { Pre } from "@/components/markdown";
 import { ChatMessage } from "@/hooks/use-chat-sessions";
 import { modelDescriptions } from "@/lib/modelDescriptions";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+} from "@repo/ui/components/dropdown-menu";
+import { ModelSelector } from "./input-area";
 
 interface MessageLogProps {
   log: ChatMessage;
   index: number;
-  onRefresh: (index: number) => void;
+  onRefresh: (index: number, model: string) => void;
 }
 
 export const MessageLog: FC<MessageLogProps> = memo(
@@ -33,9 +38,9 @@ export const MessageLog: FC<MessageLogProps> = memo(
       }, 1000);
     };
 
-    const handleRefresh = (e: React.MouseEvent) => {
+    const handleRefresh = (e: React.MouseEvent, model: string) => {
       e.preventDefault();
-      onRefresh(index);
+      onRefresh(index, model);
     };
 
     return (
@@ -51,53 +56,12 @@ export const MessageLog: FC<MessageLogProps> = memo(
                 <div className="p-2 bg-muted rounded-md text-accent-foreground">
                   <Bot />
                 </div>
-                {log.message.includes("<think>") ? (
-                  <div className="ml-3 w-full max-w-11/12">
-                    {log.message
-                      .replace("AI: ", "")
-                      .split(/<think>|<\/think>/)
-                      .map((part, i) =>
-                        i % 2 === 0 ? (
-                          <ReactMarkdown
-                            key={i}
-                            className="prose dark:prose-invert"
-                          >
-                            {part}
-                          </ReactMarkdown>
-                        ) : (
-                          <Collapsible key={i} className="p-2 space-y-2">
-                            <CollapsibleTrigger asChild>
-                              <Button
-                                variant={"outline"}
-                                className="w-full md:w-2/3 lg:w-1/2"
-                              >
-                                <h4 className="text-sm font-semibold">
-                                  思考過程を見る
-                                </h4>
-                                <ChevronsUpDown className="h-4 w-4" />
-                              </Button>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent
-                              className={cn(
-                                "text-popover-foreground border-l-2 pl-3 border-foreground outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
-                              )}
-                            >
-                              <ReactMarkdown className="prose dark:prose-invert mt-2">
-                                {part}
-                              </ReactMarkdown>
-                            </CollapsibleContent>
-                          </Collapsible>
-                        )
-                      )}
-                  </div>
-                ) : (
-                  <ReactMarkdown
-                    components={{ pre: Pre }}
-                    className="ml-3 prose dark:prose-invert w-full max-w-11/12"
-                  >
-                    {log.message}
-                  </ReactMarkdown>
-                )}
+                <ReactMarkdown
+                  components={{ pre: Pre }}
+                  className="ml-3 prose dark:prose-invert w-full max-w-11/12"
+                >
+                  {log.message}
+                </ReactMarkdown>
               </div>{" "}
               <div className="flex items-center rounded mt-3 bg-secondary text-xs">
                 <div className="p-1 text-gray-400 hover:text-foreground">
@@ -114,20 +78,9 @@ export const MessageLog: FC<MessageLogProps> = memo(
                 </div>
                 <div className="p-1 text-gray-400 hover:text-foreground">
                   <EasyTip content={`再生成`}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRefresh}
-                      className="group"
-                    >
-                      <RefreshCw size="16" />
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        {
-                          modelDescriptions[log.model || "gpt-4o-2024-08-06"]
-                            ?.displayName
-                        }
-                      </span>
-                    </Button>{" "}
+                    <ModelSelector modelDescriptions={modelDescriptions} model={log.model || "o3-mini"} refreshIcon={true} handleModelChange={(model: string) => {
+                      onRefresh(index, model);
+                    }} />
                   </EasyTip>
                 </div>
               </div>
