@@ -5,31 +5,19 @@ import { Separator } from "@repo/ui/components/separator";
 import {
   AlertCircle,
   BrainCircuit,
-  Check,
+  Eye,
   FlaskConical,
-  Hammer,
-  MoveRight,
-  User,
 } from "lucide-react";
 import { Badge } from "@repo/ui/components/badge";
-import { Button } from "@repo/ui/components/button";
-import { ChatSession, useChatSessions } from "@/hooks/use-chat-sessions";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/tabs";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@repo/ui/components/dropdown-menu";
-import { useTheme } from "next-themes";
 import { ChatSidebar } from "@/components/chat-sidebar";
 import { SidebarProvider } from "@repo/ui/components/sidebar";
-import { toast, Toaster } from "sonner";
+import { Toaster } from "sonner";
 import { useModelVisibility } from "@/hooks/use-model-settings";
 import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/alert";
 import { modelDescriptions } from "@/lib/modelDescriptions";
@@ -56,8 +44,11 @@ export default function SettingsPage() {
         <div className="flex justify-center w-full">
           <Tabs defaultValue="model" className="w-full md:w-2/3 lg:w-1/2">
             <TabsList>
-              <TabsTrigger asChild value="">
+            <TabsTrigger asChild value="general">
                 <Link href="/settings">一般</Link>
+              </TabsTrigger>
+              <TabsTrigger asChild value="account">
+                <Link href="/settings/account">アカウント</Link>
               </TabsTrigger>
               <TabsTrigger asChild value="model">
                 <Link href="/settings/model">モデル</Link>
@@ -85,6 +76,7 @@ export default function SettingsPage() {
                     type,
                     canary,
                     reasoning,
+                    vision,
                     offline,
                   },
                 ]) => (
@@ -115,15 +107,15 @@ export default function SettingsPage() {
                         </svg>
                       )}
                     </Avatar>
-                    <div className="flex items-center justify-between w-full">
-                      <div>
+                    <div className="flex items-center flex-wrap justify-between w-full">
+                      <div className="w-[80%]">
                         <h3 className="text-lg font-bold">{displayName}</h3>
                         <p className="text-sm text-muted-foreground">
                           {description}
                         </p>
                         <div
                           className={cn(
-                            "flex items-center gap-2 mt-1",
+                            "flex items-center flex-wrap gap-2 mt-1",
                             !reasoning && !canary && !offline && "hidden"
                           )}
                         >
@@ -136,13 +128,13 @@ export default function SettingsPage() {
                           {canary && (
                             <Badge>
                               <FlaskConical size="16" className="mr-1" />
-                              <span className="text-xs">試験的モデル</span>
+                              <span className="text-xs">試験的</span>
                             </Badge>
                           )}
-                          {canary && (
+                          {vision && (
                             <Badge>
-                              <Hammer size="16" className="mr-1" />
-                              <span className="text-xs">ツールに対応</span>
+                              <Eye size="16" className="mr-1" />
+                              <span className="text-xs">画像</span>
                             </Badge>
                           )}
                         </div>

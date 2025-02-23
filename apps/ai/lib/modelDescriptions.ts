@@ -1,9 +1,13 @@
+import { ThinkingEffort } from "@/hooks/use-chat-sessions";
+
 export interface modelDescriptionType {
   [key: string]: {
     canary?: boolean; // capi or api (.voids.top)
     description?: string;
     displayName?: string;
     offline?: boolean;
+    vision?: boolean;
+    thinkEfforts?: ThinkingEffort[];
     reasoning?: boolean;
     type: modelType;
   };
@@ -22,25 +26,21 @@ export const modelDescriptions: modelDescriptionType = {
     description: "GPT-4o にそっくりで、より高速。",
     type: "ChatGPT",
   },
-  "o1": {
-    displayName: "o1",
-    description: "OpenAI の推論機能があるフラッグシップモデル。",
-    canary: true,
-    reasoning: true,
-    type: "ChatGPT",
-  },
   "o3-mini": {
     displayName: "o3-mini",
     description: "OpenAI の推論対応、高速、賢いモデル。",
     canary: true,
     reasoning: true,
+    thinkEfforts: ["medium", "high"],
     type: "ChatGPT",
   },
-  "o3-mini-high": {
-    displayName: "o3-mini (high)",
-    description: "o3-mini よりも賢いモデル。",
+  "o1": {
+    displayName: "o1",
+    description: "OpenAI の推論機能があるフラッグシップモデル。",
     canary: true,
+    offline: true,
     reasoning: true,
+    vision: true,
     type: "ChatGPT",
   },
   "gemini-2.0-flash-001": {
@@ -55,16 +55,16 @@ export const modelDescriptions: modelDescriptionType = {
     description: "Google のフラッグシップモデル。",
     type: "Gemini",
   },
+  "claude-3-5-sonnet-20241022": {
+    displayName: "Claude 3.5 Sonnet",
+    description: "Anthropic による複雑な問題のためのモデル。",
+    type: "Claude",
+  },
   "deepseek-r1": {
     displayName: "DeepSeek R1",
     description: "DeepSeek によるオープンソースの早くて賢いモデル",
     reasoning: true,
     type: "DeepSeek",
-  },
-  "claude-3-5-sonnet-20241022": {
-    displayName: "Claude 3.5 Sonnet",
-    description: "Anthropic による複雑な問題のためのモデル。",
-    type: "Claude",
   },
   "grok-2": {
     displayName: "Grok 2",

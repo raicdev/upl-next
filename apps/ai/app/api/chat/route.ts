@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return Response.json({ error: "Invalid request" });
     }
 
-    const isCanary = modelDescriptions[json.model]?.canary;
+    const isCanary = modelDescriptions[json.model.replace("-high", "")]?.canary;
     const openai = createOpenAI({
       // custom settings, e.g.
       compatibility: "strict", // strict mode, enable when using the OpenAI API
@@ -20,6 +20,8 @@ export async function POST(req: Request) {
       apiKey: "no", // API key
     });
 
+    console.log(json.messages)
+
 
     const response = streamText({
       model: openai(json.model),
@@ -27,9 +29,8 @@ export async function POST(req: Request) {
     });
 
     // Removed tool calls logging that was blocking response
-    return response.toTextStreamResponse();
+    return response.toDataStreamResponse();
   } catch (error) {
-    console.error("Error fetching data:", error);
-    return Response.json({ error: "Internal Server Error" });
+    return Response.json({ error: error });
   }
 }

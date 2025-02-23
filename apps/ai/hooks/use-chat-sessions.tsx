@@ -5,9 +5,15 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 
 export interface ChatMessage {
   author: "ai" | "user";
+  image?: string;
   message: string;
   model?: string;
+  thinkingEffort?: ThinkingEffort;
+  thinkingTime?: number;
 }
+
+export type ThinkingEffort = "low" | "medium" | "high";
+
 
 export interface ChatSession {
   id: string;

@@ -20,23 +20,28 @@ import {
   ArrowRight,
   Ban,
   BrainCircuit,
-  FlaskConical,
+  Eye,
   RefreshCw,
 } from "lucide-react";
 import { Badge } from "@repo/ui/components/badge";
 import { EasyTip } from "@repo/ui/components/easytip";
 import Link from "next/link";
 import { useModelVisibility } from "@/hooks/use-model-settings";
+import { ThinkingEffort } from "@/hooks/use-chat-sessions";
 
 export function ModelSelector({
   modelDescriptions,
   model,
+  visionRequired,
   handleModelChange,
   refreshIcon,
+  thinkEffort,
 }: {
   modelDescriptions: modelDescriptionType;
   model: string;
+  visionRequired?: boolean;
   refreshIcon?: boolean;
+  thinkEffort?: ThinkingEffort;
   handleModelChange: (model: string) => void;
 }) {
   const { visibility } = useModelVisibility();
@@ -44,7 +49,10 @@ export function ModelSelector({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant={"ghost"} className="p-2">
+        <Button
+          variant={!refreshIcon ? "outline" : "ghost"}
+          className="p-2 rounded-full"
+        >
           {refreshIcon && <RefreshCw />}
           {!refreshIcon && modelDescriptions[model]?.type === "ChatGPT" && (
             <SiOpenai />
@@ -55,12 +63,9 @@ export function ModelSelector({
           {!refreshIcon && modelDescriptions[model]?.type === "Claude" && (
             <SiClaude />
           )}
-          {!refreshIcon && modelDescriptions[model]?.type === "Grok" && (
-            <SiX />
-          )}
+          {!refreshIcon && modelDescriptions[model]?.type === "Grok" && <SiX />}
           {!refreshIcon && modelDescriptions[model]?.type === "DeepSeek" && (
             <svg
-             
               xmlns="http://www.w3.org/2000/svg"
               shapeRendering="geometricPrecision"
               textRendering="geometricPrecision"
@@ -81,37 +86,48 @@ export function ModelSelector({
             </svg>
           )}
           <span className="inline-flex items-center justify-center">
-            {modelDescriptions[model]?.displayName}
+            {modelDescriptions[model]?.displayName}{" "}
+            {thinkEffort && `(${thinkEffort})`}
           </span>
           <ArrowDown className="text-zinc-400 text-sm" />
         </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="w-64">
-        <DropdownMenuLabel>モデル</DropdownMenuLabel>
+        <DropdownMenuLabel className="pb-0!">モデル</DropdownMenuLabel>
+        {visionRequired && (
+          <div className="ml-2">
+            <span className="text-sm text-muted-foreground">
+              この会話には画像を含んでいるため、画像対応モデルのみが利用可能です。
+            </span>
+          </div>
+        )}
         <DropdownMenuGroup>
           {Object.keys(modelDescriptions)
-            .sort((a, b) => {
-              const badgeCountA = [
-                modelDescriptions[a]?.offline,
-                modelDescriptions[a]?.reasoning,
-                modelDescriptions[a]?.canary,
-              ].filter(Boolean).length;
+            // .sort((a, b) => {
+            //   const badgeCountA = [
+            //     modelDescriptions[a]?.offline,
+            //     modelDescriptions[a]?.reasoning,
+            //     modelDescriptions[a]?.canary,
+            //   ].filter(Boolean).length;
 
-              const badgeCountB = [
-                modelDescriptions[b]?.offline,
-                modelDescriptions[b]?.reasoning,
-                modelDescriptions[b]?.canary,
-              ].filter(Boolean).length;
+            //   const badgeCountB = [
+            //     modelDescriptions[b]?.offline,
+            //     modelDescriptions[b]?.reasoning,
+            //     modelDescriptions[b]?.canary,
+            //   ].filter(Boolean).length;
 
-              return badgeCountA - badgeCountB;
-            })
+            //   return badgeCountA - badgeCountB;
+            // })
             .map(
               (modelKey) =>
                 visibility[modelKey] && (
                   <DropdownMenuItem
                     key={modelKey}
-                    disabled={modelDescriptions[modelKey]?.offline}
+                    disabled={
+                      modelDescriptions[modelKey]?.offline ||
+                      (visionRequired && !modelDescriptions[modelKey]?.vision)
+                    }
                     className="w-full cursor-pointer"
                     onClick={() => handleModelChange(modelKey)}
                   >
@@ -124,12 +140,9 @@ export function ModelSelector({
                     {modelDescriptions[modelKey]?.type === "Claude" && (
                       <SiClaude />
                     )}
-                    {modelDescriptions[modelKey]?.type === "Grok" && (
-                      <SiX />
-                    )}
+                    {modelDescriptions[modelKey]?.type === "Grok" && <SiX />}
                     {modelDescriptions[modelKey]?.type === "DeepSeek" && (
                       <svg
-                       
                         xmlns="http://www.w3.org/2000/svg"
                         shapeRendering="geometricPrecision"
                         textRendering="geometricPrecision"
@@ -155,22 +168,28 @@ export function ModelSelector({
                       </span>
                       <div className="flex items-center gap-2">
                         {modelDescriptions[modelKey]?.offline && (
-                          <Badge variant={"destructive"}>
-                            <Ban size="16" />
-                            無効
-                          </Badge>
-                        )}
-                        {modelDescriptions[modelKey]?.reasoning && (
-                          <EasyTip content="推論可能">
-                            <Badge className="p-1">
-                              <BrainCircuit size="16" />
+                          <EasyTip content="オフライン">
+                            <Badge variant={"destructive"} className="p-1 flex gap-1">
+                              <Ban size="16" />
+                              オフライン
                             </Badge>
                           </EasyTip>
                         )}
-                        {modelDescriptions[modelKey]?.canary && (
-                          <EasyTip content="ベータモデル">
+
+                        {modelDescriptions[modelKey]?.vision && (
+                          <EasyTip content="画像を認識可能">
                             <Badge className="p-1">
-                              <FlaskConical size="16" />
+                              <Eye size="16" />
+                            </Badge>
+                          </EasyTip>
+                        )}
+
+                        {modelDescriptions[modelKey]?.reasoning && (
+                          <EasyTip
+                            content={`推論可能${modelDescriptions[modelKey]?.thinkEfforts ? " (推論努力を変更可能)" : ""}`}
+                          >
+                            <Badge className="p-1">
+                              <BrainCircuit size="16" />
                             </Badge>
                           </EasyTip>
                         )}
@@ -182,7 +201,7 @@ export function ModelSelector({
           {!refreshIcon && (
             <>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <div className="flex items-center justify-between w-full">
                   <Link href={"/settings/model"}>表示するモデルを管理</Link>
                   <ArrowRight />

@@ -1,32 +1,24 @@
 import { FC, memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Bot, ChevronsUpDown, Copy, RefreshCw } from "lucide-react";
+import { Copy } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@repo/ui/components/collapsible";
 import { EasyTip } from "@repo/ui/components/easytip";
-import { cn } from "@repo/ui/lib/utils";
 import { Pre } from "@/components/markdown";
 import { ChatMessage } from "@/hooks/use-chat-sessions";
 import { modelDescriptions } from "@/lib/modelDescriptions";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-} from "@repo/ui/components/dropdown-menu";
 import { ModelSelector } from "./input-area";
+import Image from "next/image";
 
 interface MessageLogProps {
   log: ChatMessage;
   index: number;
+  visionRequired: boolean;
   onRefresh: (index: number, model: string) => void;
 }
 
 export const MessageLog: FC<MessageLogProps> = memo(
-  ({ log, index, onRefresh }) => {
+  ({ log, index, onRefresh, visionRequired }) => {
     const handleCopy = (event: React.MouseEvent<HTMLButtonElement>) => {
       navigator.clipboard.writeText(log.message);
       const target = event.currentTarget;
@@ -38,24 +30,29 @@ export const MessageLog: FC<MessageLogProps> = memo(
       }, 1000);
     };
 
-    const handleRefresh = (e: React.MouseEvent, model: string) => {
-      e.preventDefault();
-      onRefresh(index, model);
-    };
-
     return (
       <div className={`flex w-full message-log visible`}>
         <div
           className={`p-2 my-2 rounded-lg ${
-            log.author == "ai" ? "text-white w-full" : "bg-secondary ml-auto"
+            log.author === "ai" ? "text-white w-full" : "bg-secondary ml-auto"
           }`}
         >
-          {log.author == "ai" ? (
+          {log.author === "ai" ? (
             <div>
-              <div className="flex items-start w-full">
-                <div className="p-2 bg-muted rounded-md text-accent-foreground">
-                  <Bot />
-                </div>
+              <div>
+                {log.thinkingTime && (
+                  <p className="ml-3 text-muted-foreground">
+                    {log.thinkingTime >= 60
+                      ? `${Math.floor(log.thinkingTime / 60)} 分の間、`
+                      : log.thinkingTime >= 3600
+                        ? `${Math.floor(log.thinkingTime / 3600)} 時間の間、`
+                        : `${Math.round(log.thinkingTime || 1)} 秒の間、`}
+                    {modelDescriptions[log.model || "gpt-4o-free"]?.reasoning
+                      ? "推論"
+                      : "考え"}
+                    済み
+                  </p>
+                )}
                 <ReactMarkdown
                   components={{ pre: Pre }}
                   className="ml-3 prose dark:prose-invert w-full max-w-11/12"
@@ -68,9 +65,9 @@ export const MessageLog: FC<MessageLogProps> = memo(
                   <EasyTip content="コピー">
                     <Button
                       size="sm"
-                      className="p-0 ml-2"
+                      className="p-0 ml-2 rounded-full"
+                      variant={"ghost"}
                       onClick={handleCopy}
-                      variant="ghost"
                     >
                       <Copy size="16" />
                     </Button>
@@ -78,22 +75,33 @@ export const MessageLog: FC<MessageLogProps> = memo(
                 </div>
                 <div className="p-1 text-gray-400 hover:text-foreground">
                   <EasyTip content={`再生成`}>
-                    <ModelSelector modelDescriptions={modelDescriptions} model={log.model || "o3-mini"} refreshIcon={true} handleModelChange={(model: string) => {
-                      onRefresh(index, model);
-                    }} />
+                    <ModelSelector
+                      modelDescriptions={modelDescriptions}
+                      model={log.model || "o3-mini"}
+                      visionRequired={visionRequired}
+                      thinkEffort={log.thinkingEffort}
+                      refreshIcon={true}
+                      handleModelChange={(model: string) => {
+                        onRefresh(index, model);
+                      }}
+                    />
                   </EasyTip>
                 </div>
               </div>
             </div>
           ) : (
-            <ReactMarkdown remarkPlugins={[remarkGfm]} className="p-1">
-              {log.message}
-            </ReactMarkdown>
+            <>
+            {(log.image && (
+              <Image alt="画像" src={log.image} width="300" height="300"></Image>
+            ))}
+              <ReactMarkdown remarkPlugins={[remarkGfm]} className="p-1">
+                {log.message}
+              </ReactMarkdown>
+            </>
           )}
         </div>
       </div>
     );
   }
 );
-
 MessageLog.displayName = "MessageLog";
