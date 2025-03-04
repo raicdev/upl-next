@@ -1,10 +1,10 @@
-import { UserDataInterface } from "@firebase/types";
+import { UserDataInterface } from "@repo/firebase/types";
 import {
   authAdmin,
   databaseAdmin,
   firestoreAdmin,
   notAvailable,
-} from "@firebase/server";
+} from "@repo/firebase/server";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {

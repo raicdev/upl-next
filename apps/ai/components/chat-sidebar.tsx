@@ -17,6 +17,8 @@ import {
   MoreHorizontal,
   Plus,
   Settings,
+  LogOut,
+  LogIn,
 } from "lucide-react";
 import { ChatContextMenu } from "./context-menu";
 import Link from "next/link";
@@ -31,12 +33,29 @@ import {
   DrawerTrigger,
 } from "@repo/ui/components/drawer";
 import { Button } from "@repo/ui/components/button";
+import { auth } from "@repo/firebase/config";
+import { useEffect, useState } from "react";
 
 export function ChatSidebar() {
-  const { sessions, getSession, createSession } =
-    useChatSessions();
+  const { sessions, getSession, createSession } = useChatSessions();
   const isMobile = useIsMobile();
   const params = useParams<{ id: string }>();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setIsLoggedIn(!!user);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleAuth = async () => {
+    if (isLoggedIn) {
+      await auth.signOut();
+    } else {
+      window.location.href = "/login";
+    }
+  };
 
   if (isMobile) {
     return (
@@ -66,7 +85,7 @@ export function ChatSidebar() {
                   >
                     <Link href={`/chat/${session.id}`}>
                       <MessageCircleMore className="mr-2" />
-                      {session.title}
+                      <span className="truncate">{session.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </ChatContextMenu>
@@ -86,6 +105,12 @@ export function ChatSidebar() {
                   <Settings />
                   設定
                 </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={handleAuth}>
+                {isLoggedIn ? <LogOut className="mr-2" /> : <LogIn className="mr-2" />}
+                {isLoggedIn ? "ログアウト" : "ログイン"}
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
@@ -122,7 +147,7 @@ export function ChatSidebar() {
                     >
                       <Link href={`/chat/${session.id}`}>
                         <MessageCircleMore className="mr-2" />
-                        {session.title}
+                        <span className="truncate">{session.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </ChatContextMenu>
@@ -145,6 +170,12 @@ export function ChatSidebar() {
                 <Settings />
                 設定
               </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={handleAuth}>
+              {isLoggedIn ? <LogOut className="mr-2" /> : <LogIn className="mr-2" />}
+              {isLoggedIn ? "ログアウト" : "ログイン"}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

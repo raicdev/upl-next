@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { SubscriptionDataInterface } from "@firebase/types";
-import { auth, firestore } from "@firebase/config";
+import { SubscriptionDataInterface } from "@repo/firebase/types";
+import { auth, firestore } from "@repo/firebase/config";
 import { getDoc, doc, collection } from "firebase/firestore";
 
 export function useSubscriptionData() {

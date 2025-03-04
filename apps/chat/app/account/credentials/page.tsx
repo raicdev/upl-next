@@ -2,7 +2,7 @@
 
 import React, { Suspense, useState, useEffect } from "react";
 import { Loading } from "@repo/ui/components/loading";
-import { auth, firestore } from "@firebase/config";
+import { auth, firestore } from "@repo/firebase/config";
 import {
   doc,
   updateDoc,

@@ -5,7 +5,7 @@ import {
   SidebarContent as SidebarContentRoot,
 } from "@repo/ui/components/sidebar";
 import { Search } from "lucide-react";
-import { raiChatBuildInfo } from "@firebase/types";
+import { raiChatBuildInfo } from "@repo/firebase/types";
 import { Badge } from "@repo/ui/components/badge";
 
 interface News {

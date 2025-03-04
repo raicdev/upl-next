@@ -1,6 +1,6 @@
 import { User } from "firebase/auth";
 import { lazy, memo, Suspense, useEffect, useRef, useState } from "react";
-import { auth, firestore, db } from "@firebase/config";
+import { auth, firestore, db } from "@repo/firebase/config";
 import MessageSkeleton from "./MessageSkeleton";
 import {
   MessageDataInterface,
@@ -8,8 +8,8 @@ import {
   returnSettingsJson,
   UserDataInterface,
   UserSettingsInterface,
-} from "@firebase/types";
-import { SubscriptionDataInterface } from "@firebase/types";
+} from "@repo/firebase/types";
+import { SubscriptionDataInterface } from "@repo/firebase/types";
 import { getDoc, doc, setDoc, getDocs, collection, where } from "firebase/firestore";
 import {
   orderByChild,

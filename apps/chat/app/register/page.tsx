@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { auth } from "@firebase/config";
+import { auth } from "@repo/firebase/config";
 import {
   createUserWithEmailAndPassword,
   signInWithPopup,

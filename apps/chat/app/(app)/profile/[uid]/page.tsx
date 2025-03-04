@@ -1,8 +1,8 @@
 "use client";
 
-import { UserDataInterface } from "@firebase/types";
-import { auth, firestore } from "@firebase/config";
-import { isCheckmarker } from "@firebase/tools";
+import { UserDataInterface } from "@repo/firebase/types";
+import { auth, firestore } from "@repo/firebase/config";
+import { isCheckmarker } from "@repo/firebase/tools";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";

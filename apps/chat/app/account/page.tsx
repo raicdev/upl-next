@@ -2,7 +2,7 @@
 "use client";
 
 import React, { Suspense, useEffect, useRef, useState } from "react";
-import { auth } from "@firebase/config";
+import { auth } from "@repo/firebase/config";
 import { EmailAuthProvider, getMultiFactorResolver, TotpMultiFactorGenerator, reauthenticateWithCredential, verifyBeforeUpdateEmail, onAuthStateChanged, multiFactor } from "firebase/auth";
 import { Loading } from "@repo/ui/components/loading";
 import { SidebarProvider } from "@repo/ui/components/sidebar";

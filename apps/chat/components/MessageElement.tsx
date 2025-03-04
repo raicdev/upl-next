@@ -3,14 +3,14 @@ import {
   UserDataInterface,
   MessageDataInterface,
   UserSettingsInterface,
-} from "@firebase/types";
+} from "@repo/firebase/types";
 import { toast } from "sonner";
 import { User } from "firebase/auth";
 import {
   isCheckmarker,
   isHighlightAvailable,
   xssProtectedText,
-} from "@firebase/tools";
+} from "@repo/firebase/tools";
 import {
   Card,
   CardContent,
@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
 import { deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
-import { firestore, db } from "@firebase/config";
+import { firestore, db } from "@repo/firebase/config";
 import { get, ref, set } from "firebase/database";
 import Link from "next/link";
 import Image from "next/image";

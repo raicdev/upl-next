@@ -1,18 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { cn } from "@repo/ui/lib/utils";
-import { SidebarProvider } from "@repo/ui/components/sidebar";
 import { Loader } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
 import { useChatSessions } from "@/hooks/use-chat-sessions";
 import { useRouter } from "next/navigation";
 import { Footer } from "@/components/footer";
-import { ChatSidebar } from "@/components/chat-sidebar";
+import { auth } from "@repo/firebase/config";
+import { Loading } from "@/components/loading";
 
 const ChatApp: React.FC = () => {
   const { createSession } = useChatSessions();
   const [creating, setCreating] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   const handleNewSession = () => {
@@ -27,10 +28,28 @@ const ChatApp: React.FC = () => {
     }, randomNumber);
   };
 
+  useEffect(() => {
+    const event = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      setIsLoading(false);
+    });
+    return () => {
+      event();
+    };
+  }, [router]);
+
+  if (isLoading) {
+    return (
+      <Loading />
+    );
+  }
+
   return (
-    <SidebarProvider className="m-auto">
-      <ChatSidebar />
-      
+    <main className="w-full flex">
       {/* Main Chat Area */}
       <div
         className={cn(
@@ -61,7 +80,7 @@ const ChatApp: React.FC = () => {
 
         <Footer />
       </div>
-    </SidebarProvider>
+    </main>
   );
 };
 

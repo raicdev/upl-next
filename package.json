@@ -15,8 +15,8 @@
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "prettier": "^3.5.1",
-    "turbo": "^2.4.2",
+    "prettier": "^3.5.2",
+    "turbo": "^2.4.4",
     "typescript": "5.7.3",
     "zod": "^3.24.2"
   },
@@ -24,11 +24,11 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@icons-pack/react-simple-icons": "^11.2.0",
-    "firebase": "^11.3.1",
+    "@icons-pack/react-simple-icons": "^12.0.0",
+    "firebase": "^11.4.0",
     "firebase-admin": "^13.1.0",
     "next-themes": "^0.4.4",
-    "shadcn": "^2.4.0-canary.6"
+    "shadcn": "^2.4.0-canary.9"
   },
   "packageManager": "bun@1.2.2"
 }

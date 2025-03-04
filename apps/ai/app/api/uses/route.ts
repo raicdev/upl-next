@@ -1,4 +1,4 @@
-import { firestoreAdmin } from "@firebase/server";
+import { firestoreAdmin } from "@repo/firebase/server";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {

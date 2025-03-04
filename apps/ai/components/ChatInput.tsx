@@ -1,52 +1,113 @@
-import React, {
-  useRef,
-  useCallback,
-  forwardRef,
-  useImperativeHandle,
-  useState,
-} from "react";
-import { Button } from "@repo/ui/components/button";
-import { SendHorizonal, StopCircleIcon } from "lucide-react";
+"use client";
+
+import { memo } from "react";
+import { ThinkingEffort } from "@/hooks/use-chat-sessions";
+import { modelDescriptions } from "@/lib/modelDescriptions";
+import InputBox from "./InputBox";
+import { ModelSelector } from "./ModelSelector";
+import { ImagePreview } from "./ImagePreview";
+import { ImageAddButton } from "./ImageAddButton";
+import { ThinkingEffortSelector } from "./ThinkingEffortSelector";
+
+type ModelDescription = typeof modelDescriptions[keyof typeof modelDescriptions];
 
 interface ChatInputProps {
-  onSendMessage: (message: string) => void;
-  disabled?: boolean;
-  isSending: boolean;
+  input: string;
+  image: string | null;
+  isUploading: boolean;
+  model: string;
+  visionRequired: boolean;
+  currentThinkingEffort: ThinkingEffort;
+  modelDescriptions: Record<string, ModelDescription>;
+  handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  handleSendMessage: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  handleSendMessageKey: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  handleImagePaste: (e: React.ClipboardEvent<HTMLDivElement>) => void;
+  handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleModelChange: (model: string) => void;
+  setImage: (image: string | null) => void;
+  setCurrentThinkingEffort: (effort: ThinkingEffort) => void;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
-const ChatInput = ({ onSendMessage, isSending, disabled }: ChatInputProps) => {
-  const [message, setMessage] = useState("");
+const ChatInput = memo(
+  ({
+    input,
+    image,
+    isUploading,
+    model,
+    visionRequired,
+    currentThinkingEffort,
+    modelDescriptions,
+    handleInputChange,
+    handleSendMessage,
+    handleSendMessageKey,
+    handleImagePaste,
+    handleImageUpload,
+    handleModelChange,
+    setImage,
+    setCurrentThinkingEffort,
+    fileInputRef,
+  }: ChatInputProps) => {
+    return (
+      <div className="mt-4 border p-2 rounded md:w-9/12 lg:w-7/12">
+        {image && (
+          <ImagePreview
+            image={image}
+            isUploading={isUploading}
+            setImage={setImage}
+          />
+        )}
+        <InputBox
+          input={input}
+          handleInputChange={handleInputChange}
+          handleSendMessage={handleSendMessage}
+          handleSendMessageKey={handleSendMessageKey}
+          handleImagePaste={handleImagePaste}
+        />
+        <div className="flex items-center gap-1">
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleImageUpload}
+            className="hidden"
+          />
+          <ImageAddButton
+            modelSupportsVision={!!modelDescriptions[model]?.vision}
+            onClick={() => fileInputRef.current?.click()}
+          />
+          <ModelSelector
+            model={model}
+            refreshIcon={false}
+            visionRequired={visionRequired}
+            handleModelChange={handleModelChange}
+            modelDescriptions={modelDescriptions}
+          />
+          {modelDescriptions[model]?.thinkingEfforts && (
+            <ThinkingEffortSelector
+              currentThinkingEffort={currentThinkingEffort}
+              availableEfforts={modelDescriptions[model].thinkingEfforts || []}
+              setCurrentThinkingEffort={setCurrentThinkingEffort}
+            />
+          )}
+        </div>
+      </div>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.input === nextProps.input &&
+      prevProps.image === nextProps.image &&
+      prevProps.isUploading === nextProps.isUploading &&
+      prevProps.model === nextProps.model &&
+      prevProps.visionRequired === nextProps.visionRequired &&
+      prevProps.currentThinkingEffort === nextProps.currentThinkingEffort &&
+      JSON.stringify(prevProps.modelDescriptions) === JSON.stringify(nextProps.modelDescriptions)
+    );
+  }
+);
 
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        onSendMessage(message);
-      }
-    },
-    [message, onSendMessage]
-  );
+ChatInput.displayName = "ChatInput";
 
-  return (
-    <div className="flex items-center w-full mb-2">
-      <textarea
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="AI にメッセージを送信する"
-        className="w-full px-3 py-2 resize-none bg-transparent border-none shadow-none !outline-none focus:ring-0 focus:ring-offset-0 disabled:opacity-0"
-        onKeyDown={handleKeyDown}
-      />
-      <Button
-        aria-label="送信"
-        className="ml-3"
-        disabled={!message || isSending || disabled}
-        size="icon"
-        onClick={() => onSendMessage(message)}
-      >
-        {isSending ? <StopCircleIcon /> : <SendHorizonal />}
-      </Button>
-    </div>
-  );
-};
-
-export default React.memo(ChatInput);
+export default ChatInput;

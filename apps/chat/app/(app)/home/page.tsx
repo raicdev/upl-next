@@ -9,8 +9,8 @@ import {
   SubscriptionDataInterface,
   UserDataInterface,
   returnSettingsJson,
-} from "@firebase/types";
-import { auth, firestore } from "@firebase/config";
+} from "@repo/firebase/types";
+import { auth, firestore } from "@repo/firebase/config";
 import { Button } from "@repo/ui/components/button";
 import {
   Tabs,

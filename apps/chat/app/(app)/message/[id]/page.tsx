@@ -10,8 +10,8 @@ import {
   UserDataInterface,
   UserSettingsInterface,
   returnSettingsJson,
-} from "@firebase/types";
-import { auth, firestore, db } from "@firebase/config";
+} from "@repo/firebase/types";
+import { auth, firestore, db } from "@repo/firebase/config";
 import MessageElement from "@/components/MessageElement";
 import { Textarea } from "@repo/ui/components/textarea";
 import { Button } from "@repo/ui/components/button";
