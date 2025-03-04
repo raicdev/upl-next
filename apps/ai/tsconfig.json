@@ -2,11 +2,10 @@
   "extends": "@repo/typescript-config/nextjs.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "types": [ "@types/wicg-file-system-access", "@types/react-syntax-highlighter"],
     "paths": {
       "@/*": ["./*"],
       "@repo/ui/*": ["../../packages/ui/src/*"],
-      "@firebase/*": ["../../packages/firebase/src/*"]
+      "@repo/firebase/*": ["../../packages/firebase-config/src/*"]
     },
     "plugins": [
       {

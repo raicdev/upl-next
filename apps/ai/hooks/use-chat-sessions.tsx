@@ -1,16 +1,8 @@
 "use client";
 
+import { UIMessage } from "ai";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-
-export interface ChatMessage {
-  author: "ai" | "user";
-  image?: string;
-  message: string;
-  model?: string;
-  thinkingEffort?: ThinkingEffort;
-  thinkingTime?: number;
-}
 
 export type ThinkingEffort = "low" | "medium" | "high";
 
@@ -18,7 +10,7 @@ export type ThinkingEffort = "low" | "medium" | "high";
 export interface ChatSession {
   id: string;
   title: string;
-  messages: ChatMessage[];
+  messages: UIMessage[];
   createdAt: Date;
 }
 
@@ -27,7 +19,6 @@ interface ChatSessionsContextValue {
   createSession: () => ChatSession;
   addSession: (session: ChatSession) => void;
   updateSession: (id: string, updatedSession: ChatSession) => void;
-  updateSessionMessage: (sessionId: string, messageIndex: number, newMessage: string) => void;
   deleteSession: (id: string) => void;
   selectSession: (id: string) => void;
   getSession: (id: string) => ChatSession | undefined;
@@ -94,19 +85,6 @@ export function ChatSessionsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateSessionMessage = (sessionId: string, messageIndex: number, newMessage: string) => {
-    setSessions((prev) =>
-      prev.map((session) => {
-        if (session.id !== sessionId) return session;
-        const newMessages = [...session.messages];
-        if (newMessages[messageIndex]) {
-          newMessages[messageIndex] = { ...newMessages[messageIndex], message: newMessage };
-        }
-        return { ...session, messages: newMessages };
-      })
-    );
-  };
-
   const updateSession = (id: string, updatedSession: ChatSession) => {
     setSessions((prev) => prev.map((session) => (session.id === id ? updatedSession : session)));
   };
@@ -118,7 +96,6 @@ export function ChatSessionsProvider({ children }: { children: ReactNode }) {
     getSession,
     deleteSession,
     selectSession,
-    updateSessionMessage,
     updateSession,
   };
 

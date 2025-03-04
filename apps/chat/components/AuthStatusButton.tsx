@@ -1,4 +1,4 @@
-import { auth } from "@firebase/config";
+import { auth } from "@repo/firebase/config";
 import { Button } from "@repo/ui/components/button";
 import { LogOut, LogIn } from "lucide-react";
 import Link from "next/link";

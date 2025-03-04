@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useSubscriptionData } from "@/hooks/use-subscription";
-import { SubscriptionDataInterface } from "@firebase/types";
+import { SubscriptionDataInterface } from "@repo/firebase/types";
 import { Loading } from "@repo/ui/components/loading";
 import { Alert, AlertDescription, AlertTitle } from "@repo/ui/components/alert";
 import {

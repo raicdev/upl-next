@@ -7,8 +7,8 @@ import {
   SubscriptionDataInterface,
   UserDataInterface,
   returnSettingsJson,
-} from "@firebase/types";
-import { auth, db, firestore } from "@firebase/config";
+} from "@repo/firebase/types";
+import { auth, db, firestore } from "@repo/firebase/config";
 import { useTitle } from "@/hooks/use-title";
 import { useRouter } from "next/navigation";
 import { Separator } from "@repo/ui/components/separator";

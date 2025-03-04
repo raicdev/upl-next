@@ -1,5 +1,5 @@
-import { firestore } from "@firebase/config";
-import { UserDataInterface } from "@firebase/types";
+import { firestore } from "@repo/firebase/config";
+import { UserDataInterface } from "@repo/firebase/types";
 import { Loading } from "@repo/ui/components/loading";
 import { cn } from "@repo/ui/lib/utils";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";

@@ -6,13 +6,13 @@ import { useTitle } from "@/hooks/use-title";
 import { Label } from "@repo/ui/components/label";
 import { Switch } from "@repo/ui/components/switch";
 import Link from "next/link";
-import { auth, firestore } from "@firebase/config";
+import { auth, firestore } from "@repo/firebase/config";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import {
   returnSettingsJson,
   SubscriptionDataInterface,
-} from "@firebase/types";
+} from "@repo/firebase/types";
 import { Badge } from "@repo/ui/components/badge";
 import {
   Breadcrumb,
@@ -23,7 +23,7 @@ import {
   BreadcrumbPage,
 } from "@repo/ui/components/breadcrumb";
 import { useRouter } from "next/navigation";
-import { getPlan } from "@firebase/tools";
+import { getPlan } from "@repo/firebase/tools";
 
 const SettingsExperiment: React.FC = () => {
   // State Management

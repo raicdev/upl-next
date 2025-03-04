@@ -36,12 +36,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      {/* <head>
+      <head>
         <script
           crossOrigin="anonymous"
           src="//unpkg.com/react-scan/dist/auto.global.js"
         />
-      </head> */}
+      </head>
       <body>
         <ThemeProvider
           attribute="class"
@@ -49,14 +49,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ChatSessionsProvider>
-            <Suspense fallback={<Loading />}>
-              {children}
-            </Suspense>
-          </ChatSessionsProvider>
+          <Suspense fallback={<Loading />}>{children}</Suspense>
         </ThemeProvider>
 
-        <Toaster />
+        <Toaster richColors position="bottom-right" />
       </body>
     </html>
   );

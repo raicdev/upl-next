@@ -15,8 +15,8 @@ import {
   SubscriptionDataInterface,
   UserDataInterface,
   returnSettingsJson,
-} from "@firebase/types";
-import { auth, firestore } from "@firebase/config";
+} from "@repo/firebase/types";
+import { auth, firestore } from "@repo/firebase/config";
 import { useTitle } from "@/hooks/use-title";
 import { useRouter } from "next/navigation";
 import { Separator } from "@repo/ui/components/separator";
@@ -31,12 +31,10 @@ const RaiChatApp: React.FC = () => {
   const [myUserObject, setMyUserObject] = useState<User | null>(null);
 
   useEffect(() => {
-    console.log("useEffect");
     let ignore = false;
 
     const handleAuthStateChanged = async (user: User | null) => {
       if (ignore) return;
-      console.log("handleAuthStateChanged", user);
       if (!user) {
         window.location.href = "/login";
         return;
