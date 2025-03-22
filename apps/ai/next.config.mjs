@@ -10,7 +10,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "s.kuku.lu",
+        hostname: "*.ufs.sh",
         port: "",
         pathname: "/**",
       },

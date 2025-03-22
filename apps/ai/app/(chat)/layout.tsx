@@ -3,13 +3,14 @@ import "@repo/ui/styles/globals.css";
 import { Suspense } from "react";
 import { ThemeProvider } from "@repo/ui/components/theme-provider";
 import { Toaster } from "@repo/ui/components/sonner";
-import 'katex/dist/katex.min.css'
+import "katex/dist/katex.min.css";
 
 import type { Metadata } from "next";
 import { ChatSessionsProvider } from "@/hooks/use-chat-sessions";
 import { SidebarProvider } from "@repo/ui/components/sidebar";
 import { ChatSidebar } from "@/components/chat-sidebar";
 import SonnerProvider from "@/components/SonnerProvider";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
   title: "Deni AI",
@@ -40,10 +41,6 @@ export default function RootLayout({
 }) {
   return (
     <div className="w-full h-full">
-      <script
-        crossOrigin="anonymous"
-        src="//unpkg.com/react-scan/dist/auto.global.js"
-      />
       <ThemeProvider
         attribute="class"
         defaultTheme="system"
@@ -51,12 +48,14 @@ export default function RootLayout({
         disableTransitionOnChange
       >
         <SidebarProvider>
-          <ChatSessionsProvider>
-            <div className="w-full flex">
-              <ChatSidebar />
-              <Suspense fallback={<Loading />}>{children}</Suspense>
-            </div>
-          </ChatSessionsProvider>
+          <AuthProvider>
+            <ChatSessionsProvider>
+              <div className="w-full flex">
+                <ChatSidebar />
+                <Suspense fallback={<Loading />}>{children}</Suspense>
+              </div>
+            </ChatSessionsProvider>
+          </AuthProvider>
         </SidebarProvider>{" "}
       </ThemeProvider>
     </div>

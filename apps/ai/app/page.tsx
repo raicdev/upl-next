@@ -20,6 +20,7 @@ import {
   SiOpenai,
   SiX,
 } from "@icons-pack/react-simple-icons";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@repo/ui/components/accordion";
 
 const ChatApp: React.FC = () => {
   const [currentModel, setCurrentModel] = useState(0);

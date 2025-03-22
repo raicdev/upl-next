@@ -31,8 +31,8 @@ import { Badge } from "@repo/ui/components/badge";
 import { EasyTip } from "@repo/ui/components/easytip";
 import Link from "next/link";
 import { useModelVisibility } from "@/hooks/use-model-settings";
-import { ThinkingEffort } from "@/hooks/use-chat-sessions";
 import { memo } from "react";
+import { cn } from "@repo/ui/lib/utils";
 
 const ModelItem = memo(
   ({
@@ -87,7 +87,6 @@ const ModelItem = memo(
               <EasyTip content="オフライン">
                 <Badge variant="destructive" className="p-1 flex gap-1">
                   <Ban size="16" />
-                  オフライン
                 </Badge>
               </EasyTip>
             )}
@@ -110,7 +109,7 @@ const ModelItem = memo(
 
             {modelDescription?.reasoning && (
               <EasyTip
-                content={`推論可能${modelDescription?.thinkingEfforts ? " (推論努力を変更可能)" : ""}`}
+                content={`推論可能`}
               >
                 <Badge className="p-1">
                   <BrainCircuit size="16" />
@@ -131,23 +130,21 @@ export function ModelSelector({
   visionRequired,
   handleModelChange,
   refreshIcon,
-  thinkingEffort,
 }: {
   modelDescriptions: modelDescriptionType;
   model: string;
   visionRequired?: boolean;
   refreshIcon?: boolean;
-  thinkingEffort?: ThinkingEffort;
   handleModelChange: (model: string) => void;
 }) {
   const { visibility } = useModelVisibility();
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger className="m-0" asChild>
         <Button
-          variant={!refreshIcon ? "outline" : "ghost"}
-          className="p-2 rounded-full"
+          variant={refreshIcon ? "ghost" : "secondary"}
+          className={cn("p-2 rounded-full", refreshIcon && "!p-1")}
         >
           {refreshIcon && <RefreshCw />}
           {!refreshIcon && modelDescriptions[model]?.type === "ChatGPT" && (
@@ -183,7 +180,6 @@ export function ModelSelector({
           )}
           <span className="inline-flex items-center justify-center">
             {modelDescriptions[model]?.displayName}{" "}
-            {thinkingEffort && `(${thinkingEffort})`}
           </span>
           <ArrowDown className="text-zinc-400 text-sm" />
         </Button>

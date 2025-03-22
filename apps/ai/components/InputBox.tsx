@@ -34,7 +34,7 @@ const InputBox: React.FC<InputBoxProps> = memo(
           />
           <Button
             aria-label="送信"
-            className="ml-3"
+            className="mr-3"
             size="icon"
             onClick={(e) => handleSendMessage(e)}
           >

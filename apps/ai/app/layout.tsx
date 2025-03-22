@@ -5,7 +5,6 @@ import { ThemeProvider } from "@repo/ui/components/theme-provider";
 import { Toaster } from "@repo/ui/components/sonner";
 
 import type { Metadata } from "next";
-import { ChatSessionsProvider } from "@/hooks/use-chat-sessions";
 
 export const metadata: Metadata = {
   title: "Deni AI",
@@ -36,13 +35,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <script
-          crossOrigin="anonymous"
-          src="//unpkg.com/react-scan/dist/auto.global.js"
-        />
-      </head>
-      <body>
+      <body className="theme-slate">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

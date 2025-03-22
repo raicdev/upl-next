@@ -1,32 +1,32 @@
 "use client";
 
 import { memo } from "react";
-import { ThinkingEffort } from "@/hooks/use-chat-sessions";
 import { modelDescriptions } from "@/lib/modelDescriptions";
 import InputBox from "./InputBox";
-import { ModelSelector } from "./ModelSelector";
 import { ImagePreview } from "./ImagePreview";
 import { ImageAddButton } from "./ImageAddButton";
-import { ThinkingEffortSelector } from "./ThinkingEffortSelector";
+import { SearchButton } from "./SearchButton";
+import { AdvancedSearchButton } from "./AdvancedSearchButton";
 
-type ModelDescription = typeof modelDescriptions[keyof typeof modelDescriptions];
+type ModelDescription =
+  (typeof modelDescriptions)[keyof typeof modelDescriptions];
 
 interface ChatInputProps {
   input: string;
   image: string | null;
-  isUploading: boolean;
   model: string;
-  visionRequired: boolean;
-  currentThinkingEffort: ThinkingEffort;
+  isUploading: boolean;
+  searchEnabled: boolean;
+  advancedSearch: boolean;
   modelDescriptions: Record<string, ModelDescription>;
   handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  advancedSearchToggle: () => void;
   handleSendMessage: (e: React.MouseEvent<HTMLButtonElement>) => void;
   handleSendMessageKey: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   handleImagePaste: (e: React.ClipboardEvent<HTMLDivElement>) => void;
+  searchToggle: () => void;
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleModelChange: (model: string) => void;
   setImage: (image: string | null) => void;
-  setCurrentThinkingEffort: (effort: ThinkingEffort) => void;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
@@ -34,30 +34,28 @@ const ChatInput = memo(
   ({
     input,
     image,
-    isUploading,
     model,
-    visionRequired,
-    currentThinkingEffort,
+    isUploading,
+    searchEnabled,
+    advancedSearch,
+    advancedSearchToggle,
+    searchToggle,
     modelDescriptions,
     handleInputChange,
     handleSendMessage,
     handleSendMessageKey,
     handleImagePaste,
     handleImageUpload,
-    handleModelChange,
     setImage,
-    setCurrentThinkingEffort,
     fileInputRef,
   }: ChatInputProps) => {
     return (
-      <div className="mt-4 border p-2 rounded md:w-9/12 lg:w-7/12">
-        {image && (
-          <ImagePreview
-            image={image}
-            isUploading={isUploading}
-            setImage={setImage}
-          />
-        )}
+      <div className="mt-4 border p-2 rounded-xl md:w-9/12 lg:w-7/12">
+        <ImagePreview
+          image={image}
+          isUploading={isUploading}
+          setImage={setImage}
+        />
         <InputBox
           input={input}
           handleInputChange={handleInputChange}
@@ -77,20 +75,18 @@ const ChatInput = memo(
             modelSupportsVision={!!modelDescriptions[model]?.vision}
             onClick={() => fileInputRef.current?.click()}
           />
-          <ModelSelector
-            model={model}
-            refreshIcon={false}
-            visionRequired={visionRequired}
-            handleModelChange={handleModelChange}
-            modelDescriptions={modelDescriptions}
+          <SearchButton
+            disabled={modelDescriptions[model]?.toolDisabled || false}
+            searchEnabled={searchEnabled}
+            searchToggle={searchToggle}
           />
-          {modelDescriptions[model]?.thinkingEfforts && (
-            <ThinkingEffortSelector
-              currentThinkingEffort={currentThinkingEffort}
-              availableEfforts={modelDescriptions[model].thinkingEfforts || []}
-              setCurrentThinkingEffort={setCurrentThinkingEffort}
-            />
-          )}
+          <AdvancedSearchButton
+            disabled={
+              modelDescriptions[model]?.toolDisabled || !searchEnabled || false
+            }
+            advancedSearch={advancedSearch}
+            advancedSearchToggle={advancedSearchToggle}
+          />
         </div>
       </div>
     );
@@ -99,11 +95,12 @@ const ChatInput = memo(
     return (
       prevProps.input === nextProps.input &&
       prevProps.image === nextProps.image &&
+      prevProps.searchEnabled === nextProps.searchEnabled &&
+      prevProps.advancedSearch === nextProps.advancedSearch &&
       prevProps.isUploading === nextProps.isUploading &&
       prevProps.model === nextProps.model &&
-      prevProps.visionRequired === nextProps.visionRequired &&
-      prevProps.currentThinkingEffort === nextProps.currentThinkingEffort &&
-      JSON.stringify(prevProps.modelDescriptions) === JSON.stringify(nextProps.modelDescriptions)
+      JSON.stringify(prevProps.modelDescriptions) ===
+        JSON.stringify(nextProps.modelDescriptions)
     );
   }
 );

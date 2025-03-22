@@ -4,9 +4,6 @@ import { UIMessage } from "ai";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-export type ThinkingEffort = "low" | "medium" | "high";
-
-
 export interface ChatSession {
   id: string;
   title: string;
