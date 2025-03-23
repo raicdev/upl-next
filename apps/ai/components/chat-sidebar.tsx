@@ -1,6 +1,6 @@
 "use client";
 
-import { useChatSessions } from "@/hooks/use-chat-sessions";
+import { ChatSession, useChatSessions } from "@/hooks/use-chat-sessions";
 import {
   Sidebar,
   SidebarContent,
@@ -21,7 +21,7 @@ import {
   LogIn,
 } from "lucide-react";
 import { ChatContextMenu } from "./context-menu";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import { Badge } from "@repo/ui/components/badge";
 import { useParams } from "next/navigation";
 import { useIsMobile } from "@repo/ui/hooks/use-mobile";
@@ -34,16 +34,145 @@ import {
 } from "@repo/ui/components/drawer";
 import { Button } from "@repo/ui/components/button";
 import { auth } from "@repo/firebase/config";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { AccountDropdownMenu } from "./AccountDropdownMenu";
+import { User } from "firebase/auth";
+import { set } from "lodash";
 
-export function ChatSidebar() {
+interface GroupedSessions {
+  today: ChatSession[];
+  yesterday: ChatSession[];
+  thisWeek: ChatSession[];
+  thisMonth: ChatSession[];
+  older: ChatSession[];
+}
+
+function groupSessionsByDate(sessions: ChatSession[]): GroupedSessions {
+  const now = new Date();
+  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  return {
+    older: sessions.filter(
+      (session) => new Date(session.createdAt) <= oneMonthAgo
+    ),
+    thisMonth: sessions.filter((session) => {
+      const date = new Date(session.createdAt);
+      return date <= oneWeekAgo && date > oneMonthAgo;
+    }),
+    thisWeek: sessions.filter((session) => {
+      const date = new Date(session.createdAt);
+      return date <= twoDaysAgo && date > oneWeekAgo;
+    }),
+    yesterday: sessions.filter((session) => {
+      const date = new Date(session.createdAt);
+      return date <= oneDayAgo && date > twoDaysAgo;
+    }),
+    today: sessions.filter(
+      (session) => new Date(session.createdAt) > oneDayAgo
+    ),
+  };
+}
+function SessionGroup({
+  sessions,
+  label,
+  currentSessionId,
+}: {
+  sessions: ChatSession[];
+  label: string;
+  currentSessionId?: string;
+}) {
+  if (sessions.length === 0) return null;
+
+  return (
+    <SidebarGroup>
+      <SidebarGroupLabel>{label}</SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {sessions.slice().reverse().map((session) => (
+            <SidebarMenuItem key={session.id}>
+              <SidebarMenuButton
+                className="flex"
+                isActive={currentSessionId === session.id}
+                asChild
+              >
+                <Link href={`/chat/${session.id}`}>
+                  <MessageCircleMore className="mr-2" />
+                  <span className="truncate">{session.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
+function ChatSidebarMenuSession() {
   const { sessions, getSession, createSession } = useChatSessions();
-  const isMobile = useIsMobile();
   const params = useParams<{ id: string }>();
+  const groupedSessions = groupSessionsByDate(sessions);
+
+  return (
+    <>
+      <SidebarGroup>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                variant={"outline"}
+                size="lg"
+                className="flex items-center justify-center"
+                onClick={createSession}
+              >
+                <Plus />
+                新しい会話
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+
+      <SessionGroup
+        sessions={groupedSessions.today}
+        label="今日"
+        currentSessionId={params.id}
+      />
+      <SessionGroup
+        sessions={groupedSessions.yesterday}
+        label="昨日"
+        currentSessionId={params.id}
+      />
+      <SessionGroup
+        sessions={groupedSessions.thisWeek}
+        label="今週"
+        currentSessionId={params.id}
+      />
+      <SessionGroup
+        sessions={groupedSessions.thisMonth}
+        label="今月"
+        currentSessionId={params.id}
+      />
+      <SessionGroup
+        sessions={groupedSessions.older}
+        label="それより前"
+        currentSessionId={params.id}
+      />
+    </>
+  );
+}
+
+function ChatSidebarMenuFooter() {
+  const pathname = usePathname();
+  const [user, setUser] = useState<User | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
       setIsLoggedIn(!!user);
     });
     return () => unsubscribe();
@@ -57,6 +186,24 @@ export function ChatSidebar() {
     }
   };
 
+  return (
+    <SidebarMenu className="mt-auto mb-3 gap-3">
+      <SidebarMenuItem className="ml-1 bg-secondary rounded-md p-2">
+        <span className="font-bold">Deni AI がアップデート</span>
+        <br />
+        <span className="text-sm text-muted-foreground">
+          Deni AI v2.0.0
+          がリリースされました！このバージョンではUIの革新や検索機能の追加などが行われました！
+        </span>
+      </SidebarMenuItem>
+      <AccountDropdownMenu user={user} handleAuth={handleAuth} />
+    </SidebarMenu>
+  );
+}
+
+export function ChatSidebar() {
+  const isMobile = useIsMobile();
+
   if (isMobile) {
     return (
       <Drawer>
@@ -66,54 +213,18 @@ export function ChatSidebar() {
           </Button>
         </DrawerTrigger>
         <DrawerContent className="text-center">
-          <DrawerTitle className="inline-flex mt-3 justify-center">
-            Deni AI
-            <Badge className="ml-2" variant="secondary">
-              v1.3.1
-            </Badge>
-          </DrawerTitle>
-          <DrawerDescription>チャット</DrawerDescription>
+          <div className="h-[calc(100vh-8rem)] overflow-y-auto">
+            <DrawerTitle className="inline-flex mt-3 justify-center">
+              Deni AI
+              <Badge className="ml-2" variant="secondary">
+                v2.0.0
+              </Badge>
+            </DrawerTitle>
+            <DrawerDescription>チャット</DrawerDescription>
 
-          <SidebarMenu>
-            {Object.entries(sessions).map(([sessionId, session]) => (
-              <SidebarMenuItem key={sessionId}>
-                <ChatContextMenu session={session}>
-                  <SidebarMenuButton
-                    className="flex"
-                    isActive={getSession(params.id)?.id === session.id}
-                    asChild
-                  >
-                    <Link href={`/chat/${session.id}`}>
-                      <MessageCircleMore className="mr-2" />
-                      <span className="truncate">{session.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </ChatContextMenu>
-              </SidebarMenuItem>
-            ))}
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={createSession} asChild>
-                <Plus className="mr-2" />
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-
-          <SidebarMenu className="mt-auto mb-3">
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="/settings">
-                  <Settings />
-                  設定
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton onClick={handleAuth}>
-                {isLoggedIn ? <LogOut className="mr-2" /> : <LogIn className="mr-2" />}
-                {isLoggedIn ? "ログアウト" : "ログイン"}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
+            <ChatSidebarMenuSession />
+            <ChatSidebarMenuFooter />
+          </div>
         </DrawerContent>
       </Drawer>
     );
@@ -130,55 +241,13 @@ export function ChatSidebar() {
             >
               Deni AI
             </Link>
-            <Badge>v1.3.1</Badge>
+            <Badge>v2.0.0</Badge>
           </div>
         </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>チャット</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {Object.entries(sessions).map(([sessionId, session]) => (
-                <SidebarMenuItem key={sessionId}>
-                  <ChatContextMenu session={session}>
-                    <SidebarMenuButton
-                      className="flex"
-                      isActive={getSession(params.id)?.id === session.id}
-                      asChild
-                    >
-                      <Link href={`/chat/${session.id}`}>
-                        <MessageCircleMore className="mr-2" />
-                        <span className="truncate">{session.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </ChatContextMenu>
-                </SidebarMenuItem>
-              ))}
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={createSession} asChild>
-                  <Plus className="mr-2" />
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <ChatSidebarMenuSession />
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/settings">
-                <Settings />
-                設定
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleAuth}>
-              {isLoggedIn ? <LogOut className="mr-2" /> : <LogIn className="mr-2" />}
-              {isLoggedIn ? "ログアウト" : "ログイン"}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <ChatSidebarMenuFooter />
       </SidebarFooter>
     </Sidebar>
   );

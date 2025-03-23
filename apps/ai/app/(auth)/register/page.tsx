@@ -12,7 +12,7 @@ import { Button } from "@repo/ui/components/button";
 import { Label } from "@repo/ui/components/label";
 import { Input } from "@repo/ui/components/input";
 import { Separator } from "@repo/ui/components/separator";
-import Link from "next/link";
+import { Link } from 'next-view-transitions';
 import { cn } from "@repo/ui/lib/utils";
 import { SiGithub, SiGoogle } from "@icons-pack/react-simple-icons";
 

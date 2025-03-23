@@ -1,7 +1,7 @@
 import { Link } from "@uplui/react";
-import React from "react";
+import React, { memo } from "react";
 
-export const Footer = () => {
+const Footer = memo(() => {
   return (
     <p className="text-xs text-center text-zinc-500 mt-2">
       AI の回答は必ずしも正しいとは限りません。すべての AI
@@ -28,4 +28,8 @@ export const Footer = () => {
       </small>
     </p>
   );
-};
+});
+
+Footer.displayName = "Footer";
+
+export { Footer };

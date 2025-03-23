@@ -3,23 +3,27 @@
 import { cn } from "@repo/ui/lib/utils";
 import { AlertCircleIcon } from "lucide-react";
 import { MessageLog } from "@/components/MessageLog";
-import { ThinkingEffort, useChatSessions } from "@/hooks/use-chat-sessions";
+import { useChatSessions } from "@/hooks/use-chat-sessions";
 import { useParams } from "next/navigation";
 import { modelDescriptions } from "@/lib/modelDescriptions";
-import { useRouter } from "next/navigation";
+import { useTransitionRouter } from "next-view-transitions";
 import { Footer } from "@/components/footer";
 import { toast } from "sonner";
 import { Loading } from "@/components/loading";
 import { useChat } from "@ai-sdk/react";
-import { uploadImage } from "@/lib/uploadImage";
+import { uploadResponse, useUploadThing } from "@/utils/uploadthing";
 import { auth } from "@repo/firebase/config";
 import { useRef, useState, useEffect, Suspense, memo } from "react";
 import ChatInput from "@/components/ChatInput";
+import HeaderArea from "@/components/HeaderArea";
+import { ChatRequestOptions, UIMessage } from "ai";
+import logger from "@/utils/logger";
+import { useAuth } from "@/context/AuthContext";
 
 interface MessageListProps {
-  messages: any[];
+  messages: UIMessage[];
   sessionId: string;
-  error: any;
+  error?: Error;
 }
 
 const MemoizedMessageList = memo(
@@ -53,6 +57,7 @@ MemoizedMessageList.displayName = "MemoizedMessageList";
 
 const ChatApp: React.FC = () => {
   const { updateSession, getSession } = useChatSessions();
+  const { user, isLoading } = useAuth();
 
   const params = useParams<{ id: string }>();
   const currentSession = getSession(params.id);
@@ -60,16 +65,19 @@ const ChatApp: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [image, setImage] = useState<string | null>(null);
-  const router = useRouter();
+  const router = useTransitionRouter();
 
-  const [isUploading, setIsUploading] = useState(false);
+  const [searchEnabled, setSearchEnabled] = useState(false);
+  const [advancedSearch, setAdvancedSearch] = useState(false);
+
+  const [currentAuthToken, setCurrentAuthToken] = useState<string | null>(null);
+
   const [visionRequired, setVisionRequired] = useState(false);
+
+  const [availableTools, setAvailableTools] = useState<string[]>([]);
 
   const [model, setModel] = useState("gpt-4o-2024-08-06");
   const [isLogged, setIsLogged] = useState(false);
-
-  const [currentThinkingEffort, setCurrentThinkingEffort] =
-    useState<ThinkingEffort>("medium");
 
   const chatLogRef = useRef<HTMLDivElement>(null);
 
@@ -79,16 +87,30 @@ const ChatApp: React.FC = () => {
     setInput,
     setMessages,
     status,
+    stop,
     error,
     handleSubmit,
   } = useChat({
-    experimental_throttle: 100,
+    onError: (error) => {
+      toast.error(error.message);
+    },
     body: {
-      model:
-        currentThinkingEffort == "high" &&
-        modelDescriptions[model]?.thinkingEfforts
-          ? model + "-" + currentThinkingEffort
-          : model,
+      toolList: availableTools,
+      model,
+    },
+  });
+
+  const { isUploading, startUpload } = useUploadThing("imageUploader", {
+    headers: {
+      Authorization: currentAuthToken || "",
+    },
+    onClientUploadComplete: (res) => {
+      setImage(res[0]?.ufsUrl || null);
+    },
+    onUploadError: (error: Error) => {
+      toast.error("画像をアップロードできません", {
+        description: `エラーが発生しました: ${error.message}`,
+      });
     },
   });
 
@@ -99,20 +121,38 @@ const ChatApp: React.FC = () => {
     }
 
     setMessages(currentSession.messages);
+    logger.info("Init", "Loaded Messages");
+  }, [currentSession, router, setMessages]);
 
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        setIsLogged(true);
-        toast.success(`${user.displayName}さん、ようこそ！`);
-      } else {
-        setIsLogged(false);
-        router.push("/login");
-      }
-    });
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push("/login");
+      return;
+    }
 
-    return () => unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!isLoading && user) {
+      setIsLogged(true);
+    }
+  }, [isLoading, user, router]);
+
+  // 初期メッセージを別のuseEffectで処理
+  useEffect(() => {
+    if (!isLogged || !currentSession) return;
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const initialMessage = searchParams.get("i");
+
+    if (initialMessage && !messages.length) {
+      // メッセージが空の場合のみ初期メッセージを送信
+      setInput(initialMessage);
+      // 非同期でhandleSubmitを実行
+      Promise.resolve().then(() => {
+        const event = new Event("submit");
+        handleSubmit(event as Event);
+      });
+    }
+  }, [isLogged, currentSession, messages.length, setInput, handleSubmit]); // handleSubmitを依存配列から削除
+
   useEffect(() => {
     if (
       (status === "streaming" || status === "submitted") &&
@@ -124,34 +164,77 @@ const ChatApp: React.FC = () => {
 
   // Monitor input value changes
 
+  const processMessage = (messages: UIMessage[]): UIMessage[] => {
+    return messages.map((message) => {
+      const newMessage = { ...message };
+
+      if (newMessage.parts && Array.isArray(newMessage.parts)) {
+        newMessage.parts = newMessage.parts.filter((part) => {
+          return !(part.type === "tool-invocation");
+        });
+      }
+
+      return newMessage;
+    });
+  };
+
   useEffect(() => {
     if (!currentSession) return;
     if (status === "streaming" || status === "submitted") return;
-
     if (messages.length === 0) return;
 
+    // 前回のメッセージと比較して変更があった場合のみ更新
+    const prevMessages = currentSession.messages;
     const hasChanges =
-      JSON.stringify(currentSession.messages) !== JSON.stringify(messages);
+      JSON.stringify(prevMessages) !== JSON.stringify(messages);
 
     if (hasChanges) {
-      const updatedSession = { ...currentSession, messages };
-      updateSession(params.id, updatedSession);
+      const processedMessages = processMessage([...messages]);
+      updateSession(params.id, {
+        ...currentSession,
+        messages: processedMessages,
+      });
     }
 
-    const imageMessages = messages.filter((message) => {
-      return message.role === "user" && message.experimental_attachments;
-    });
+    // 画像メッセージの検出は別のuseEffectで処理
+  }, [currentSession, messages, params.id, status, updateSession]);
 
-    if (imageMessages.length > 0 && !visionRequired) {
+  // 画像メッセージの検出を分離
+  useEffect(() => {
+    if (
+      !visionRequired &&
+      messages.some(
+        (message) => message.role === "user" && message.experimental_attachments
+      )
+    ) {
       setVisionRequired(true);
     }
-  }, [currentSession, params.id, status, updateSession, visionRequired]);
+  }, [messages, visionRequired]);
 
   const handleModelChange = (newModel: string) => {
     if (!modelDescriptions[newModel]?.vision) {
+      logger.warn(
+        "handleModelChange",
+        "Model does not support vision, deleting currently uploaded image..."
+      );
       setImage(null);
     }
+    logger.info("handleModelChange", "Model changed to" + newModel);
     setModel(newModel);
+  };
+
+  const searchToggle = () => {
+    setSearchEnabled((prev) => !prev);
+  };
+
+  const advancedSearchToggle = () => {
+    if (!advancedSearch) {
+      toast.info("詳細な検索について", {
+        description:
+          "詳細な検索はベータ版です。「ウェブサイトを閲覧しました」等をクリックすると、検索結果が表示されます。",
+      });
+    }
+    setAdvancedSearch((prev) => !prev);
   };
 
   const baseSendMessage = async (
@@ -159,47 +242,50 @@ const ChatApp: React.FC = () => {
       | React.MouseEvent<HTMLButtonElement>
       | React.KeyboardEvent<HTMLTextAreaElement>
   ) => {
-    if (!currentSession) return;
+    if (!currentSession || !input) return;
 
-    if (!input) return;
+    let newAvailableTools = [];
 
-    if (auth.currentUser) {
-      const idToken = await auth.currentUser.getIdToken();
-      if (!idToken) {
-        toast.error("メッセージの送信に失敗しました", {
-          description: "申し訳ございません。IDトークンの取得に失敗しました。",
-        });
-        return;
-      }
+    if (searchEnabled) {
+      newAvailableTools.push("search");
+    }
 
-      handleSubmit(event, {
-        headers: {
-          Authorization: idToken,
-        },
+    if (advancedSearch) {
+      newAvailableTools.push("advancedSearch");
+    }
+
+    setAvailableTools(newAvailableTools);
+    newAvailableTools = [];
+
+    try {
+      const submitOptions: ChatRequestOptions = {
         experimental_attachments: image
           ? [{ url: image, contentType: "image/png" }]
           : undefined,
-      });
-    } else {
-      if (modelDescriptions[model]?.canary) {
-        toast.error("メッセージの送信に失敗しました", {
-          description:
-            "申し訳ございません。このモデルを使用するには、ログインする必要があります。",
-        });
-        return;
+      };
+
+      if (auth.currentUser) {
+        const idToken = await auth.currentUser.getIdToken();
+        if (!idToken) {
+          throw new Error("IDトークンの取得に失敗しました。");
+        }
+        submitOptions.headers = { Authorization: idToken };
+      } else if (modelDescriptions[model]?.canary) {
+        throw new Error(
+          "このモデルを使用するには、ログインする必要があります。"
+        );
       }
 
-      handleSubmit(event, {
-        experimental_attachments: image
-          ? [{ url: image, contentType: "image/png" }]
-          : undefined,
+      handleSubmit(event, submitOptions);
+      setImage(null);
+    } catch (error) {
+      toast.error("メッセージの送信に失敗しました", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "不明なエラーが発生しました。",
       });
     }
-    currentSession.messages = messages;
-
-    updateSession(currentSession.id, currentSession);
-
-    setImage(null);
   };
 
   const handleSendMessage = async (
@@ -217,23 +303,98 @@ const ChatApp: React.FC = () => {
     }
   };
 
-  const handleImagePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
+  const uploadImage = (file?: File) => {
+    return new Promise<uploadResponse>((resolve, reject) => {
+      if (!file) {
+        resolve({
+          status: "error",
+          error: {
+            message: "ファイルが設定されていません",
+            code: "file_not_selected",
+          },
+        });
+        return;
+      }
+
+      auth.currentUser?.getIdToken().then((idToken) => {
+        if (idToken) {
+          setCurrentAuthToken(idToken);
+        }
+
+        setTimeout(async () => {
+          try {
+            const data = await startUpload([
+              new File([file], `${crypto.randomUUID()}.png`, {
+                type: file.type,
+              }),
+            ]);
+
+            if (!data) {
+              resolve({
+                status: "error",
+                error: {
+                  message: "不明なエラーが発生しました",
+                  code: "upload_failed",
+                },
+              });
+              return;
+            }
+
+            if (data[0]?.ufsUrl) {
+              resolve({
+                status: "success",
+                data: {
+                  url: data[0].ufsUrl,
+                },
+              });
+            } else {
+              resolve({
+                status: "error",
+                error: {
+                  message: "不明なエラーが発生しました",
+                  code: "upload_failed",
+                },
+              });
+            }
+          } catch (error) {
+            logger.error("uploadImage", `Something went wrong, ${error}`);
+            resolve({
+              status: "error",
+              error: {
+                message: "不明なエラーが発生しました",
+                code: "upload_failed",
+              },
+            });
+          }
+        }, 1000);
+      });
+    });
+  };
+
+  const handleImagePaste = async (
+    event: React.ClipboardEvent<HTMLDivElement>
+  ) => {
     if (!modelDescriptions[model]?.vision) return;
-    setIsUploading(true);
+    if (!event.clipboardData) return;
 
     const clipboardData = event.clipboardData;
     if (clipboardData) {
       if (clipboardData.files.length === 0) return;
-      uploadImage(Array.from(clipboardData.files)).then((data) => {
-        if (data.state === "success" && data.url) {
-          setImage(data.url);
-        } else {
-          toast.error("エラーが発生しました", {
-            description: data.error?.message || "不明なエラーが発生しました",
-          });
-        }
-
-        setIsUploading(false);
+      const clipboardFile = clipboardData.files[0];
+      toast.promise<uploadResponse>(uploadImage(clipboardFile), {
+        loading: "画像をアップロード中...",
+        success: (uploadResponse: uploadResponse) => {
+          if (!uploadResponse.data) return;
+          setImage(uploadResponse.data?.url);
+          return "画像をアップロードしました";
+        },
+        error: (uploadResponse: uploadResponse) => {
+          logger.error(
+            "handleImagePaste",
+            "Something went wrong, " + JSON.stringify(uploadResponse.error)
+          );
+          return uploadResponse.error?.message || "不明なエラーが発生しました";
+        },
       });
     }
   };
@@ -246,33 +407,42 @@ const ChatApp: React.FC = () => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (!modelDescriptions[model]?.vision) return;
-    setIsUploading(true);
 
     const files = event.target?.files;
     if (!files) return;
 
-    uploadImage(Array.from(files)).then((data) => {
-      if (data.state === "success" && data.url) {
-        setImage(data.url);
-      } else {
-        toast.error("エラーが発生しました", {
-          description: data.error?.message || "不明なエラーが発生しました",
-        });
-      }
-
-      setIsUploading(false);
+    toast.promise<uploadResponse>(uploadImage(files[0]), {
+      loading: "画像をアップロード中...",
+      success: (uploadResponse: uploadResponse) => {
+        if (!uploadResponse.data) return;
+        setImage(uploadResponse.data?.url);
+        return "画像をアップロードしました";
+      },
+      error: (uploadResponse: uploadResponse) => {
+        logger.error(
+          "handleImagePaste",
+          "Something went wrong, " + JSON.stringify(uploadResponse.error)
+        );
+        return uploadResponse.error?.message || "不明なエラーが発生しました";
+      },
     });
   };
 
   return (
     <main
       className={cn(
-        "flex flex-col flex-1 w-full mr-0 ml-3 p-4 h-screen items-center justify-center"
+        "flex flex-col flex-1 w-full mr-0 p-4 h-screen items-center justify-center"
       )}
     >
+      <HeaderArea
+        model={model}
+        stop={stop}
+        generating={status == "submitted" || status == "streaming"}
+        handleModelChange={handleModelChange}
+      />
       {/* Chat Log */}
       <div
-        className="flex w-full h-full md:w-9/12 lg:w-7/12 rounded overflow-y-auto"
+        className="flex w-full h-full md:w-9/12 lg:w-7/12 rounded overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-secondary scrollbar-thumb-rounded-md scrollbar-track-rounded-md"
         ref={chatLogRef}
       >
         <div className="w-full">
@@ -305,18 +475,18 @@ const ChatApp: React.FC = () => {
         input={input}
         image={image}
         isUploading={isUploading}
+        searchEnabled={searchEnabled}
+        advancedSearch={advancedSearch}
+        advancedSearchToggle={advancedSearchToggle}
+        searchToggle={searchToggle}
         model={model}
-        visionRequired={visionRequired}
-        currentThinkingEffort={currentThinkingEffort}
         modelDescriptions={modelDescriptions}
         handleInputChange={handleInputChange}
         handleSendMessage={handleSendMessage}
         handleSendMessageKey={handleSendMessageKey}
         handleImagePaste={handleImagePaste}
         handleImageUpload={handleImageUpload}
-        handleModelChange={handleModelChange}
         setImage={setImage}
-        setCurrentThinkingEffort={setCurrentThinkingEffort}
         fileInputRef={fileInputRef}
       />
       <Footer />

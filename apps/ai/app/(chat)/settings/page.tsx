@@ -6,27 +6,26 @@ import { Badge } from "@repo/ui/components/badge";
 import { Button } from "@repo/ui/components/button";
 import { ChatSession, useChatSessions } from "@/hooks/use-chat-sessions";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@repo/ui/components/tabs";
-import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@repo/ui/components/dropdown-menu";
 import { useTheme } from "next-themes";
-import { ChatSidebar } from "@/components/chat-sidebar";
-import { SidebarProvider } from "@repo/ui/components/sidebar";
+import { useAuth } from "@/context/AuthContext";
 import { toast, Toaster } from "sonner";
-import Link from "next/link";
+import { useEffect } from "react";
 
 export default function SettingsPage() {
   const { sessions, deleteSession, addSession } = useChatSessions();
-
+  const { user, isLoading } = useAuth();
   const { setTheme, theme } = useTheme();
+
+  useEffect(() => {
+    if (!user && !isLoading) {
+      window.location.href = "/login";
+    }
+  }, [user, isLoading]);
 
   const exportAllConversion = () => {
     const conversionsArray: ChatSession[] = [];
@@ -84,7 +83,6 @@ export default function SettingsPage() {
         });
       };
       reader.readAsText(file);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.name === "AbortError") {
         return;
@@ -105,100 +103,81 @@ export default function SettingsPage() {
   };
 
   return (
-    <main className="w-full p-4">
-      <h1 className="text-2xl font-bold mb-3">Deni AI の設定</h1>
-      <Separator className="mb-3" />
-      <div className="flex justify-center w-full">
-        <Tabs defaultValue="general" className="w-full md:w-2/3 lg:w-1/2">
-          <TabsList>
-            <TabsTrigger asChild value="general">
-              <Link href="/settings">一般</Link>
-            </TabsTrigger>
-            <TabsTrigger asChild value="account">
-              <Link href="/settings/account">アカウント</Link>
-            </TabsTrigger>
-            <TabsTrigger asChild value="model">
-              <Link href="/settings/model">モデル</Link>
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="general">
-            <label className="block text-sm font-medium mb-2">会話</label>
-            <div className="w-full bg-sidebar rounded-sm shadow mb-6">
-              <div className="flex p-4 items-center gap-2">
-                <div>
-                  <h3 className="text-lg font-bold">
-                    会話のインポート / エクスポート
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    会話をインポートしたり、エクスポートします。
-                    <br />
-                    <span className="text-red-400">
-                      ※注意:
-                      インポートすると、すべての会話が削除され、上書きされます。
-                    </span>{" "}
-                  </p>
-                </div>
-                <div className="ml-auto flex gap-2 items-center">
-                  <Button onClick={importAllConversion}>インポート</Button>
-
-                  <Button onClick={exportAllConversion}>エクスポート</Button>
-                </div>
-              </div>
-              <Separator className="w-[96%] mx-auto" />
-              <div className="flex p-4 items-center gap-2 mb-1">
-                <div>
-                  <h3 className="text-lg font-bold">
-                    すべての会話を削除{" "}
-                    <Badge variant={"destructive"}>破壊的</Badge>
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    すべての会話を削除します。このアクションは取り戻すことはできません。
-                  </p>
-                </div>
-                <div className="ml-auto">
-                  <Button onClick={deleteAllConversion} variant={"destructive"}>
-                    削除
-                  </Button>
-                </div>
-              </div>
+    <div className="space-y-6">
+      <div>
+        <label className="block text-sm font-medium mb-2">会話</label>
+        <div className="w-full bg-sidebar rounded-sm shadow mb-6">
+          <div className="flex p-4 items-center gap-2">
+            <div>
+              <h3 className="text-lg font-bold">
+                会話のインポート / エクスポート
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                会話をインポートしたり、エクスポートします。
+                <br />
+                <span className="text-red-400">
+                  ※注意:
+                  インポートすると、すべての会話が削除され、上書きされます。
+                </span>{" "}
+              </p>
             </div>
-
-            <label className="block text-sm font-medium mb-2">設定</label>
-            <div className="w-full bg-sidebar shadow rounded-sm pb-0 mb-3">
-              <div className="flex p-4 items-center gap-2">
-                <div>
-                  <h3 className="text-lg font-bold">外観テーマ</h3>
-                  <p className="text-sm text-muted-foreground">
-                    ライトテーマかダークテーマに変更します。
-                  </p>
-                </div>
-                <div className="ml-auto">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button>テーマを変更</Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setTheme("light")}>
-                        ライト{" "}
-                        {theme === "light" && <Check className="ml-auto" />}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setTheme("dark")}>
-                        ダーク{" "}
-                        {theme === "dark" && <Check className="ml-auto" />}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setTheme("system")}>
-                        システム{" "}
-                        {theme === "system" && <Check className="ml-auto" />}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
+            <div className="ml-auto flex gap-2 items-center">
+              <Button onClick={importAllConversion}>インポート</Button>
+              <Button onClick={exportAllConversion}>エクスポート</Button>
             </div>
-          </TabsContent>
-        </Tabs>
-      </div>{" "}
-      <Toaster />
-    </main>
+          </div>
+          <Separator className="w-[96%] mx-auto" />
+          <div className="flex p-4 items-center gap-2 mb-1">
+            <div>
+              <h3 className="text-lg font-bold">
+                すべての会話を削除{" "}
+                <Badge className="text-foreground" variant={"destructive"}>破壊的</Badge>
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                すべての会話を削除します。このアクションは取り戻すことはできません。
+              </p>
+            </div>
+            <div className="ml-auto">
+              <Button onClick={deleteAllConversion} variant={"destructive"}>
+                削除
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <label className="block text-sm font-medium mb-2">設定</label>
+        <div className="w-full bg-sidebar shadow rounded-sm pb-0 mb-3">
+          <div className="flex p-4 items-center gap-2">
+            <div>
+              <h3 className="text-lg font-bold">外観テーマ</h3>
+              <p className="text-sm text-muted-foreground">
+                ライトテーマかダークテーマに変更します。
+              </p>
+            </div>
+            <div className="ml-auto">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button>テーマを変更</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setTheme("light")}>
+                    ライト{" "}
+                    {theme === "light" && <Check className="ml-auto" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("dark")}>
+                    ダーク{" "}
+                    {theme === "dark" && <Check className="ml-auto" />}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("system")}>
+                    システム{" "}
+                    {theme === "system" && <Check className="ml-auto" />}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

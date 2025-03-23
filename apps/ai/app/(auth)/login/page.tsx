@@ -29,7 +29,7 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@repo/ui/components/input-otp";
-import Link from "next/link";
+import { Link } from 'next-view-transitions';
 import { cn } from "@repo/ui/lib/utils";
 import { SiGithub, SiGoogle } from "@icons-pack/react-simple-icons";
 import Image from "next/image";

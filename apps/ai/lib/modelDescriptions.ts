@@ -1,18 +1,15 @@
-import { ThinkingEffort } from "@/hooks/use-chat-sessions";
-
 export interface modelDescriptionType {
   [key: string]: ImodelDescriptionType;
 }
 export interface ImodelDescriptionType {
   canary?: boolean;
-  description: string;
   displayName: string;
   offline?: boolean;
   toolDisabled?: boolean;
   vision?: boolean;
   fast?: boolean;
   defaultVisibility?: boolean;
-  thinkingEfforts?: ThinkingEffort[];
+  knowledgeCutoff?: string;
   reasoning?: boolean;
   type: modelType;
 }
@@ -22,15 +19,7 @@ export type modelType = "ChatGPT" | "Gemini" | "Claude" | "Grok" | "DeepSeek";
 export const modelDescriptions: modelDescriptionType = {
   "gpt-4o-2024-08-06": {
     displayName: "GPT-4o",
-    description: "OpenAI の推論機能がないフラッグシップモデル",
-    defaultVisibility: true,
-    canary: true,
-    vision: true,
-    type: "ChatGPT",
-  },
-  "gpt-4o-2024-11-20": {
-    displayName: "GPT-4o (New)",
-    description: "OpenAI の推論機能がないフラッグシップモデル",
+    knowledgeCutoff: "2023/10",
     defaultVisibility: true,
     canary: true,
     vision: true,
@@ -38,7 +27,7 @@ export const modelDescriptions: modelDescriptionType = {
   },
   "gpt-4o-mini-2024-07-18": {
     displayName: "GPT-4o mini",
-    description: "GPT-4o にそっくりで、より高速なモデル",
+    knowledgeCutoff: "2023/10",
     defaultVisibility: true,
     vision: true,
     canary: true,
@@ -46,16 +35,14 @@ export const modelDescriptions: modelDescriptionType = {
     type: "ChatGPT",
   },
   "o3-mini": {
-    displayName: "o3-mini",
-    description: "OpenAI の推論対応、高速、賢いモデル",
+    displayName: "o3-mini (beta)",
+    knowledgeCutoff: "2023/10",
     reasoning: true,
-    offline: true,
-    thinkingEfforts: ["medium", "high"],
     type: "ChatGPT",
   },
   o1: {
     displayName: "o1",
-    description: "OpenAI の推論機能があるフラッグシップモデル",
+    knowledgeCutoff: "2023/10",
     canary: true,
     offline: true,
     reasoning: true,
@@ -64,37 +51,23 @@ export const modelDescriptions: modelDescriptionType = {
   },
   "o1-mini-2024-09-12": {
     displayName: "o1-mini",
-    description: "o1 にそっくりで、より高速なモデル",
+    knowledgeCutoff: "2023/10",
     reasoning: true,
     canary: true,
-    fast: true,
     type: "ChatGPT",
   },
   "gemini-2.0-flash-exp": {
     displayName: "Gemini 2.0 Flash",
-    description: "Google の最も早く正確なモデル",
+    knowledgeCutoff: "2024/06",
     defaultVisibility: true,
     fast: true,
     vision: true,
     canary: true,
     type: "Gemini",
   },
-  "gemini-2.0-flash-thinking-exp": {
-    displayName: "Gemini 2.0 Flash (Thinking Exp)",
-    description: "Google の推論対応のモデル",
-    reasoning: true,
-    fast: true,
-    type: "Gemini",
-  },
-  "gemini-2.0-pro-exp": {
-    displayName: "Gemini 2.0 Pro (Exp)",
-    description: "Google のフラッグシップモデル",
-    fast: true,
-    type: "Gemini",
-  },
   "gemini-1.5-pro": {
     displayName: "Gemini 1.5 Pro",
-    description: "Google のフラッグシップモデル",
+    knowledgeCutoff: "2023/11",
     canary: true,
     vision: true,
     fast: true,
@@ -102,7 +75,7 @@ export const modelDescriptions: modelDescriptionType = {
   },
   "anthropic.claude-3-5-sonnet-20241022-v2:0": {
     displayName: "Claude 3.5 Sonnet",
-    description: "Anthropic による複雑な問題のためのモデル",
+    knowledgeCutoff: "2024/04",
     defaultVisibility: true,
     canary: true,
     vision: true,
@@ -110,8 +83,9 @@ export const modelDescriptions: modelDescriptionType = {
   },
   "DeepSeek-R1": {
     displayName: "DeepSeek R1",
-    description: "DeepSeek によるオープンソースの早くて賢いモデル",
+    knowledgeCutoff: "2024/07",
     defaultVisibility: true,
+    offline: true,
     toolDisabled: true,
     reasoning: true,
     canary: true,
@@ -119,26 +93,28 @@ export const modelDescriptions: modelDescriptionType = {
   },
   "deepseek-r1-distill-llama-70b": {
     displayName: "DeepSeek R1 Distill",
-    description: "DeepSeek R1 の軽量版モデル",
+    knowledgeCutoff: "2024/07",
     reasoning: true,
     canary: true,
+    toolDisabled: true,
     type: "DeepSeek",
   },
-  "deepseek-v3": {
+  "DeepSeek-V3": {
     displayName: "DeepSeek V3",
-    description: "推論機能のない DeepSeek R1 モデル",
+    knowledgeCutoff: "2023/10",
+    canary: true,
     type: "DeepSeek",
   },
   "grok-3": {
     displayName: "Grok 3",
-    description: "x.ai による Grok 3 モデル",
+    knowledgeCutoff: "-",
     defaultVisibility: true,
     type: "Grok",
   },
   "grok-3-r1": {
     displayName: "Grok 3 (Think)",
-    description: "推論機能を搭載した Grok 3 モデル",
     defaultVisibility: true,
+    knowledgeCutoff: "-",
     reasoning: true,
     type: "Grok",
   },

@@ -1,11 +1,8 @@
 "use client";
 
 import { UIMessage } from "ai";
-import { useRouter } from "next/navigation";
+import { useTransitionRouter } from "next-view-transitions";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-
-export type ThinkingEffort = "low" | "medium" | "high";
-
 
 export interface ChatSession {
   id: string;
@@ -27,7 +24,7 @@ interface ChatSessionsContextValue {
 const ChatSessionsContext = createContext<ChatSessionsContextValue | undefined>(undefined);
 
 export function ChatSessionsProvider({ children }: { children: ReactNode }) {
-  const router = useRouter();
+  const router = useTransitionRouter();
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
     const savedSessions = localStorage.getItem("chatSessions");
     return savedSessions ? JSON.parse(savedSessions) : [];
