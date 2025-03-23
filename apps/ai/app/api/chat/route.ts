@@ -1,6 +1,7 @@
 import { modelDescriptions } from "@/lib/modelDescriptions";
 import { getSystemPrompt } from "@/lib/systemPrompt";
 import { createOpenAI } from "@ai-sdk/openai";
+import { authAdmin, notAvailable } from "@repo/firebase/server";
 import {
   convertToCoreMessages,
   createDataStreamResponse,
@@ -23,9 +24,24 @@ export async function POST(req: Request) {
     }: { messages: UIMessage[]; model: string; toolList?: string[] } =
       await req.json();
 
+    
+
     if (!model || messages.length === 0) {
       return Response.json({ error: "Invalid request" });
     }
+
+    if (!authorization || notAvailable) {
+      return Response.json({ error: "Authorization failed" });
+    }
+
+    authAdmin?.verifyIdToken(authorization).then((decodedToken) => {
+      if (!decodedToken) {
+        return Response.json({ error: "Authorization failed" });
+      }
+    }).catch((error) => {
+      console.error(error);
+      return Response.json({ error: "Authorization failed" });
+    });
 
     const modelDescription = modelDescriptions[model.replace("-high", "")];
     const isCanary = modelDescription?.canary;
@@ -37,14 +53,6 @@ export async function POST(req: Request) {
         : "https://api.voids.top/v1", // custom base URL
       apiKey: "no", // API key
     });
-
-    // some checks
-    if (isCanary && !authorization) {
-      return NextResponse.json({
-        state: "error",
-        error: "Authorization Required",
-      });
-    }
 
     if (modelDescription?.offline) {
       return NextResponse.json({

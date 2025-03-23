@@ -1,5 +1,6 @@
 import { Loading } from "@/components/loading";
 import "@repo/ui/styles/globals.css";
+import { ViewTransitions } from "next-view-transitions";
 import { Suspense } from "react";
 import { ThemeProvider } from "@repo/ui/components/theme-provider";
 import { Toaster } from "@repo/ui/components/sonner";
@@ -34,19 +35,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="theme-slate">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Suspense fallback={<Loading />}>{children}</Suspense>
-        </ThemeProvider>
+    <ViewTransitions>
+      <html lang="en">
+        <body className="theme-slate">
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Suspense fallback={<Loading />}>{children}</Suspense>
+          </ThemeProvider>
 
-        <Toaster richColors position="bottom-right" />
-      </body>
-    </html>
+          <Toaster richColors position="bottom-right" />
+        </body>
+      </html>
+    </ViewTransitions>
   );
 }

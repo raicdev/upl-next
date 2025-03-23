@@ -5,7 +5,7 @@ import { cn } from "@repo/ui/lib/utils";
 import { Loader } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
 import { useChatSessions } from "@/hooks/use-chat-sessions";
-import { useRouter } from "next/navigation";
+import { useTransitionRouter } from "next-view-transitions";
 import { Footer } from "@/components/footer";
 import { auth } from "@repo/firebase/config";
 import { Loading } from "@/components/loading";
@@ -14,7 +14,7 @@ const ChatApp: React.FC = () => {
   const { createSession } = useChatSessions();
   const [creating, setCreating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
+  const router = useTransitionRouter();
 
   const handleNewSession = () => {
     setCreating(true);

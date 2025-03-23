@@ -10,7 +10,7 @@ import {
 } from "@repo/ui/components/dropdown-menu";
 import { memo, useEffect, useState } from "react";
 import { User } from "firebase/auth";
-import Link from "next/link";
+import { Link } from 'next-view-transitions';
 import { Separator } from "@repo/ui/components/separator";
 
 interface AccountDropdownMenuProps {
@@ -61,7 +61,7 @@ export const AccountDropdownMenu = memo(
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="h-16 px-4 justify-start md:max-w-[210px]"
+            className="h-16 p-2 ml-1 justify-start"
           >
             {user.photoURL ? (
               <img

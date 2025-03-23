@@ -15,14 +15,14 @@ import {
 } from "@icons-pack/react-simple-icons";
 import { Switch } from "@repo/ui/components/switch";
 import { cn } from "@repo/ui/lib/utils";
-import { useRouter } from "next/navigation";
+import { useTransitionRouter } from "next-view-transitions";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 
 export default function ModelSettingsPage() {
   const { visibility, toggleModelVisibility } = useModelVisibility();
   const { user, isLoading } = useAuth();
-  const router = useRouter();
+  const router = useTransitionRouter();
 
   useEffect(() => {
     if (!user && !isLoading) {

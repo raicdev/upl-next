@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@repo/ui/components/button";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useTransitionRouter } from "next-view-transitions";
 import { Loading } from "@/components/loading";
 import { updateProfile } from "firebase/auth";
 import { Input } from "@repo/ui/components/input";
@@ -17,7 +17,7 @@ export default function AccountSettingsPage() {
   const [name, setName] = useState("");
   const [privacyMode, setPrivacyMode] = useState(false);
 
-  const router = useRouter();
+  const router = useTransitionRouter();
 
   useEffect(() => {
     // 初期値の設定

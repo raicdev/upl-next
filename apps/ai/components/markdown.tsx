@@ -5,6 +5,7 @@ import {
   memo,
   useState,
   ReactNode,
+  useMemo,
 } from "react";
 import { ExtraProps } from "react-markdown";
 import SyntaxHighlighter from "react-syntax-highlighter";
@@ -48,6 +49,26 @@ export const Link = memo(({ href, children, ...props }: LinkProps) => {
 });
 Link.displayName = "Link";
 
+export const MemoizedHighlighter = memo(
+  ({ code, language }: { code: string; language: string }) => {
+    return (
+      <SyntaxHighlighter
+        language={language}
+        style={vs2015}
+        customStyle={{
+          padding: "1rem",
+          borderRadius: "0.75rem",
+          fontSize: "0.875rem",
+          lineHeight: "1.25rem",
+        }}
+      >
+        {code}
+      </SyntaxHighlighter>
+    );
+  }
+);
+MemoizedHighlighter.displayName = "MemoizedHighlighter";
+
 export const Pre = memo(({ children, ...props }: PreProps) => {
   const [copied, setCopied] = useState(false);
 
@@ -84,21 +105,28 @@ export const Pre = memo(({ children, ...props }: PreProps) => {
         >
           {copied ? "Copied!" : "Copy"}
         </Button>
-        <SyntaxHighlighter
+
+        {/* <MemoizedHighlighter
+          code={
+            isObject(children) && "props" in children
+              ? String((children.props as any)?.children || "")
+              : String(children || "")
+          }
           language={language}
-          style={vs2015}
-          customStyle={{
-            padding: "1rem",
-            borderRadius: "0.75rem",
-            fontSize: "0.875rem",
-            lineHeight: "1.25rem",
-          }}
-        >
-          {isObject(children) && "props" in children
-            ? String((children.props as any)?.children || "")
-            : String(children || "")}
-        </SyntaxHighlighter>
-      </div>
+        /> */}
+        <div className="not-prose flex flex-col">
+          <pre
+            {...props}
+            className={`text-sm w-full overflow-x-auto dark:bg-zinc-900 p-4 border border-zinc-200 dark:border-zinc-700 rounded-xl dark:text-zinc-50 text-zinc-900`}
+          >
+            <code className="whitespace-pre-wrap break-words">
+              {isObject(children) && "props" in children
+                ? String((children.props as any)?.children || "")
+                : String(children || "")}
+            </code>
+          </pre>
+        </div>
+      </div>{" "}
     </div>
   );
 });

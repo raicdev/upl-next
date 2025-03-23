@@ -21,7 +21,7 @@ import {
   LogIn,
 } from "lucide-react";
 import { ChatContextMenu } from "./context-menu";
-import Link from "next/link";
+import { Link } from "next-view-transitions";
 import { Badge } from "@repo/ui/components/badge";
 import { useParams } from "next/navigation";
 import { useIsMobile } from "@repo/ui/hooks/use-mobile";
@@ -56,27 +56,26 @@ function groupSessionsByDate(sessions: ChatSession[]): GroupedSessions {
   const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
   return {
-    today: sessions.filter(
-      (session) => new Date(session.createdAt) > oneDayAgo
+    older: sessions.filter(
+      (session) => new Date(session.createdAt) <= oneMonthAgo
     ),
-    yesterday: sessions.filter((session) => {
+    thisMonth: sessions.filter((session) => {
       const date = new Date(session.createdAt);
-      return date <= oneDayAgo && date > twoDaysAgo;
+      return date <= oneWeekAgo && date > oneMonthAgo;
     }),
     thisWeek: sessions.filter((session) => {
       const date = new Date(session.createdAt);
       return date <= twoDaysAgo && date > oneWeekAgo;
     }),
-    thisMonth: sessions.filter((session) => {
+    yesterday: sessions.filter((session) => {
       const date = new Date(session.createdAt);
-      return date <= oneWeekAgo && date > oneMonthAgo;
+      return date <= oneDayAgo && date > twoDaysAgo;
     }),
-    older: sessions.filter(
-      (session) => new Date(session.createdAt) <= oneMonthAgo
+    today: sessions.filter(
+      (session) => new Date(session.createdAt) > oneDayAgo
     ),
   };
 }
-
 function SessionGroup({
   sessions,
   label,
@@ -93,20 +92,18 @@ function SessionGroup({
       <SidebarGroupLabel>{label}</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          {sessions.map((session) => (
+          {sessions.slice().reverse().map((session) => (
             <SidebarMenuItem key={session.id}>
-              <ChatContextMenu session={session}>
-                <SidebarMenuButton
-                  className="flex"
-                  isActive={currentSessionId === session.id}
-                  asChild
-                >
-                  <Link href={`/chat/${session.id}`}>
-                    <MessageCircleMore className="mr-2" />
-                    <span className="truncate">{session.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </ChatContextMenu>
+              <SidebarMenuButton
+                className="flex"
+                isActive={currentSessionId === session.id}
+                asChild
+              >
+                <Link href={`/chat/${session.id}`}>
+                  <MessageCircleMore className="mr-2" />
+                  <span className="truncate">{session.title}</span>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
@@ -114,7 +111,6 @@ function SessionGroup({
     </SidebarGroup>
   );
 }
-
 function ChatSidebarMenuSession() {
   const { sessions, getSession, createSession } = useChatSessions();
   const params = useParams<{ id: string }>();
@@ -191,8 +187,8 @@ function ChatSidebarMenuFooter() {
   };
 
   return (
-    <SidebarMenu className="mt-auto mb-3">
-      <SidebarMenuItem className="ml-3 bg-secondary rounded-xl p-2">
+    <SidebarMenu className="mt-auto mb-3 gap-3">
+      <SidebarMenuItem className="ml-1 bg-secondary rounded-md p-2">
         <span className="font-bold">Deni AI がアップデート</span>
         <br />
         <span className="text-sm text-muted-foreground">

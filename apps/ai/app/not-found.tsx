@@ -9,7 +9,7 @@ import {
   CardFooter,
 } from "@repo/ui/components/card";
 import { Button } from "@repo/ui/components/button";
-import Link from "next/link";
+import { Link } from 'next-view-transitions';
 
 export default function NotFound() {
   return (

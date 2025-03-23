@@ -17,14 +17,14 @@ import {
 } from "@repo/ui/components/alert-dialog";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
-import { useState } from "react";
+import { memo, useState } from "react";
 
 interface ChatContextMenuProps {
   session: ChatSession;
   children: React.ReactNode;
 }
 
-export function ChatContextMenu({ session, children }: ChatContextMenuProps) {
+export const ChatContextMenu = memo(({ session, children }: ChatContextMenuProps) => {
   const [nameOpen, setNameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [chatName, setChatName] = useState(session.title);
@@ -107,4 +107,5 @@ export function ChatContextMenu({ session, children }: ChatContextMenuProps) {
       </AlertDialog>
     </>
   );
-}
+})
+ChatContextMenu.displayName = "ChatContextMenu";

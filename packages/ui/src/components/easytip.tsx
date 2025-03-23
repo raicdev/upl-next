@@ -2,7 +2,6 @@ import React from "react";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@repo/ui/components/tooltip";
 
@@ -11,15 +10,14 @@ interface EasyTipProps {
   children: React.ReactNode;
 }
 
-export const EasyTip = ({ content, children }: EasyTipProps) => {
+export const EasyTip = React.memo(({ content, children }: EasyTipProps) => {
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div>{children}</div>
-        </TooltipTrigger>
-        <TooltipContent>{content}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div>{children}</div>
+      </TooltipTrigger>
+      <TooltipContent>{content}</TooltipContent>
+    </Tooltip>
   );
-};
+});
+EasyTip.displayName = "EasyTip";

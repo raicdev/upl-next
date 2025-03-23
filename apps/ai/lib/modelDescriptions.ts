@@ -25,14 +25,6 @@ export const modelDescriptions: modelDescriptionType = {
     vision: true,
     type: "ChatGPT",
   },
-  "gpt-4o-2024-11-20": {
-    displayName: "GPT-4o (New)",
-    knowledgeCutoff: "2023/10",
-    defaultVisibility: true,
-    canary: true,
-    vision: true,
-    type: "ChatGPT",
-  },
   "gpt-4o-mini-2024-07-18": {
     displayName: "GPT-4o mini",
     knowledgeCutoff: "2023/10",

@@ -7,7 +7,7 @@ import { CircleDollarSign, LockIcon, MessageSquare, Zap } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
 import { Header } from "@/components/header";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from 'next-view-transitions';
 import {
   Card,
   CardContent,
@@ -20,7 +20,6 @@ import {
   SiOpenai,
   SiX,
 } from "@icons-pack/react-simple-icons";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@repo/ui/components/accordion";
 
 const ChatApp: React.FC = () => {
   const [currentModel, setCurrentModel] = useState(0);

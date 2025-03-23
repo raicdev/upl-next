@@ -6,7 +6,7 @@ import { MessageLog } from "@/components/MessageLog";
 import { useChatSessions } from "@/hooks/use-chat-sessions";
 import { useParams } from "next/navigation";
 import { modelDescriptions } from "@/lib/modelDescriptions";
-import { useRouter } from "next/navigation";
+import { useTransitionRouter } from "next-view-transitions";
 import { Footer } from "@/components/footer";
 import { toast } from "sonner";
 import { Loading } from "@/components/loading";
@@ -65,10 +65,12 @@ const ChatApp: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [image, setImage] = useState<string | null>(null);
-  const router = useRouter();
+  const router = useTransitionRouter();
 
   const [searchEnabled, setSearchEnabled] = useState(false);
   const [advancedSearch, setAdvancedSearch] = useState(false);
+
+  const [currentAuthToken, setCurrentAuthToken] = useState<string | null>(null);
 
   const [visionRequired, setVisionRequired] = useState(false);
 
@@ -99,6 +101,9 @@ const ChatApp: React.FC = () => {
   });
 
   const { isUploading, startUpload } = useUploadThing("imageUploader", {
+    headers: {
+      Authorization: currentAuthToken || "",
+    },
     onClientUploadComplete: (res) => {
       setImage(res[0]?.ufsUrl || null);
     },
@@ -298,58 +303,74 @@ const ChatApp: React.FC = () => {
     }
   };
 
-  const uploadImage = async (file?: File) => {
-    if (!file) {
-      return {
-        status: "error",
-        error: {
-          message: "ファイルが設定されていません",
-          code: "file_not_selected",
-        },
-      };
-    }
-
-    try {
-      const data = await startUpload([file]);
-
-      if (!data) {
-        return {
+  const uploadImage = (file?: File) => {
+    return new Promise<uploadResponse>((resolve, reject) => {
+      if (!file) {
+        resolve({
           status: "error",
           error: {
-            message: "不明なエラーが発生しました",
-            code: "upload_failed",
+            message: "ファイルが設定されていません",
+            code: "file_not_selected",
           },
-        };
+        });
+        return;
       }
 
-      if (data[0]?.ufsUrl) {
-        return {
-          status: "success",
-          data: {
-            url: data[0].ufsUrl,
-          },
-        };
-      } else {
-        return {
-          status: "error",
-          error: {
-            message: "不明なエラーが発生しました",
-            code: "upload_failed",
-          },
-        };
-      }
-    } catch (error) {
-      logger.error("uploadImage", `Something went wrong, ${error}`);
-      return {
-        status: "error",
-        error: {
-          message: "不明なエラーが発生しました",
-          code: "upload_failed",
-          error: error,
-        },
-      };
-    }
+      auth.currentUser?.getIdToken().then((idToken) => {
+        if (idToken) {
+          setCurrentAuthToken(idToken);
+        }
+
+        setTimeout(async () => {
+          try {
+            const data = await startUpload([
+              new File([file], `${crypto.randomUUID()}.png`, {
+                type: file.type,
+              }),
+            ]);
+
+            if (!data) {
+              resolve({
+                status: "error",
+                error: {
+                  message: "不明なエラーが発生しました",
+                  code: "upload_failed",
+                },
+              });
+              return;
+            }
+
+            if (data[0]?.ufsUrl) {
+              resolve({
+                status: "success",
+                data: {
+                  url: data[0].ufsUrl,
+                },
+              });
+            } else {
+              resolve({
+                status: "error",
+                error: {
+                  message: "不明なエラーが発生しました",
+                  code: "upload_failed",
+                },
+              });
+            }
+          } catch (error) {
+            logger.error("uploadImage", `Something went wrong, ${error}`);
+            resolve({
+              status: "error",
+              error: {
+                message: "不明なエラーが発生しました",
+                code: "upload_failed",
+              },
+            });
+          }
+        }, 1000);
+      });
+    });
   };
+
   const handleImagePaste = async (
     event: React.ClipboardEvent<HTMLDivElement>
   ) => {
@@ -360,28 +381,28 @@ const ChatApp: React.FC = () => {
     if (clipboardData) {
       if (clipboardData.files.length === 0) return;
       const clipboardFile = clipboardData.files[0];
-      const uploadResponse = (await uploadImage(
-        clipboardFile
-      )) as uploadResponse;
-      if (uploadResponse.status === "success") {
-        if (!uploadResponse.data) return;
-        setImage(uploadResponse.data?.url);
-      } else if (uploadResponse.status === "error") {
-        logger.error(
-          "handleImagePaste",
-          "Something went wrong, " + JSON.stringify(uploadResponse.error)
-        );
-        toast.error("画像をアップロードできません", {
-          description:
-            uploadResponse.error?.message || "不明なエラーが発生しました",
-        });
-      }
+      toast.promise<uploadResponse>(uploadImage(clipboardFile), {
+        loading: "画像をアップロード中...",
+        success: (uploadResponse: uploadResponse) => {
+          if (!uploadResponse.data) return;
+          setImage(uploadResponse.data?.url);
+          return "画像をアップロードしました";
+        },
+        error: (uploadResponse: uploadResponse) => {
+          logger.error(
+            "handleImagePaste",
+            "Something went wrong, " + JSON.stringify(uploadResponse.error)
+          );
+          return uploadResponse.error?.message || "不明なエラーが発生しました";
+        },
+      });
     }
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(event.target.value);
   };
+
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -390,20 +411,21 @@ const ChatApp: React.FC = () => {
     const files = event.target?.files;
     if (!files) return;
 
-    const uploadResponse = (await uploadImage(files[0])) as uploadResponse;
-    if (uploadResponse.status === "success") {
-      if (!uploadResponse.data) return;
-      setImage(uploadResponse.data?.url);
-    } else if (uploadResponse.status === "error") {
-      logger.error(
-        "handleImageUpload",
-        "Something went wrong, " + JSON.stringify(uploadResponse.error)
-      );
-      toast.error("画像をアップロードできません", {
-        description:
-          uploadResponse.error?.message || "不明なエラーが発生しました",
-      });
-    }
+    toast.promise<uploadResponse>(uploadImage(files[0]), {
+      loading: "画像をアップロード中...",
+      success: (uploadResponse: uploadResponse) => {
+        if (!uploadResponse.data) return;
+        setImage(uploadResponse.data?.url);
+        return "画像をアップロードしました";
+      },
+      error: (uploadResponse: uploadResponse) => {
+        logger.error(
+          "handleImagePaste",
+          "Something went wrong, " + JSON.stringify(uploadResponse.error)
+        );
+        return uploadResponse.error?.message || "不明なエラーが発生しました";
+      },
+    });
   };
 
   return (
@@ -420,7 +442,7 @@ const ChatApp: React.FC = () => {
       />
       {/* Chat Log */}
       <div
-        className="flex w-full h-full md:w-9/12 lg:w-7/12 rounded overflow-y-auto"
+        className="flex w-full h-full md:w-9/12 lg:w-7/12 rounded overflow-y-auto scrollbar-thin scrollbar-thumb-primary scrollbar-track-secondary scrollbar-thumb-rounded-md scrollbar-track-rounded-md"
         ref={chatLogRef}
       >
         <div className="w-full">

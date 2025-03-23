@@ -3,10 +3,11 @@
 import { Separator } from "@repo/ui/components/separator";
 import {
   Tabs,
+  TabsContent,
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/tabs";
-import Link from "next/link";
+import { Link } from 'next-view-transitions';
 import { usePathname } from "next/navigation";
 
 export default function SettingsLayout({
@@ -15,9 +16,10 @@ export default function SettingsLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const currentTab = pathname === "/settings" 
-    ? "general" 
-    : pathname.split("/").pop() || "general";
+  const currentTab =
+    pathname === "/settings"
+      ? "general"
+      : pathname.split("/").pop() || "general";
 
   return (
     <main className="w-full p-4">
@@ -37,8 +39,8 @@ export default function SettingsLayout({
                 <Link href="/settings/model">モデル</Link>
               </TabsTrigger>
             </TabsList>
+            <TabsContent value={currentTab}> {children}</TabsContent>
           </Tabs>
-          {children}
         </div>
       </div>
     </main>
