@@ -241,7 +241,7 @@ export function ChatSidebar() {
             >
               Deni AI
             </Link>
-            <Badge>v2.0.0</Badge>
+            <Badge>v2.0.1</Badge>
           </div>
         </SidebarGroup>
         <ChatSidebarMenuSession />
