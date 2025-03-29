@@ -24,8 +24,6 @@ export async function POST(req: Request) {
     }: { messages: UIMessage[]; model: string; toolList?: string[] } =
       await req.json();
 
-    
-
     if (!model || messages.length === 0) {
       return Response.json({ error: "Invalid request" });
     }
@@ -34,14 +32,17 @@ export async function POST(req: Request) {
       return Response.json({ error: "Authorization failed" });
     }
 
-    authAdmin?.verifyIdToken(authorization).then((decodedToken) => {
-      if (!decodedToken) {
+    authAdmin
+      ?.verifyIdToken(authorization)
+      .then((decodedToken) => {
+        if (!decodedToken) {
+          return Response.json({ error: "Authorization failed" });
+        }
+      })
+      .catch((error) => {
+        console.error(error);
         return Response.json({ error: "Authorization failed" });
-      }
-    }).catch((error) => {
-      console.error(error);
-      return Response.json({ error: "Authorization failed" });
-    });
+      });
 
     const modelDescription = modelDescriptions[model.replace("-high", "")];
     const isCanary = modelDescription?.canary;
@@ -155,14 +156,11 @@ export async function POST(req: Request) {
 
                 const dom = new JSDOM(results, {
                   url: url,
-                  runScripts: "dangerously",
+                  runScripts: "outside-only",
                   resources: "usable",
                   pretendToBeVisual: true,
                 });
                 const doc = dom.window.document;
-
-                // Wait for any dynamic content to load
-                await new Promise((resolve) => setTimeout(resolve, 1000));
 
                 // Remove script and style tags
                 const scripts = doc.getElementsByTagName("script");

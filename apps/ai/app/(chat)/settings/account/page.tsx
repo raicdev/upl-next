@@ -10,12 +10,29 @@ import { Loading } from "@/components/loading";
 import { updateProfile } from "firebase/auth";
 import { Input } from "@repo/ui/components/input";
 import { Switch } from "@repo/ui/components/switch";
-
+import { useChatSessions } from "@/hooks/use-chat-sessions";
 export default function AccountSettingsPage() {
   const { user, isLoading } = useAuth();
+  const { syncSessions } = useChatSessions();
   const [isLogged, setIsLogged] = useState(false);
   const [name, setName] = useState("");
   const [privacyMode, setPrivacyMode] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleSync = async () => {
+    if (!user) return;
+    setIsSyncing(true);
+    try {
+      await syncSessions();
+      toast.success("会話履歴を同期しました");
+    } catch (error: any) {
+      toast.error("同期に失敗しました", {
+        description: error.message,
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const router = useTransitionRouter();
 
@@ -108,6 +125,23 @@ export default function AccountSettingsPage() {
                   checked={privacyMode}
                   onCheckedChange={togglePrivacyMode}
                 />
+              </div>
+            </div>
+            <Separator className="mx-3 w-[96%]" />
+            <div className="flex p-4 items-center gap-2">
+              <div>
+                <h3 className="text-lg font-bold">会話履歴の同期</h3>
+                <p className="text-sm text-muted-foreground">
+                  会話履歴をクラウドと同期します。
+                </p>
+              </div>
+              <div className="ml-auto">
+                <Button
+                  onClick={handleSync}
+                  disabled={isSyncing}
+                >
+                  {isSyncing ? "同期中..." : "同期する"}
+                </Button>
               </div>
             </div>
           </div>

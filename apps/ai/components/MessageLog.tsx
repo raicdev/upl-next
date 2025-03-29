@@ -172,12 +172,12 @@ export const MessageLog: FC<MessageLogProps> = memo(
       const titleAnnotation = annotations?.find((a) => (a as any).title);
       if (titleAnnotation) {
         const session = getSession(sessionId);
-        if (session) {
-          session.title = (titleAnnotation as any).title;
-          updateSession(sessionId, session);
+        if (session && session.title !== (titleAnnotation as any).title) {
+          const updatedSession = { ...session, title: (titleAnnotation as any).title };
+          updateSession(sessionId, updatedSession);
         }
       }
-    }, [message.annotations, sessionId, getSession, updateSession]);
+    }, [message.annotations, sessionId]);
 
     return (
       <TooltipProvider>

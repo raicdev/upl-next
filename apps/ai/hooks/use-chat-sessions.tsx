@@ -3,6 +3,20 @@
 import { UIMessage } from "ai";
 import { useTransitionRouter } from "next-view-transitions";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { collection, doc, getDocs, setDoc, deleteDoc, Firestore } from "firebase/firestore";
+import { firestore } from "@repo/firebase/config";
+import { useAuth } from "@/context/AuthContext";
+
+interface ChatSessionsContextValue {
+  sessions: ChatSession[];
+  createSession: () => ChatSession;
+  addSession: (session: ChatSession) => void;
+  updateSession: (id: string, updatedSession: ChatSession) => void;
+  deleteSession: (id: string) => void;
+  selectSession: (id: string) => void;
+  getSession: (id: string) => ChatSession | undefined;
+  syncSessions: () => Promise<void>;
+}
 
 export interface ChatSession {
   id: string;
@@ -86,6 +100,57 @@ export function ChatSessionsProvider({ children }: { children: ReactNode }) {
     setSessions((prev) => prev.map((session) => (session.id === id ? updatedSession : session)));
   };
 
+  const { user } = useAuth();
+
+  const syncSessions = async () => {
+    if (!user) return;
+
+    try {
+      // Firestoreからセッションを取得
+      const sessionsRef = collection(firestore, `deni-ai-conversations/${user.uid}/sessions`);
+      const snapshot = await getDocs(sessionsRef);
+      const firestoreSessions = snapshot.docs.map(doc => ({
+        ...doc.data(),
+        id: doc.id,
+        createdAt: new Date(doc.data().createdAt),
+      })) as ChatSession[];
+
+      // マージ処理: FirestoreとローカルのセッションをIDで比較
+      const mergedSessions = [...sessions];
+      
+      // Firestoreのセッションを追加または更新
+      firestoreSessions.forEach(firestoreSession => {
+        const localIndex = mergedSessions.findIndex(s => s.id === firestoreSession.id);
+        if (localIndex === -1) {
+          // ローカルに存在しないセッションを追加
+          mergedSessions.push(firestoreSession);
+        } else {
+          // タイムスタンプを比較して新しい方を採用
+          const localSession = mergedSessions[localIndex];
+          if (localSession && firestoreSession.createdAt > localSession.createdAt) {
+            mergedSessions[localIndex] = firestoreSession;
+          }
+        }
+      });
+
+      // マージされたセッションをFirestoreに保存
+      const savePromises = mergedSessions.map(async (session) => {
+        const sessionRef = doc(firestore, `deni-ai-conversations/${user.uid}/sessions/${session.id}`);
+        await setDoc(sessionRef, {
+          ...session,
+          createdAt: session.createdAt,
+        });
+      });
+
+      await Promise.all(savePromises);
+
+      // マージされたセッションをローカルに保存
+      setSessions(mergedSessions);
+    } catch (error) {
+      console.error("Failed to sync sessions:", error);
+    }
+  };
+
   const value: ChatSessionsContextValue = {
     sessions,
     createSession,
@@ -94,6 +159,7 @@ export function ChatSessionsProvider({ children }: { children: ReactNode }) {
     deleteSession,
     selectSession,
     updateSession,
+    syncSessions,
   };
 
   return <ChatSessionsContext.Provider value={value}>{children}</ChatSessionsContext.Provider>;

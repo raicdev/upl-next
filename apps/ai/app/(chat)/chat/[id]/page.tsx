@@ -145,13 +145,18 @@ const ChatApp: React.FC = () => {
     if (initialMessage && !messages.length) {
       // メッセージが空の場合のみ初期メッセージを送信
       setInput(initialMessage);
-      // 非同期でhandleSubmitを実行
-      Promise.resolve().then(() => {
-        const event = new Event("submit");
-        handleSubmit(event as Event);
-      });
+      // 一度だけ実行されるフラグを使用
+      const hasSubmitted = sessionStorage.getItem(`submitted_${params.id}`);
+      if (!hasSubmitted) {
+        sessionStorage.setItem(`submitted_${params.id}`, 'true');
+        // 非同期でhandleSubmitを実行
+        Promise.resolve().then(() => {
+          const event = new Event("submit");
+          handleSubmit(event as Event);
+        });
+      }
     }
-  }, [isLogged, currentSession, messages.length, setInput, handleSubmit]); // handleSubmitを依存配列から削除
+  }, [isLogged, currentSession, messages.length, setInput, params.id]); // handleSubmitを依存配列から削除
 
   useEffect(() => {
     if (
@@ -183,20 +188,23 @@ const ChatApp: React.FC = () => {
     if (status === "streaming" || status === "submitted") return;
     if (messages.length === 0) return;
 
-    // 前回のメッセージと比較して変更があった場合のみ更新
-    const prevMessages = currentSession.messages;
-    const hasChanges =
-      JSON.stringify(prevMessages) !== JSON.stringify(messages);
+    // メッセージの更新を遅延させる
+    const timeoutId = setTimeout(() => {
+      // 前回のメッセージと比較して変更があった場合のみ更新
+      const prevMessages = currentSession.messages;
+      const hasChanges =
+        JSON.stringify(prevMessages) !== JSON.stringify(messages);
 
-    if (hasChanges) {
-      const processedMessages = processMessage([...messages]);
-      updateSession(params.id, {
-        ...currentSession,
-        messages: processedMessages,
-      });
-    }
+      if (hasChanges) {
+        const processedMessages = processMessage([...messages]);
+        updateSession(params.id, {
+          ...currentSession,
+          messages: processedMessages,
+        });
+      }
+    }, 500); // 500ms遅延
 
-    // 画像メッセージの検出は別のuseEffectで処理
+    return () => clearTimeout(timeoutId);
   }, [currentSession, messages, params.id, status, updateSession]);
 
   // 画像メッセージの検出を分離
